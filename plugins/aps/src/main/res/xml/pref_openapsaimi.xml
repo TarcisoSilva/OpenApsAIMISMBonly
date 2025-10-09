@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:validate="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        android:key="@string/key_openapsaimi_settings"
+        android:title="@string/openapsaimi"
+        app:initialExpandedChildrenCount="0">
+
+
+
+        <app.aaps.core.validators.ValidatingEditTextPreference
+            android:defaultValue="5"
+            android:dialogMessage="@string/openapssmb_max_iob_summary"
+            android:inputType="numberDecimal"
+            android:key="@string/key_openapssmb_max_iob"
+            android:title="@string/openapssmb_max_iob_title"
+            validate:floatmaxNumber="15.0"
+            validate:floatminNumber="1"
+            validate:testType="floatNumericRange" />
+
+        <app.aaps.core.validators.ValidatingEditTextPreference
+            android:defaultValue="2"
+            android:dialogMessage="@string/openapsaimi_maxsmb_summary"
+            android:inputType="numberDecimal"
+            android:key="@string/key_openapsaimi_max_smb"
+            android:title="@string/openapsaimi_maxsmb_title"
+            validate:floatmaxNumber="15.0"
+            validate:floatminNumber="0.05"
+            validate:testType="floatNumericRange" />
+
+
+        <app.aaps.core.validators.ValidatingEditTextPreference
+            android:defaultValue="120"
+            android:enabled="true"
+            android:dialogMessage="@string/DynISFAdjust_summary"
+            android:inputType="numberDecimal"
+            android:key="@string/key_DynISFAdjust"
+            android:title="@string/DynISFAdjust_title"
+            validate:floatmaxNumber="500"
+            validate:floatminNumber="1"
+            validate:testType="floatNumericRange" />
+
+        <androidx.preference.PreferenceScreen
+            android:key="hourly_adj_settings"
+            android:title="Hourly Adjusts Preferences">
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_00"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_00"
+                android:title="@string/oaps_aimi_adj_hourly_title_00"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_01"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_01"
+                android:title="@string/oaps_aimi_adj_hourly_title_01"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_02"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_02"
+                android:title="@string/oaps_aimi_adj_hourly_title_02"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_03"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_03"
+                android:title="@string/oaps_aimi_adj_hourly_title_03"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_04"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_04"
+                android:title="@string/oaps_aimi_adj_hourly_title_04"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_05"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_05"
+                android:title="@string/oaps_aimi_adj_hourly_title_05"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_06"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_06"
+                android:title="@string/oaps_aimi_adj_hourly_title_06"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_07"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_07"
+                android:title="@string/oaps_aimi_adj_hourly_title_07"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_08"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_08"
+                android:title="@string/oaps_aimi_adj_hourly_title_08"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_09"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_09"
+                android:title="@string/oaps_aimi_adj_hourly_title_09"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_10"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_10"
+                android:title="@string/oaps_aimi_adj_hourly_title_10"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_11"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_11"
+                android:title="@string/oaps_aimi_adj_hourly_title_11"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_12"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_12"
+                android:title="@string/oaps_aimi_adj_hourly_title_12"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_13"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_13"
+                android:title="@string/oaps_aimi_adj_hourly_title_13"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_14"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_14"
+                android:title="@string/oaps_aimi_adj_hourly_title_14"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_15"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_15"
+                android:title="@string/oaps_aimi_adj_hourly_title_15"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_16"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_16"
+                android:title="@string/oaps_aimi_adj_hourly_title_16"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_17"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_17"
+                android:title="@string/oaps_aimi_adj_hourly_title_17"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_18"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_18"
+                android:title="@string/oaps_aimi_adj_hourly_title_18"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_19"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_19"
+                android:title="@string/oaps_aimi_adj_hourly_title_19"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_20"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_20"
+                android:title="@string/oaps_aimi_adj_hourly_title_20"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_21"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_21"
+                android:title="@string/oaps_aimi_adj_hourly_title_21"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_22"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_22"
+                android:title="@string/oaps_aimi_adj_hourly_title_22"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_adj_hourly_summary_23"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hourly_percentage_23"
+                android:title="@string/oaps_aimi_adj_hourly_title_23"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+
+        </androidx.preference.PreferenceScreen>
+
+        <app.aaps.core.validators.ValidatingEditTextPreference
+            android:defaultValue="2"
+            android:dialogMessage="@string/openapsaimi_power_hipo_summary"
+            android:inputType="numberDecimal"
+            android:key="@string/key_openapsaimi_power_hipo"
+            android:title="@string/openapsaimi_power_hipo_title"
+            validate:floatmaxNumber="10.0"
+            validate:floatminNumber="0.0"
+            validate:testType="floatNumericRange" />
+
+        <app.aaps.core.validators.ValidatingEditTextPreference
+            android:defaultValue="6"
+            android:dialogMessage="@string/openapsaimi_power_std_summary"
+            android:inputType="numberDecimal"
+            android:key="@string/key_openapsaimi_power_std"
+            android:title="@string/openapsaimi_power_std_title"
+            validate:floatmaxNumber="15.0"
+            validate:floatminNumber="0.0"
+            validate:testType="floatNumericRange" />
+
+
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/night_protection"
+            android:title="Enable Night Protection"
+            android:summary="This option will reduce the app´s behavior durant the night." />
+
+
+
+
+
+
+
+        <androidx.preference.PreferenceScreen
+            android:key="high_BG_settings"
+            android:title="High BG Preferences">
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="150"
+                android:enabled="true"
+                android:dialogMessage="@string/DynISFAdjusthyper_summary"
+                android:inputType="numberDecimal"
+                android:key="@string/key_DynISFAdjusthyper"
+                android:title="@string/DynISFAdjusthyper_title"
+                validate:floatmaxNumber="500"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+            <app.aaps.core.validators.ValidatingEditTextPreference
+                android:defaultValue="50"
+                android:enabled="true"
+                android:dialogMessage="@string/oaps_aimi_hyper_factor_summary"
+                android:inputType="numberDecimal"
+                android:key="@string/key_oaps_aimi_hyper_factor"
+                android:title="@string/oaps_aimi_hyper_factor_title"
+                validate:floatmaxNumber="300"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+        </androidx.preference.PreferenceScreen>
+
+
+
+
+
+
+
+        <app.aaps.core.validators.ValidatingEditTextPreference
+            android:defaultValue="50"
+            android:enabled="true"
+            android:dialogMessage="@string/oaps_aimi_morning_factor_summary"
+            android:inputType="numberDecimal"
+            android:key="@string/key_oaps_aimi_morning_factor"
+            android:title="@string/oaps_aimi_morning_factor_title"
+            validate:floatmaxNumber="300"
+            validate:floatminNumber="1"
+            validate:testType="floatNumericRange" />
+
+        <app.aaps.core.validators.ValidatingEditTextPreference
+            android:defaultValue="50"
+            android:enabled="true"
+            android:dialogMessage="@string/oaps_aimi_afternoon_factor_summary"
+            android:inputType="numberDecimal"
+            android:key="@string/key_oaps_aimi_afternoon_factor"
+            android:title="@string/oaps_aimi_afternoon_factor_title"
+            validate:floatmaxNumber="300"
+            validate:floatminNumber="1"
+            validate:testType="floatNumericRange" />
+
+        <app.aaps.core.validators.ValidatingEditTextPreference
+            android:defaultValue="50"
+            android:enabled="true"
+            android:dialogMessage="@string/oaps_aimi_evening_factor_summary"
+            android:inputType="numberDecimal"
+            android:key="@string/key_oaps_aimi_evening_factor"
+            android:title="@string/oaps_aimi_evening_factor_title"
+            validate:floatmaxNumber="300"
+            validate:floatminNumber="1"
+            validate:testType="floatNumericRange" />
+
+
+
+
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/count_steps_watch"
+            android:title="Enable Counting from the watch"
+            android:summary="This option will use the hardware from the watch instead of the phone." />
+
+
+
+
+
+
+
+
+        <app.aaps.core.validators.ValidatingEditTextPreference
+            android:defaultValue="50"
+            android:dialogMessage="Weight in kg to calculate the basal"
+            android:inputType="numberDecimal"
+            android:key="@string/key_aimiweight"
+            android:title="Weight in kg"
+            validate:floatmaxNumber="150"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <app.aaps.core.validators.ValidatingEditTextPreference
+            android:defaultValue="50"
+            android:dialogMessage="TDD average 7 days"
+            android:inputType="numberDecimal"
+            android:key="@string/key_tdd7"
+            android:title="TDD 7 days"
+            validate:floatmaxNumber="150"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <app.aaps.core.validators.ValidatingEditTextPreference
+            android:defaultValue="50"
+            android:dialogMessage="Average carbs for a meal. it's an estimation not a precise value"
+            android:inputType="numberDecimal"
+            android:key="@string/key_cho"
+            android:title="CHO / Meal"
+            validate:floatmaxNumber="150"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+
+
+    </PreferenceCategory>
+</androidx.preference.PreferenceScreen>

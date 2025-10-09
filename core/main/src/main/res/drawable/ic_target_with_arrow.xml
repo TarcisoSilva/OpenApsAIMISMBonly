@@ -1,0 +1,47 @@
+<!-- res/drawable/ic_target_bonus.xml -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="128dp"
+    android:height="128dp"
+    android:viewportWidth="128"
+    android:viewportHeight="128">
+
+    <!-- Alvo: círculos concêntricos -->
+    <path android:fillColor="#ef4444"
+        android:pathData="M64,64 m-60,0 a60,60 0 1,0 120,0 a60,60 0 1,0 -120,0"/>
+    <path android:fillColor="#ffffff"
+        android:pathData="M64,64 m-48,0 a48,48 0 1,0 96,0 a48,48 0 1,0 -96,0"/>
+    <path android:fillColor="#ef4444"
+        android:pathData="M64,64 m-36,0 a36,36 0 1,0 72,0 a36,36 0 1,0 -72,0"/>
+    <path android:fillColor="#ffffff"
+        android:pathData="M64,64 m-24,0 a24,24 0 1,0 48,0 a24,24 0 1,0 -48,0"/>
+    <path android:fillColor="#ef4444"
+        android:pathData="M64,64 m-12,0 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0"/>
+
+    <!-- Sombra do dardo -->
+    <path
+        android:fillColor="#9ca3af"
+        android:fillAlpha="0.4"
+        android:pathData="M38,38 L72,70 L64,76 L30,44 Z"/>
+
+    <!-- Dardo (azul) -->
+    <!-- Haste -->
+    <path
+        android:strokeColor="#2563eb"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M36,36 L64,64"/>
+
+    <!-- Ponta -->
+    <path
+        android:fillColor="#1d4ed8"
+        android:pathData="M64,64 L56,60 L60,56 Z"/>
+
+    <!-- Rabo/emplumação -->
+    <path
+        android:fillColor="#2563eb"
+        android:pathData="M36,36 L28,44 L34,34 Z"/>
+    <path
+        android:fillColor="#1d4ed8"
+        android:pathData="M36,36 L44,28 L34,34 Z"/>
+</vector>

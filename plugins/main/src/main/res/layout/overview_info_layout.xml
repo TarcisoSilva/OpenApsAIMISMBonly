@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/info_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="4dp">
+
+    <!-- Guidelines para distribuição proporcional de 6 colunas -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.185" /> <!-- 1/6 -->
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.325" /> <!-- 2/6 -->
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.487" /> <!-- 3/6 -->
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.650" /> <!-- 4/6 -->
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.813" /> <!-- 5/6 -->
+
+    <!-- Coluna 1: BG -->
+    <LinearLayout
+        android:id="@+id/bg_column"
+        android:layout_width="0dp"
+        android:layout_height="82dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/guideline1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/bg"
+            android:layout_width="80dp"
+            android:layout_marginTop="-10dp"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:textSize="43sp"
+            android:textStyle="normal"
+            android:fontFamily="@font/inter_font"
+            android:textColor="@color/secondaryText"
+            tools:text="00.0" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/arrow"
+                android:layout_width="25dp"
+                android:layout_height="20dp"
+                android:contentDescription="@string/trend_arrow" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Δ: "
+                    android:textSize="14sp"
+                    android:fontFamily="@font/inter_font"
+                    android:textColor="@color/secondaryText"/>
+
+                <TextView
+                    android:id="@+id/delta"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/inter_font"
+                    android:textColor="@color/secondaryText"
+                    tools:text="n/a" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Coluna 2: APS + Tempo -->
+    <LinearLayout
+        android:id="@+id/aps_time_column"
+        android:layout_width="0dp"
+        android:layout_height="82dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="@id/guideline1"
+        app:layout_constraintEnd_toStartOf="@id/guideline2"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/aps_mode"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/aps_mode_title"
+            app:srcCompat="@drawable/ic_loop_closed" />
+
+        <TextView
+            android:id="@+id/time_ago"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:fontFamily="@font/inter_font"
+            android:textColor="@color/secondaryText"
+            tools:text="n/a" />
+    </LinearLayout>
+
+    <!-- Coluna 3: IOB -->
+    <LinearLayout
+        android:id="@+id/iob_layout"
+        android:layout_width="0dp"
+        android:layout_height="82dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="@id/guideline2"
+        app:layout_constraintEnd_toStartOf="@id/guideline3"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/iob"
+            app:srcCompat="@drawable/ic_bolus" />
+
+        <TextView
+            android:id="@+id/iob"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:fontFamily="@font/inter_font"
+            android:textColor="@color/secondaryText"
+            tools:text="n/a" />
+    </LinearLayout>
+
+    <!-- Coluna 4: Basal -->
+    <LinearLayout
+        android:id="@+id/basal_layout"
+        android:layout_width="0dp"
+        android:layout_height="82dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="@id/guideline3"
+        app:layout_constraintEnd_toStartOf="@id/guideline4"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/base_basal_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/basal"
+            app:srcCompat="@drawable/ic_cp_basal_no_tbr" />
+
+        <TextView
+            android:id="@+id/base_basal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:fontFamily="@font/inter_font"
+            android:textColor="@color/secondaryText"
+            tools:text="n/a" />
+    </LinearLayout>
+
+    <!-- Coluna 5: Temp Target -->
+    <LinearLayout
+        android:id="@+id/tt_layout"
+        android:layout_width="0dp"
+        android:layout_height="82dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="@id/guideline4"
+        app:layout_constraintEnd_toStartOf="@id/guideline5"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/temp_target_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/temporary_target" />
+
+        <TextView
+            android:id="@+id/temp_target"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:fontFamily="@font/inter_font"
+            android:textColor="@color/secondaryText"
+            android:text="@string/value_unavailable_short" />
+    </LinearLayout>
+
+    <!-- Coluna 6: Reservoir -->
+    <LinearLayout
+        android:id="@+id/reservoir_layout"
+        android:layout_width="0dp"
+        android:layout_height="82dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="@id/guideline5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/reservoir_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+
+            app:srcCompat="@drawable/ic_reservoir" />
+
+        <TextView
+            android:id="@+id/reservoirLevel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:fontFamily="@font/inter_font"
+            android:textColor="@color/secondaryText"
+            tools:text="50+U" />
+    </LinearLayout>
+
+    <!-- Indicador de Qualidade BG (sobreposto) -->
+
+    <LinearLayout
+        android:id="@+id/extended_layout"
+        android:layout_width="50dp"
+        android:layout_height="82dp"
+        android:layout_marginStart="5dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tt_layout"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="UseCompoundDrawables">
+
+        <ImageView
+            android:layout_width="42dp"
+            android:layout_height="35dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:contentDescription="@string/extended_bolus"
+            app:srcCompat="@drawable/ic_actions_start_extended_bolus" />
+
+        <TextView
+            android:id="@+id/extended_bolus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:gravity="center_horizontal"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            tools:ignore="HardcodedText"
+            tools:text="n/a" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/time_layout"
+        android:layout_width="50dp"
+        android:layout_height="82dp"
+        android:layout_marginTop="5dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText"
+            tools:text="8:00 PM" />
+
+        <TextView
+            android:id="@+id/time_ago_short"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="-10dp"
+            android:gravity="center_vertical"
+            android:textSize="19sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText"
+            tools:text="(-5)" />
+
+        <TextView
+            android:id="@+id/aps_mode_text"
+            android:layout_width="50dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="4dp"
+            android:gravity="center_horizontal"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
+            android:text="Open Loop"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:ignore="HardcodedText" />
+
+        <ImageView
+            android:id="@+id/bg_quality"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/a11y_bg_quality"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="HardcodedText" />
+
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -23,6 +23,8 @@ import app.aaps.plugins.main.general.overview.notifications.NotificationWithActi
 import app.aaps.ui.activities.BolusProgressHelperActivity
 import app.aaps.ui.activities.ErrorHelperActivity
 import app.aaps.ui.activities.QuickWizardListActivity
+import app.aaps.ui.activities.StatsActivity
+import app.aaps.ui.activities.TreatmentsActivity
 import app.aaps.ui.activities.TDDStatsActivity
 import app.aaps.ui.dialogs.BolusProgressDialog
 import app.aaps.ui.dialogs.CalibrationDialog
@@ -52,6 +54,11 @@ class UiInteractionImpl @Inject constructor(
 ) : UiInteraction {
 
     override val mainActivity: Class<*> = MainActivity::class.java
+    // Tarciso
+    override val statsActivity: Class<*> = StatsActivity::class.java
+    override val treatmentsActivity: Class<*> = TreatmentsActivity::class.java
+
+
     override val tddStatsActivity: Class<*> = TDDStatsActivity::class.java
     override val historyBrowseActivity: Class<*> = HistoryBrowseActivity::class.java
     override val errorHelperActivity: Class<*> = ErrorHelperActivity::class.java

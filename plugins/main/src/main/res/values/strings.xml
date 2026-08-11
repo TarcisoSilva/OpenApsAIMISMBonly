@@ -138,6 +138,11 @@
     <string name="dark_theme">Dark theme</string>
     <string name="light_theme">Light theme</string>
     <string name="follow_system_theme">Use device theme</string>
+    
+    <!-- Menu Enable -->
+    <string name="key_menu_enable" translatable="false">menu_enable</string>
+    <string name="menu_enable">Menu Enable</string>
+    <string name="menu_enable_summary">Show or hide top menus (toolbar and navigation drawer)</string>
     <string name="value_dark_theme" translatable="false">dark</string>
     <string name="value_light_theme" translatable="false">light</string>
     <string name="value_system_theme" translatable="false">system</string>
@@ -335,6 +340,7 @@
     <string name="description_persistent_notification">Shows an ongoing notification with a short overview of what your loop is doing</string>
     <string name="old_data">OLD DATA</string>
     <string name="overview_show_steps">steps</string>
+    <string name="configbuilder">Configuration</string>
     <string name="steps_shortname">STEPS</string>
 
 </resources>

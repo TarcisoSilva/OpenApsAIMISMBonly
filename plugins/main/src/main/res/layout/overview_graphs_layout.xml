@@ -3,37 +3,151 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/graphs_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="350dp"
     android:orientation="vertical">
 
+    <!-- BG Graph (without dropdown menu) -->
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
         <com.jjoe64.graphview.GraphView
             android:id="@+id/bg_graph"
             android:layout_width="wrap_content"
-            android:layout_height="200dp"
+            android:layout_height="250dp"
             android:contentDescription="@string/a11y_graph" />
 
+        <!-- Hidden chart_menu_button for compatibility -->
         <ImageButton
             android:id="@+id/chart_menu_button"
-            android:layout_width="30dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="3dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:contentDescription="@string/chart_menu"
-            android:paddingTop="5dp"
             app:srcCompat="@drawable/ic_arrow_drop_down_white_24dp" />
+
+        <!-- Dropdown menu removed as per requirement #11 -->
 
     </RelativeLayout>
 
+    <!-- IOB Graph - modificado para ter menos espaço -->
     <LinearLayout
         android:id="@+id/iob_graph"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:orientation="vertical" />
+
+    <!-- Graph Control Buttons - modificado para ficar mais próximo do IOB -->
+    <LinearLayout
+        android:id="@+id/graph_buttons_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"> <!-- Reduzido de 4dp para 2dp -->
+
+        <!-- Stats Button - agora do mesmo tamanho que o Graph -->
+        <Button
+            android:id="@+id/stats_button"
+            android:layout_width="wrap_content"
+            android:layout_height="28dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/time_button_selector"
+            android:gravity="center"
+            android:paddingStart="12dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="4dp"
+            android:text="Stats"
+            android:textAllCaps="false"
+            android:textSize="12sp" />
+
+        <!-- 6h Button - texto centralizado -->
+        <Button
+            android:id="@+id/graph_6h_button"
+            android:layout_width="40dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/time_button_selector"
+            android:gravity="center"
+            android:paddingStart="4dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="4dp"
+            android:paddingBottom="4dp"
+            android:text="6h"
+            android:textAllCaps="false"
+            android:textSize="12sp" />
+
+        <!-- 12h Button - texto centralizado -->
+        <Button
+            android:id="@+id/graph_12h_button"
+            android:layout_width="40dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/time_button_selector"
+            android:gravity="center"
+            android:paddingStart="4dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="4dp"
+            android:paddingBottom="4dp"
+            android:text="12h"
+            android:textAllCaps="false"
+            android:textSize="12sp" />
+
+        <!-- 18h Button - texto centralizado -->
+        <Button
+            android:id="@+id/graph_18h_button"
+            android:layout_width="40dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/time_button_selector"
+            android:gravity="center"
+            android:paddingStart="4dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="4dp"
+            android:paddingBottom="4dp"
+            android:text="18h"
+            android:textAllCaps="false"
+            android:textSize="12sp" />
+
+        <!-- 24h Button - texto centralizado -->
+        <Button
+            android:id="@+id/graph_24h_button"
+            android:layout_width="40dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/time_button_selector"
+            android:gravity="center"
+            android:paddingStart="4dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="4dp"
+            android:paddingBottom="4dp"
+            android:text="24h"
+            android:textAllCaps="false"
+            android:textSize="12sp" />
+
+        <!-- Graph Menu Button -->
+        <Button
+            android:id="@+id/graph_treatment_button"
+            android:layout_width="wrap_content"
+            android:layout_height="28dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/time_button_selector"
+            android:gravity="center"
+            android:paddingStart="12dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="4dp"
+            android:text="Treatments"
+            android:textAllCaps="false"
+            android:textSize="12sp" />
+
+    </LinearLayout>
 
 </LinearLayout>

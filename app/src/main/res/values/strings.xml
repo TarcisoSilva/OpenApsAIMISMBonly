@@ -60,6 +60,14 @@
     <string name="invalid">INVALID</string>
     <string name="gradually_increase_notification_volume">Gradually increase the volume for alerts and notifications</string>
     <string name="localalertsettings_title">Local alerts</string>
+    <!-- Tarciso_NEW_ALARM_ADD -->
+    <string name="enable_low_glucose_alert">Alert if low glucose</string>
+    <string name="enable_stable_good_glucose_alert">Alert if calibration is needed </string>
+    <string name="bg_threshold_alert">BG Threshold</string>
+    <string name="delta_threshold_alert">Delta Threshold</string>
+    <string name="iob_threshold_alert">IOB Threshold</string>
+    <string name="enable_cannula_failure_alert">Alert if cannula may be failing</string>
+
     <string name="enable_missed_bg_readings_alert">Alert if no BG data is received</string>
     <string name="enable_pump_unreachable_alert">Alert if pump is unreachable</string>
     <string name="pump_unreachable_threshold">Pump unreachable threshold [min]</string>

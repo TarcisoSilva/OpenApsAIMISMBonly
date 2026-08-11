@@ -3,15 +3,17 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.util.Log
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.roundToLong
 
 object StepService : SensorEventListener {
 
     private const val TAG = "StepService"
+    @Volatile
     private var previousStepCount = -1
-    private val stepsMap = LinkedHashMap<Long, Int>()
+    private val stepsMap = ConcurrentHashMap<Long, Int>()
     private const val fiveMinutesInMs = 300000
-    private const val numOf5MinBlocksToKeep = 20
+    private const val numOf5MinBlocksToKeep = 36
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
         Log.i(TAG, "onAccuracyChanged: Sensor: $sensor; accuracy: $accuracy")
@@ -37,7 +39,7 @@ object StepService : SensorEventListener {
 
         if(stepsMap.size > numOf5MinBlocksToKeep) {
             val removeBefore = now - numOf5MinBlocksToKeep
-            stepsMap.entries.removeIf { it.key < removeBefore}
+            stepsMap.keys.removeAll { it < removeBefore }
         }
     }
 

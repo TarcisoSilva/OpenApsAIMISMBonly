@@ -20,24 +20,23 @@ import java.util.Map;
  * Created by fishermen21 on 20.05.17.
  */
 
-public class Menu implements Parcelable{
+public class Menu implements Parcelable {
     private final MenuType type;
-    private final Map<MenuAttribute,Object> attributes = new HashMap<>();
+    private final Map<MenuAttribute, Object> attributes = new HashMap<>();
 
-    public Menu(MenuType type)
-    {
+    public Menu(MenuType type) {
         this.type = type;
     }
 
     public Menu(Parcel in) {
         this.type = MenuType.valueOf(in.readString());
-        while(in.dataAvail()>0) {
+        while (in.dataAvail() > 0) {
             try {
                 String attr = in.readString();
                 String clas = in.readString();
                 String value = in.readString();
 
-                if(attr!=null && clas!=null && value!=null) {
+                if (attr != null && clas != null && value != null) {
                     MenuAttribute a = MenuAttribute.valueOf(attr);
                     Object o = null;
                     if (Integer.class.toString().equals(clas)) {
@@ -64,21 +63,18 @@ public class Menu implements Parcelable{
                         Log.e("MenuIn", "failed to parse: " + attr + " / " + clas + " / " + value);
                     }
                 }
-            }catch(Exception e)
-            {
-                Log.e("MenuIn","Exception in read",e);
+            } catch (Exception e) {
+                Log.e("MenuIn", "Exception in read", e);
             }
 
         }
     }
 
-    public List<MenuAttribute> attributes()
-    {
+    public List<MenuAttribute> attributes() {
         return new LinkedList<>(attributes.keySet());
     }
 
-    public Object getAttribute(MenuAttribute key)
-    {
+    public Object getAttribute(MenuAttribute key) {
         return attributes.get(key);
     }
 
@@ -94,10 +90,8 @@ public class Menu implements Parcelable{
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(type.toString());
-        for(MenuAttribute a : attributes.keySet())
-        {
-            try
-            {
+        for (MenuAttribute a : attributes.keySet()) {
+            try {
 
                 String atr = a.toString();
                 Object o = attributes.get(a);
@@ -106,24 +100,24 @@ public class Menu implements Parcelable{
                 dest.writeString(atr);
                 dest.writeString(clas);
                 dest.writeString(v);
-            }catch(Exception e)
-            {
-                Log.v("MenuOut","error in write",e);
+            } catch (Exception e) {
+                Log.v("MenuOut", "error in write", e);
             }
         }
     }
-    public static final Parcelable.Creator<Menu> CREATOR = new
-            Parcelable.Creator<>() {
-                public Menu createFromParcel(Parcel in) {
-                    return new Menu(in);
-                }
 
-                public Menu[] newArray(int size) {
-                    return new Menu[size];
-                }
-            };
+    public static final Parcelable.Creator<Menu> CREATOR = new Parcelable.Creator<Menu>() {
+        public Menu createFromParcel(Parcel in) {
+            return new Menu(in);
+        }
 
-    @NonNull @Override
+        public Menu[] newArray(int size) {
+            return new Menu[size];
+        }
+    };
+
+    @NonNull
+    @Override
     public String toString() {
         return "Menu{" +
                 "type=" + type +

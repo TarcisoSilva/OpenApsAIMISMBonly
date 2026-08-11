@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    
+    <!-- Fundo mais opaco para botão selecionado -->
+    <solid android:color="#70B0B0B0" />
+    
+    <!-- Borda arredondada em formato de pílula -->
+    <corners android:radius="20dp" />
+    
+    <!-- Borda mais visível para destacar seleção -->
+    <stroke
+        android:width="2dp"
+        android:color="#808080" />
+        
+</shape>

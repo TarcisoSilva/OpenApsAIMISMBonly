@@ -60,19 +60,19 @@ class PreparePredictionsWorker(
             it[Calendar.MILLISECOND] = 0
             it[Calendar.SECOND] = 0
             it[Calendar.MINUTE] = 0
-            it.add(Calendar.HOUR, 1)
+            it.add(Calendar.HOUR, 2)
         }
         if (predictionsAvailable && apsResult != null && menuChartSettings[0][OverviewMenus.CharType.PRE.ordinal]) {
             var predictionHours = (ceil(apsResult.latestPredictionsTime - System.currentTimeMillis().toDouble()) / (60 * 60 * 1000)).toInt()
             predictionHours = min(2, predictionHours)
             predictionHours = max(0, predictionHours)
-            val hoursToFetch = data.overviewData.rangeToDisplay - predictionHours
-            data.overviewData.toTime = calendar.timeInMillis + 100000 // little bit more to avoid wrong rounding - GraphView specific
+            val hoursToFetch = max(24, data.overviewData.rangeToDisplay) - predictionHours
+            data.overviewData.toTime = calendar.timeInMillis // + 100000 removed
             data.overviewData.fromTime = data.overviewData.toTime - T.hours(hoursToFetch.toLong()).msecs()
             data.overviewData.endTime = data.overviewData.toTime + T.hours(predictionHours.toLong()).msecs()
         } else {
-            data.overviewData.toTime = calendar.timeInMillis + 100000 // little bit more to avoid wrong rounding - GraphView specific
-            data.overviewData.fromTime = data.overviewData.toTime - T.hours(data.overviewData.rangeToDisplay.toLong()).msecs()
+            data.overviewData.toTime = calendar.timeInMillis // + 100000 removed
+            data.overviewData.fromTime = data.overviewData.toTime - T.hours(max(24, data.overviewData.rangeToDisplay).toLong()).msecs()
             data.overviewData.endTime = data.overviewData.toTime
         }
 

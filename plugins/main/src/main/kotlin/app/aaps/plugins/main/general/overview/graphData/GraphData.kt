@@ -23,6 +23,7 @@ import dagger.android.HasAndroidInjector
 import javax.inject.Inject
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.roundToInt
 
 class GraphData(
     injector: HasAndroidInjector,
@@ -76,8 +77,8 @@ class GraphData(
 
     fun addInRangeArea(fromTime: Long, toTime: Long, lowLine: Double, highLine: Double) {
         val inRangeAreaDataPoints = arrayOf(
-            app.aaps.core.main.graph.data.DoubleDataPoint(fromTime.toDouble(), lowLine, highLine),
-            app.aaps.core.main.graph.data.DoubleDataPoint(toTime.toDouble(), lowLine, highLine)
+            app.aaps.core.main.graph.data.DoubleDataPoint((fromTime).toDouble(), lowLine, highLine),
+            app.aaps.core.main.graph.data.DoubleDataPoint((toTime+ (6 * 60 * 60 * 1000L)).toDouble(), lowLine, highLine)
         )
         addSeries(app.aaps.core.main.graph.data.AreaGraphSeries(inRangeAreaDataPoints).also {
             it.color = 0
@@ -100,8 +101,61 @@ class GraphData(
     }
 
     fun addTargetLine() {
+        // Adicionar a série de target temporário
         addSeries(overviewData.temporaryTargetSeries)
+
+        // Adicionar linhas de grid horizontais tracejadas (semelhante à imagem de referência)
+        addHorizontalDashedGridLines()
     }
+
+    private fun addHorizontalDashedGridLines() {
+        // Definir os valores de glicose para as linhas de grid (em mg/dL)
+
+        // max(3, if (units == GlucoseUnit.MGDL) (maxY / 25 + 1).toInt() else (maxY / 2 + 1).toInt())
+
+
+        val gridValues = if (units == GlucoseUnit.MGDL) {
+            listOf((maxY / 25 + 1))
+            //listOf(50.0, 100.0, 150.0, 200.0, 250.0, 300.0)
+        } else {
+            // listOf(3.0, 6.0, 9.0, 12.0, 15.0, 18.0)
+            listOf((maxY / 2 + 1))
+        }
+
+
+
+
+        // Criar linhas tracejadas para cada valor
+        for (value in gridValues) {
+            val gridLinePoints = arrayOf(
+                DataPoint(overviewData.fromTime.toDouble(), value),
+                DataPoint(overviewData.endTime.toDouble(), value)
+            )
+
+            addSeries(LineGraphSeries(gridLinePoints).also {
+                it.isDrawDataPoints = false
+                it.setCustomPaint(Paint().also { paint ->
+                    paint.style = Paint.Style.STROKE
+                    paint.strokeWidth = 1f
+                    // Padrão tracejado: 10px linha, 10px espaço
+                    paint.pathEffect = DashPathEffect(floatArrayOf(10f, 10f), 0f)
+                    // Cor cinza claro para as linhas de grid
+                    paint.color = 0x40808080.toInt() // Cinza com transparência
+                })
+            })
+        }
+    }
+    // tarciso added nowAligned() & reset()
+    private fun nowAligned(): Long {
+        return System.currentTimeMillis()
+    }
+
+    fun reset() {
+        maxY = Double.MIN_VALUE
+        minY = Double.MAX_VALUE
+        series.clear()
+    }
+
 
     fun addTreatments(context: Context?) {
         maxY = maxOf(maxY, overviewData.maxTreatmentsValue)
@@ -145,11 +199,12 @@ class GraphData(
     fun addIob(useForScale: Boolean, scale: Double) {
         if (useForScale) {
             maxY = overviewData.maxIobValueFound
-            minY = -overviewData.maxIobValueFound
+            minY = 0.0  // Changed from -overviewData.maxIobValueFound to show only positive values
         }
         overviewData.iobScale.multiplier = maxY * scale / overviewData.maxIobValueFound
         addSeries(overviewData.iobSeries)
         addSeries(overviewData.iobPredictions1Series)
+
         //addSeries(overviewData.iobPredictions2Series)
     }
 
@@ -238,22 +293,41 @@ class GraphData(
     }
 
     fun setNumVerticalLabels() {
-        // graph.gridLabelRenderer.numVerticalLabels = max(3, if (units == GlucoseUnit.MGDL) (maxY / 40 + 1).toInt() else (maxY / 2 + 1).toInt())
-        graph.gridLabelRenderer.numVerticalLabels = max(3, if (units == GlucoseUnit.MGDL) (maxY / 25 + 1).toInt() else (maxY / 2 + 1).toInt())
+        graph.gridLabelRenderer.numVerticalLabels = max(3, if (units == GlucoseUnit.MGDL) (maxY / 40 + 1).toInt() else (maxY / 2 + 1).toInt())
+        //graph.gridLabelRenderer.numVerticalLabels = max(3, if (units == GlucoseUnit.MGDL) (maxY / 25 + 1).toInt() else (maxY / 2 + 1).toInt())
     }
 
-    fun formatAxis(fromTime: Long, endTime: Long) {
-        graph.viewport.setMaxX(endTime.toDouble())
-        graph.viewport.setMinX(fromTime.toDouble())
-        graph.viewport.isXAxisBoundsManual = true
-        graph.gridLabelRenderer.labelFormatter = TimeAsXAxisLabelFormatter("HH")
-        graph.gridLabelRenderer.numHorizontalLabels = 7 // only 7 because of the space
+    fun formatAxis(fromTime: Long, toTime: Long) {
+        val viewport = graph.viewport
+        val renderer = graph.gridLabelRenderer
+
+        viewport.setMinX(fromTime.toDouble())
+        viewport.setMaxX((nowAligned() + 1 * 60 * 60 * 1000L).toDouble())
+        viewport.setXAxisBoundsManual(true)
+
+        renderer.labelFormatter = TimeAsXAxisLabelFormatter("HH")
+        // renderer.isHumanRounding = false
+
+        val hours = ((nowAligned() - fromTime) / (1000.0 * 60 * 60))
+
+        renderer.numHorizontalLabels = when {
+            hours <= 2   -> 2
+            hours <= 4   -> 3
+            hours <= 6   -> 4
+            hours <= 12  -> 6
+            else         -> 7
+        }
+
+        renderer.reloadStyles()
     }
+
 
     private fun addSeries(s: Series<*>) = series.add(s)
 
     fun performUpdate() {
         // clear old data
+        // Tarciso add graph.removeAllSeries()
+        graph.removeAllSeries()
         graph.series.clear()
 
         // add pre calculated series
@@ -270,7 +344,7 @@ class GraphData(
         graph.viewport.isYAxisBoundsManual = true
 
         // draw it
-        graph.onDataChanged(false, false)
+        graph.onDataChanged(true, true)
     }
 
     fun addHeartRate(useForScale: Boolean, scale: Double) {

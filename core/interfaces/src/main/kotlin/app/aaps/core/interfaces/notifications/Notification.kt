@@ -140,6 +140,12 @@ open class Notification {
         const val BLUETOOTH_NOT_SUPPORTED = 86
         const val PUMP_WARNING = 87
 
+        //Tarciso_NEW_ALARM_ADD
+        // Tarciso Alarm Low Glucose
+        const val LOW_GLUCOSE_ALERT = 88
+        const val STABLE_GOOD_GLUCOSE_ALERT = 89
+        const val COMPRESSION_ALERT = 91   // Tarciso_COMPRESSION_ALERT
+
         const val USER_MESSAGE = 1000
 
         const val IMPORTANCE_HIGH = 2

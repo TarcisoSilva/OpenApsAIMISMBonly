@@ -3,11 +3,11 @@ import android.content.Context
 import app.aaps.annotations.OpenForTesting
 import app.aaps.core.interfaces.aps.DetermineBasalAdapter
 import app.aaps.core.interfaces.bgQualityCheck.BgQualityCheck
-import app.aaps.core.interfaces.constraints.Constraint
 import app.aaps.core.interfaces.constraints.ConstraintsChecker
 import app.aaps.core.interfaces.iob.GlucoseStatusProvider
 import app.aaps.core.interfaces.iob.IobCobCalculator
 import app.aaps.core.interfaces.logging.AAPSLogger
+import app.aaps.core.interfaces.logging.LTag
 import app.aaps.core.interfaces.plugin.ActivePlugin
 import app.aaps.core.interfaces.profile.ProfileFunction
 import app.aaps.core.interfaces.profiling.Profiler
@@ -17,12 +17,13 @@ import app.aaps.core.interfaces.sharedPreferences.SP
 import app.aaps.core.interfaces.stats.TddCalculator
 import app.aaps.core.interfaces.utils.DateUtil
 import app.aaps.core.interfaces.utils.HardLimits
+import app.aaps.core.interfaces.notifications.Notification
+import app.aaps.core.main.events.EventNewNotification
 import app.aaps.database.impl.AppRepository
 import app.aaps.plugins.aps.R
-import app.aaps.plugins.aps.openAPSSMB.DetermineBasalAdapterSMBJS
 import app.aaps.plugins.aps.openAPSSMB.OpenAPSSMBPlugin
-import app.aaps.plugins.aps.openAPSSMBDynamicISF.DetermineBasalAdapterSMBDynamicISFJS
-import app.aaps.plugins.aps.utils.ScriptReader
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
 import dagger.android.HasAndroidInjector
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -32,7 +33,7 @@ class OpenAPSAIMIPlugin  @Inject constructor(
 
     injector: HasAndroidInjector,
     aapsLogger: AAPSLogger,
-    rxBus: RxBus,
+    private val rxBus: RxBus,
     constraintChecker: ConstraintsChecker,
     rh: ResourceHelper,
     profileFunction: ProfileFunction,
@@ -41,12 +42,13 @@ class OpenAPSAIMIPlugin  @Inject constructor(
     iobCobCalculator: IobCobCalculator,
     hardLimits: HardLimits,
     profiler: Profiler,
-    sp: SP,
+    private val sp: SP,
     dateUtil: DateUtil,
     repository: AppRepository,
     glucoseStatusProvider: GlucoseStatusProvider,
     bgQualityCheck: BgQualityCheck,
-    tddCalculator: TddCalculator
+    tddCalculator: TddCalculator,
+    private val hourlyAdjustWorker: HourlyAdjustWorker
     ) : OpenAPSSMBPlugin(
     injector,
     aapsLogger,
@@ -67,6 +69,15 @@ class OpenAPSAIMIPlugin  @Inject constructor(
     tddCalculator
     ) {
 
+        companion object {
+            private const val SP_LAST_AUTO_ADJUST_TIME = "key_aimi_last_auto_adjust_time"
+        }
+
+        /** Timestamp (ms) da última execução do auto-adjust — persistido em SharedPreferences. */
+        private var lastAutoAdjustTime: Long
+            get() = sp.getLong(SP_LAST_AUTO_ADJUST_TIME, 0L)
+            set(value) = sp.putLong(SP_LAST_AUTO_ADJUST_TIME, value)
+
         init {
             pluginDescription
                 .pluginName(R.string.openapsaimi)
@@ -77,9 +88,35 @@ class OpenAPSAIMIPlugin  @Inject constructor(
         }
 
         override fun provideDetermineBasalAdapter(): DetermineBasalAdapter = DetermineBasalAdapterAIMI(injector)
-        /*override fun provideDetermineBasalAdapter(): DetermineBasalAdapter =
-            if (tdd1D == null || tdd7D == null || tddLast4H == null || tddLast8to4H == null || tddLast24H == null || !dynIsfEnabled.value())
-                DetermineBasalAdapterSMBJS(ScriptReader(context), injector)
-            else DetermineBasalAdapterAIMI(ScriptReader(context), injector)*/
 
+        override fun invoke(initiator: String, tempBasalFallback: Boolean) {
+            super.invoke(initiator, tempBasalFallback)
+
+            // Inicializa CSV de magnitude se toggle ON (idempotente, ~5 min/ciclo)
+            hourlyAdjustWorker.initMagnitudeLog()
+
+            // Auto-Adjust: guard único de tempo com persistência em SharedPreferences.
+            // O timestamp da última execução sobrevive a restarts de processo,
+            // garantindo o intervalo de ~4h mesmo se o app for morto e recriado.
+            if (hourlyAdjustWorker.isEnabled() &&
+                System.currentTimeMillis() - lastAutoAdjustTime >= hourlyAdjustWorker.getAnalysisInterval()) {
+                val notificationText = hourlyAdjustWorker.runAnalysis()
+                if (notificationText != null) {
+                    rxBus.send(EventNewNotification(
+                        Notification(
+                            id = 90,
+                            text = notificationText,
+                            level = Notification.INFO,
+                            validMinutes = 120
+                        )))
+                }
+                lastAutoAdjustTime = System.currentTimeMillis()
+            }
+        }
+
+        override fun preprocessPreferences(preferenceFragment: PreferenceFragmentCompat) {
+            super.preprocessPreferences(preferenceFragment)
+            val logPref = preferenceFragment.findPreference<Preference>("key_aimi_auto_adjust_log")
+            logPref?.summary = hourlyAdjustWorker.getLastReportSummary()
+        }
     }

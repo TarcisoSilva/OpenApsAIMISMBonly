@@ -1,3 +1,4 @@
+// Alterado pelo Tarciso
 package app.aaps
 
 import android.content.Context
@@ -62,11 +63,13 @@ import app.aaps.database.entities.UserEntry.Sources
 import app.aaps.databinding.ActivityMainBinding
 import app.aaps.plugins.configuration.activities.DaggerAppCompatActivityWithResult
 import app.aaps.plugins.configuration.activities.SingleFragmentActivity
+import app.aaps.plugins.configuration.configBuilder.ConfigBuilderPlugin
 import app.aaps.plugins.configuration.setupwizard.SetupWizardActivity
 import app.aaps.plugins.constraints.signatureVerifier.SignatureVerifierPlugin
 import app.aaps.ui.activities.ProfileHelperActivity
 import app.aaps.ui.activities.StatsActivity
 import app.aaps.ui.activities.TreatmentsActivity
+import app.aaps.ui.dialogs.InsulinDialog
 import app.aaps.ui.tabs.TabPageAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
@@ -339,6 +342,7 @@ class MainActivity : DaggerAppCompatActivityWithResult() {
     private fun processPreferenceChange(ev: EventPreferenceChange) {
         if (ev.isChanged(rh.gs(app.aaps.plugins.main.R.string.key_keep_screen_on))) setWakeLock()
         if (ev.isChanged(rh.gs(app.aaps.plugins.main.R.string.key_skin))) recreate()
+        if (ev.isChanged(rh.gs(app.aaps.plugins.main.R.string.key_menu_enable))) updateMenuVisibility()
     }
 
     private fun setupViews() {
@@ -392,6 +396,75 @@ class MainActivity : DaggerAppCompatActivityWithResult() {
             TabLayoutMediator(binding.tabsNormal, binding.mainPager) { tab, position ->
                 tab.text = (binding.mainPager.adapter as TabPageAdapter).getPluginAt(position).name
             }.attach()
+        }
+        
+        // Alterado pelo Tarciso - Setup bottom navigation menu
+        setupBottomMenu()
+        
+        // Alterado pelo Tarciso - Update menu visibility based on preference
+        updateMenuVisibility()
+    }
+
+    // Alterado pelo Tarciso - Bottom navigation menu setup
+    private fun setupBottomMenu() {
+        // Home button - Navigate to overview (first tab)
+        binding.mainButtonsLayout.homeButtonContainer.setOnClickListener {
+            binding.mainPager.currentItem = 0
+        }
+        
+        // Tools button - Navigate to Tools screen
+        binding.mainButtonsLayout.toolsButtonContainer.setOnClickListener {
+            startActivity(Intent(this, app.aaps.ui.activities.ToolsActivity::class.java))
+        }
+        
+        // Bolus button - Navigate to treatments/bolus
+        binding.mainButtonsLayout.bolusButtonContainer.setOnClickListener {
+            protectionCheck.queryProtection(this, ProtectionCheck.Protection.BOLUS, {
+                // startActivity(Intent(this, TreatmentsActivity::class.java))
+
+               val insulinMenu = InsulinDialog()
+               insulinMenu.show(supportFragmentManager, "InsulinDialog")
+            })
+        }
+        
+        // Override button - Navigate to Config Builder
+        binding.mainButtonsLayout.overrideButtonContainer.setOnClickListener {
+            protectionCheck.queryProtection(this, ProtectionCheck.Protection.PREFERENCES, {
+                val plugin = activePlugin.getPluginsList().firstOrNull { it is ConfigBuilderPlugin }
+                if (plugin != null) {
+                    startActivity(
+                        Intent(this, SingleFragmentActivity::class.java)
+                            .setAction("info.nightscout.androidaps.MainActivity")
+                            .putExtra("plugin", activePlugin.getPluginsList().indexOf(plugin))
+                    )
+                }
+            })
+        }
+        
+        // Settings button - Navigate to preferences
+        binding.mainButtonsLayout.settingsButtonContainer.setOnClickListener {
+            protectionCheck.queryProtection(this, ProtectionCheck.Protection.PREFERENCES, {
+                startActivity(Intent(this, PreferencesActivity::class.java)
+                    .setAction("info.nightscout.androidaps.MainActivity")
+                    .putExtra("id", -1))
+            })
+        }
+    }
+    
+    // Alterado pelo Tarciso - Control menu visibility based on preference
+    private fun updateMenuVisibility() {
+        val menuEnabled = sp.getBoolean(app.aaps.plugins.main.R.string.key_menu_enable, true)
+        
+        if (menuEnabled) {
+            // Show toolbar (with tabs and HOME menu)
+            binding.toolbar.visibility = View.VISIBLE
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            supportActionBar?.setDisplayShowHomeEnabled(true)
+        } else {
+            // Hide toolbar (with tabs and HOME menu)
+            binding.toolbar.visibility = View.GONE
+            supportActionBar?.setDisplayHomeAsUpEnabled(false)
+            supportActionBar?.setDisplayShowHomeEnabled(false)
         }
     }
 
@@ -493,4 +566,14 @@ class MainActivity : DaggerAppCompatActivityWithResult() {
             ToastUtils.okToast(context, context.getString(app.aaps.core.ui.R.string.password_set))
         }
     }
+
+
 }
+
+
+
+
+
+
+
+

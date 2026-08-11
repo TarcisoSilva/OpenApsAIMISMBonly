@@ -96,7 +96,8 @@ class PointsWithLabelGraphSeries<E : DataPointWithLabelInterface> : BaseSeries<E
     override fun draw(graphView: GraphView, canvas: Canvas, isSecondScale: Boolean) {
         // Convert the sp to pixels
         val scaledTextSize = spSize * graphView.context.resources.displayMetrics.scaledDensity
-        val scaledPxSize = graphView.context.resources.displayMetrics.scaledDensity * 3f
+        // val scaledPxSize = graphView.context.resources.displayMetrics.scaledDensity * 3f
+        val scaledPxSize = graphView.context.resources.displayMetrics.scaledDensity * 1.9f
         resetDataPoints()
 
         // get data

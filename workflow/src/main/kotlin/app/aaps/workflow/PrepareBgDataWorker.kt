@@ -43,7 +43,7 @@ class PrepareBgDataWorker(
         val toTime = data.overviewData.toTime
         val fromTime = data.overviewData.fromTime
 
-        // ✅ Inicialização correta
+        // ✅ Inicialização correta Tarciso
         data.overviewData.maxBgValue = -Double.MAX_VALUE
         data.overviewData.minBgValue = Double.MAX_VALUE  // ← Inicializar a NOVA propriedade
 

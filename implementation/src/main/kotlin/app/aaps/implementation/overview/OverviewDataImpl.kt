@@ -40,6 +40,9 @@ import app.aaps.database.impl.AppRepository
 import com.jjoe64.graphview.series.BarGraphSeries
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
 import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -57,11 +60,11 @@ class OverviewDataImpl @Inject constructor(
     private val decimalFormatter: DecimalFormatter
 ) : OverviewData {
 
-    override var rangeToDisplay = 6 // for graph
+    override var rangeToDisplay = 1 // for graph
     override var toTime: Long = 0
     override var fromTime: Long = 0
     override var endTime: Long = 0
-    override var minBgValue = Double.MAX_VALUE  // ← ADICIONE ESTA LINHA
+    override var minBgValue = Double.MAX_VALUE
 
 
     override fun reset() {
@@ -119,11 +122,24 @@ class OverviewDataImpl @Inject constructor(
             it[Calendar.MILLISECOND] = 0
             it[Calendar.SECOND] = 0
             it[Calendar.MINUTE] = 0
-            it.add(Calendar.HOUR, 1)
+            it.add(Calendar.HOUR, 2) // Garantir término na próxima hora cheia + 1 (ex: 16:53 -> 18:00)
         }
 
-        toTime = calendar.timeInMillis + 100000 // little bit more to avoid wrong rounding - GraphView specific
-        fromTime = toTime - T.hours(rangeToDisplay.toLong()).msecs()
+        toTime = calendar.timeInMillis + 100000 // Removido buffer de 100s para evitar hora quebrada (ex: 18:01)
+        // PERFORMANCE OPTIMIZATION: Always load 24h of data to allow smooth zooming without DB reloading
+        // The Viewport will handle what is actually displayed (rangeToDisplay)
+        fromTime = toTime - T.hours(24).msecs()
+
+        val minNow = LocalDateTime.now().minute
+        // Primeiro, calculamos a próxima hora cheia como LocalDateTime/LocalTime
+        val nextFullHourTime: LocalTime = if (minNow < 30) {
+            LocalTime.now().plusHours(0).withMinute(0).withSecond(0).withNano(0)
+        } else {
+            LocalTime.now().plusHours(1).withMinute(0).withSecond(0).withNano(0)
+        }
+        val today = LocalDateTime.now().toLocalDate()
+        val nextFullDateTime = LocalDateTime.of(today, nextFullHourTime)
+        //endTime = nextFullDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
         endTime = toTime
     }
 

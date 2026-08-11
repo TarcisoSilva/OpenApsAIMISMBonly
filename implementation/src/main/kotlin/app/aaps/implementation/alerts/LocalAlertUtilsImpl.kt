@@ -1,8 +1,10 @@
 package app.aaps.implementation.alerts
 
+import android.annotation.SuppressLint
 import app.aaps.core.interfaces.alerts.LocalAlertUtils
 import app.aaps.core.interfaces.configuration.Config
 import app.aaps.core.interfaces.configuration.Constants
+// import app.aaps.core.interfaces.iob.GlucoseStatus
 import app.aaps.core.interfaces.logging.AAPSLogger
 import app.aaps.core.interfaces.logging.LTag
 import app.aaps.core.interfaces.logging.UserEntryLogger
@@ -16,6 +18,9 @@ import app.aaps.core.interfaces.sharedPreferences.SP
 import app.aaps.core.interfaces.smsCommunicator.SmsCommunicator
 import app.aaps.core.interfaces.utils.DateUtil
 import app.aaps.core.interfaces.utils.T
+// import app.aaps.core.interfaces.iob.GlucoseStatus
+import app.aaps.core.interfaces.iob.GlucoseStatusProvider
+import app.aaps.core.interfaces.iob.IobCobCalculator
 import app.aaps.core.main.events.EventNewNotification
 import app.aaps.database.ValueWrapper
 import app.aaps.database.entities.TherapyEvent
@@ -26,10 +31,14 @@ import app.aaps.database.impl.AppRepository
 import app.aaps.database.impl.transactions.InsertTherapyEventAnnouncementTransaction
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
+import org.json.JSONArray
+import org.json.JSONObject
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.min
 import java.time.LocalTime
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by adrian on 17/12/17.
@@ -46,9 +55,17 @@ class LocalAlertUtilsImpl @Inject constructor(
     private val config: Config,
     private val repository: AppRepository,
     private val dateUtil: DateUtil,
-    private val uel: UserEntryLogger
+    private val uel: UserEntryLogger,
+    private val glucoseStatusProvider: GlucoseStatusProvider,
+    private val iobCobCalculator: IobCobCalculator
+
+
 ) : LocalAlertUtils {
 
+
+
+
+    // private val bg = glucoseStatus.glucose
     private val disposable = CompositeDisposable()
 
     private fun missedReadingsThreshold(): Long {
@@ -58,6 +75,617 @@ class LocalAlertUtilsImpl @Inject constructor(
     private fun pumpUnreachableThreshold(): Long {
         return T.mins(sp.getInt(app.aaps.core.utils.R.string.key_pump_unreachable_threshold_minutes, Constants.DEFAULT_PUMP_UNREACHABLE_THRESHOLD_MINUTES).toLong()).msecs()
     }
+
+
+
+
+
+
+
+    //Tarciso_NEW_ALARM_ADD
+    // Tarciso
+    // Novo método para verificar alarme de glicemia baixa - PARTE1
+    @SuppressLint("SuspiciousIndentation")
+    override fun checkLowGlucoseAlert() {
+        try {
+            // Obter última leitura de glicemia
+            val glucoseStatus = glucoseStatusProvider.glucoseStatusData
+
+                if (glucoseStatus == null) {
+                    aapsLogger.debug(LTag.CORE, "No glucose status data available")
+                    rxBus.send(EventDismissNotification(Notification.LOW_GLUCOSE_ALERT))
+                    return
+                }
+
+            val currentBg = glucoseStatus.glucose
+            val delta = glucoseStatus.delta
+
+
+            //repository.compatGetBgReadingsDataFromTime(bgReading.timestamp - T.mins(10).msecs(), 2, false).blockingGet()
+            //val delta = if (previousBgReadingWrapped >= 2) {
+            //    val previousBg = previousBgReadingWrapped[1].value
+            //    currentBg - previousBg
+            //} else {
+            //    0.0
+            //}
+
+            // Obter IOB atual
+            val iobCalcs = iobCobCalculator.calculateIobFromBolus()
+            val iob = iobCalcs.iob + iobCalcs.basaliob.toFloat()
+
+            //repository.getIobDataForAllTreatmentsFromTime(bgReading.timestamp - T.hours(6).msecs(), false).blockingGet()
+            // val totalIob = iobData.iobSum
+
+            // Obter hora atual
+            val currentHour = LocalTime.now().hour
+            val nextAlarmTime = sp.getLong("nextLowGlucoseAlarm", 0L)
+            val isSnoozeActive = nextAlarmTime > System.currentTimeMillis()
+
+            // ADICIONE ESTES LOGS PARA DEBUG:
+            aapsLogger.debug(LTag.CORE, "🔍 Snooze Debug: nextAlarmTime=$nextAlarmTime, currentTime=${System.currentTimeMillis()}, isSnoozeActive=$isSnoozeActive")
+            if (isSnoozeActive) {
+                val remainingMinutes = (nextAlarmTime - System.currentTimeMillis()) / (60 * 1000)
+                aapsLogger.debug(LTag.CORE, "⏰ Snooze active - $remainingMinutes minutes remaining")
+            }
+
+            val bgThreshold = sp.getString(app.aaps.core.utils.R.string.key_bg_threshold_alert, "95.0")
+            //val bgThreshold = sp.getDouble(app.aaps.core.utils.R.string.key_bg_threshold_alert, 95.0)
+            val deltaThreshold = sp.getString(app.aaps.core.utils.R.string.key_delta_threshold_alert, "-2.0")
+            val iobThreshold = sp.getString(app.aaps.core.utils.R.string.key_iob_threshold_alert, "2.0")
+            //val iobThreshold = sp.getDouble(app.aaps.core.utils.R.string.key_iob_threshold_alert, 2.0)
+
+            // Verificar condições para o alarme
+            val shouldTriggerAlarm = currentBg < bgThreshold.toDouble() && //85.0 &&
+                delta <  deltaThreshold.toDouble() && //- 4.0 &&
+                iob > iobThreshold.toDouble() &&
+                !isSnoozeActive &&
+                // (currentHour >= 22 || currentHour < 6) &&
+                sp.getBoolean(app.aaps.core.utils.R.string.key_enable_low_glucose_alert, true)
+
+
+            if (shouldTriggerAlarm) {
+                aapsLogger.debug(LTag.CORE, "Generating low glucose alarm. BG: $currentBg, Delta: $delta, IOB: $iob, Hour: $currentHour")
+                incrementarContadorAlarme()
+                registrarTimestampAlarme()
+                // Configurar próximo alarme para daqui a 15 minutos (evitar spam)
+
+                /// sp.putLong("nextLowGlucoseAlarm", System.currentTimeMillis() + T.mins(30).msecs())
+                // sp.putLong("nextLowGlucoseAlarm", System.currentTimeMillis() + T.mins(15).msecs())
+                val newSnoozeTime = System.currentTimeMillis() + T.mins(30).msecs()
+                sp.putLong("nextLowGlucoseAlarm", newSnoozeTime)
+                aapsLogger.debug(LTag.CORE, "💾 Snooze saved: $newSnoozeTime for 30 minutes")
+
+
+
+
+                // Criar notificação
+                val message = rh.gs(app.aaps.core.ui.R.string.low_glucose_alert_message, currentBg, delta, iob)
+                rxBus.send(EventNewNotification(Notification(Notification.LOW_GLUCOSE_ALERT, message, Notification.URGENT).also {
+                    it.soundId = app.aaps.core.ui.R.raw.alarm
+                }))
+
+                // Log no User Entry Logger
+                // uel.log(Action.ALARM, Sources.Aaps, message, ValueWithUnit.TherapyEventType(TherapyEvent.Type.ANNOUNCEMENT))
+
+                // Criar announcement se configurado
+                if (sp.getBoolean(app.aaps.core.utils.R.string.key_ns_create_announcements_from_errors, true)) {
+                    disposable += repository.runTransaction(InsertTherapyEventAnnouncementTransaction(message)).subscribe()
+                }
+
+                // Enviar SMS se configurado
+                //if (sp.getBoolean(app.aaps.core.utils.R.string.key_smscommunicator_report_low_glucose, false)) {
+                //    smsCommunicator.sendNotificationToAllNumbers(message)
+                //}
+            } else {
+                if (isSnoozeActive) {
+                    aapsLogger.debug(LTag.CORE, "⏰ Snooze active - alarm suppressed")
+                }
+                // Dismiss notification se condições não são mais atendidas
+                rxBus.send(EventDismissNotification(Notification.LOW_GLUCOSE_ALERT))
+            }
+
+        } catch (e: Exception) {
+            aapsLogger.error(LTag.CORE, "Error checking low glucose alert", e)
+        }
+    }
+
+    // ******* LOW BG ALERT PART 1 END *********
+
+    // =====================================================
+    // NOVO ALARME: GLICEMIA ESTÁVEL EM FAIXA BOA
+    // =====================================================
+
+    @SuppressLint("SuspiciousIndentation")
+    override fun checkStableGoodGlucoseAlert() {
+        try {
+            // Obter última leitura de glicemia
+            val glucoseStatus = glucoseStatusProvider.glucoseStatusData
+
+            if (glucoseStatus == null) {
+                aapsLogger.debug(LTag.CORE, "No glucose status data available for stable alert")
+                rxBus.send(EventDismissNotification(Notification.STABLE_GOOD_GLUCOSE_ALERT))
+                return
+            }
+
+            val currentBg = glucoseStatus.glucose
+            val delta = glucoseStatus.delta
+            val shortAvgDelta = glucoseStatus.shortAvgDelta
+            val longAvgDelta = glucoseStatus.longAvgDelta
+
+            // DEBUG: Log todos os valores
+            aapsLogger.debug(LTag.CORE, "🔍 Stable Alert Check - BG: $currentBg, Delta: $delta, ShortAvgDelta: $shortAvgDelta, LongAvgDelta: $longAvgDelta")
+
+            // Verificar estabilidade da glicemia
+            val isGlucoseStable = delta > -1.5 && delta < 1.5 &&
+                shortAvgDelta > -1.0 && shortAvgDelta < 1.0 &&
+                longAvgDelta > -0.8 && longAvgDelta < 0.8
+
+            // Verificar se a glicemia está na faixa desejada (70-140)
+            val isGlucoseInRange = currentBg in 70.0..140.0
+
+            // Obter hora atual
+            val currentHour = LocalTime.now().hour
+
+            // Obter timestamps
+            val currentTime = System.currentTimeMillis()
+            val lastAlarmTime = sp.getLong("lastStableGoodGlucoseAlarmTime", 0L)
+            val nextAlarmTime = sp.getLong("nextStableGoodGlucoseAlarm", 0L)
+
+            // Verificar se o último alarme foi hoje
+            val isLastAlarmToday = isSameDay(lastAlarmTime, currentTime)
+
+            // Verificar se está no período de snooze (30 minutos)
+            val isInSnoozePeriod = nextAlarmTime > currentTime
+
+            // Verificar se houve evento de ponta de dedo desde o último alarme
+            val hasFingerStickSinceLastAlarm = if (lastAlarmTime > 0) {
+                hasFingerStickEventSince(lastAlarmTime)
+            } else {
+                false
+            }
+
+            // Verificar se está no horário especificado (8am - 5pm)
+            val isInTimeWindow = currentHour in 8..17
+
+            // Verificar se o alarme está habilitado
+            val isAlertEnabled = sp.getBoolean(app.aaps.core.utils.R.string.key_enable_stable_good_glucose_alert, true)
+
+            aapsLogger.debug(LTag.CORE, "⏰ Stable Alert - CurrentHour: $currentHour, InTimeWindow: $isInTimeWindow")
+            aapsLogger.debug(LTag.CORE, "📅 Alarm Check - LastAlarmTime: ${dateUtil.dateAndTimeString(lastAlarmTime)}")
+            aapsLogger.debug(LTag.CORE, "📅 Alarm Check - IsLastAlarmToday: $isLastAlarmToday, IsInSnoozePeriod: $isInSnoozePeriod")
+            aapsLogger.debug(LTag.CORE, "📅 Alarm Check - HasFingerStickSinceLastAlarm: $hasFingerStickSinceLastAlarm")
+            aapsLogger.debug(LTag.CORE, "📊 Conditions - InRange: $isGlucoseInRange, Stable: $isGlucoseStable")
+
+            // Verificar se as condições básicas são atendidas
+            val basicConditionsMet = isInTimeWindow &&
+                isGlucoseStable &&
+                isGlucoseInRange &&
+                isAlertEnabled
+
+            // NOVA LÓGICA CORRIGIDA:
+            // O alarme deve tocar se:
+            // 1. Condições básicas são atendidas
+            // 2. NÃO estamos em período de snooze
+            // 3. E (é o primeiro alarme do dia OU (último alarme foi hoje E não houve ponta de dedo desde então))
+            val shouldTriggerAlarm = basicConditionsMet &&
+                !isInSnoozePeriod &&
+                (lastAlarmTime == 0L || !isLastAlarmToday || (isLastAlarmToday && !hasFingerStickSinceLastAlarm))
+
+            aapsLogger.debug(LTag.CORE, "✅ Final Check - BasicConditions: $basicConditionsMet, ShouldTrigger: $shouldTriggerAlarm")
+
+            if (shouldTriggerAlarm) {
+                aapsLogger.info(LTag.CORE, "🚨 Generating stable good glucose alarm! BG: $currentBg, Delta: $delta, Hour: $currentHour")
+
+                // Registrar o alarme
+                incrementarContadorAlarmeEstavel()
+                registrarTimestampAlarmeEstavel()
+
+                // Salvar o timestamp deste alarme
+                sp.putLong("lastStableGoodGlucoseAlarmTime", currentTime)
+
+                // Configurar snooze de 30 minutos para o próximo alarme
+                val snoozeTime = currentTime + T.mins(30).msecs()
+                sp.putLong("nextStableGoodGlucoseAlarm", snoozeTime)
+                aapsLogger.debug(LTag.CORE, "💾 Stable Glucose Snooze set until: ${dateUtil.dateAndTimeString(snoozeTime)}")
+
+                // Criar notificação
+                val message = rh.gs(app.aaps.core.ui.R.string.stable_good_glucose_alert_message, currentBg.toString(), delta.toString())
+                rxBus.send(EventNewNotification(Notification(Notification.STABLE_GOOD_GLUCOSE_ALERT, message, Notification.INFO).also {
+                    it.soundId = app.aaps.core.ui.R.raw.calibration
+                }))
+
+                // Criar announcement se habilitado
+                if (sp.getBoolean(app.aaps.core.utils.R.string.key_enable_stable_good_glucose_alert, true)) {
+                    disposable += repository.runTransaction(InsertTherapyEventAnnouncementTransaction(message)).subscribe()
+                }
+
+            } else {
+                // Logs de diagnóstico
+                if (!basicConditionsMet) {
+                    if (!isInTimeWindow) aapsLogger.debug(LTag.CORE, "❌ Not in time window (8-17)")
+                    if (!isGlucoseStable) aapsLogger.debug(LTag.CORE, "❌ Glucose not stable")
+                    if (!isGlucoseInRange) aapsLogger.debug(LTag.CORE, "❌ Glucose not in range (70-140)")
+                    if (!isAlertEnabled) aapsLogger.debug(LTag.CORE, "❌ Alert disabled in settings")
+                } else if (isInSnoozePeriod) {
+                    val remainingMinutes = (nextAlarmTime - currentTime) / (60 * 1000)
+                    aapsLogger.debug(LTag.CORE, "⏰ In snooze period - $remainingMinutes minutes remaining until next allowed alarm")
+                } else if (isLastAlarmToday && hasFingerStickSinceLastAlarm) {
+                    aapsLogger.debug(LTag.CORE, "✅ Finger stick event detected today - alarms suppressed for the day")
+                } else if (!isLastAlarmToday && lastAlarmTime > 0) {
+                    aapsLogger.debug(LTag.CORE, "📅 New day detected - alarms can trigger again")
+                }
+
+                // Dismiss notification se condições não são mais atendidas
+                rxBus.send(EventDismissNotification(Notification.STABLE_GOOD_GLUCOSE_ALERT))
+            }
+
+        } catch (e: Exception) {
+            aapsLogger.error(LTag.CORE, "Error checking stable good glucose alert", e)
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // Cannula Failure Alert (Tarciso, Jul/2026)
+    // ═══════════════════════════════════════════════════════════════════
+    // Detecta padrão de falha de canula: BG alto e subindo apesar de IOB
+    // elevado + canula trocada recentemente.
+    //
+    // Diferente de uma proteção de SMB (que seria errada aqui), este alerta
+    // AVISA o usuário para trocar a canula fisicamente — o problema não é
+    // excesso de insulina, é falta de absorção.
+    //
+    // Padrão validado no evento 11/Jul/2026:
+    //   Canula trocada 12:58 → BG 167→251 apesar de 12.9U de SMB em 4.5h
+    //   IOB chegou a 8.8U sem efeito. Quando canula voltou → queda rápida.
+    // ═══════════════════════════════════════════════════════════════════
+
+    companion object {
+        private const val CANNULA_FAILURE_ALERT_ID = 90
+        private const val SP_NEXT_CANNULA_ALERT = "nextCannulaAlert"
+        private const val CANNULA_ALERT_COOLDOWN_MIN = 30
+        private const val CANNULA_AGE_THRESHOLD_MIN = 360L  // 6h
+        // Tarciso_COMPRESSION_ALERT
+        private const val COMPRESSION_ALERT_ID = Notification.COMPRESSION_ALERT   // 91
+        private const val SP_NEXT_COMPRESSION_ALERT = "nextCompressionAlert"
+        private const val COMPRESSION_ALERT_COOLDOWN_MIN = 30
+        private const val COMPRESSION_LOOKBACK_READINGS = 6   // 30 min de histórico p/ streak
+    }
+
+    /**
+     * Retorna a idade da canula em minutos desde a última troca registrada.
+     * @return Long.MAX_VALUE se não houver registro
+     */
+    private fun getCannulaAgeMinutes(): Long {
+        return try {
+            val result = repository.getLastTherapyRecordUpToNow(TherapyEvent.Type.CANNULA_CHANGE)
+                .timeout(3, TimeUnit.SECONDS)
+                .blockingGet()
+            val cannulaTimestamp = when (result) {
+                is ValueWrapper.Existing -> result.value.timestamp
+                else -> return Long.MAX_VALUE
+            }
+            (System.currentTimeMillis() - cannulaTimestamp) / (60 * 1000)
+        } catch (e: Exception) {
+            aapsLogger.warn(LTag.CORE, "Cannula alert: failed to query cannula change", e)
+            Long.MAX_VALUE
+        }
+    }
+
+    /**
+     * Verifica padrão de falha de canula e gera alerta se detectado.
+     *
+     * Pattern 1 — canula recente + BG alto + subindo + IOB alto:
+     *   Condições: canula < 6h, BG > 200, delta > 1, IOB > 3
+     *   (mesmas condições do alarme low glucose, mas com BG mais alto)
+     *
+     * Pattern 2 — BG teimoso (mesmo sem canula recente):
+     *   Condições: BG > 200, delta > 2, IOB > 4, longAvgDelta > 0
+     *   (subida sustentada apesar de IOB muito alto)
+     *
+     * Cooldown de 30 min entre alertas. Toggle via SP key_aimi_cannula_failure_alert.
+     */
+    override fun checkCannulaFailureAlert() {
+        if (!sp.getBoolean(app.aaps.core.utils.R.string.key_aimi_cannula_failure_alert, true)) return
+
+        try {
+            val glucoseStatus = glucoseStatusProvider.glucoseStatusData ?: return
+            val currentBg = glucoseStatus.glucose
+            val delta = glucoseStatus.delta
+            val longAvgDelta = glucoseStatus.longAvgDelta
+            val shortAvgDelta = glucoseStatus.shortAvgDelta
+
+            // IOB atual
+            val iobCalcs = iobCobCalculator.calculateIobFromBolus()
+            val iob = iobCalcs.iob + iobCalcs.basaliob.toFloat()
+
+            // Idade da canula
+            val cannulaAgeMin = getCannulaAgeMinutes()
+            val isCannulaRecent = cannulaAgeMin < CANNULA_AGE_THRESHOLD_MIN
+
+            // Pattern 1: canula recente + BG alto + delta positivo + IOB alto
+            val pattern1 = isCannulaRecent && currentBg > 200 && delta > 1.0 && iob > 3.0
+
+            // Pattern 2: BG teimoso — subida sustentada sem resposta a IOB
+            val pattern2 = currentBg > 200 && delta > 2.0 && iob > 4.0 && longAvgDelta > 0
+
+            if (!pattern1 && !pattern2) return
+
+            // Cooldown: máximo 1 alerta a cada 30 min
+            val nextAllowed = sp.getLong(SP_NEXT_CANNULA_ALERT, 0L)
+            if (nextAllowed > System.currentTimeMillis()) return
+
+            // Registrar snooze
+            sp.putLong(SP_NEXT_CANNULA_ALERT,
+                System.currentTimeMillis() + CANNULA_ALERT_COOLDOWN_MIN * 60 * 1000L)
+
+            val cannulaNote = if (isCannulaRecent) " (canula trocada há ${cannulaAgeMin}min)" else ""
+            val patternNote = if (pattern1) "BG alto+subindo+IOB alto" else "BG teimoso+subida sustentada"
+            val msg = "⚠️ Possível falha de canula! BG=${currentBg.toInt()} (▲${"%.1f".format(delta)}), " +
+                "IOB=${"%.1f".format(iob)}U, padrão: $patternNote$cannulaNote. Considere trocar a canula."
+
+            aapsLogger.warn(LTag.CORE, msg)
+
+            // Notificação no celular (mesmo padrão do low glucose alert)
+            rxBus.send(EventNewNotification(
+                Notification(CANNULA_FAILURE_ALERT_ID, msg, Notification.URGENT).also {
+                    it.soundId = app.aaps.core.ui.R.raw.alarm
+                }
+            ))
+
+            // Announcement no Nightscout
+            if (sp.getBoolean(app.aaps.core.utils.R.string.key_ns_create_announcements_from_errors, true)) {
+                disposable += repository.runTransaction(
+                    InsertTherapyEventAnnouncementTransaction(msg)
+                ).subscribe()
+            }
+
+        } catch (e: Exception) {
+            aapsLogger.error(LTag.CORE, "Error checking cannula failure alert", e)
+        }
+    }
+
+    /**
+     * Tarciso_COMPRESSION_ALERT — Alarme INFORMATIVO de compressão do sensor.
+     *
+     * Diferente do alarme de hipo: NÃO é urgente (som suave, nível INFO).
+     * Não compete com:
+     *   - xDrip (BG<70): só olha BG — este exige IOB<0.3 (mutuamente exclusivo)
+     *   - APS low (BG<91, IOB>2): exige IOB ALTO — exclusivo com IOB<0.3
+     *
+     * Condição: noite (22-5) && streak > threshold && IOB < threshold && BG < threshold
+     * Cooldown: 30 min (mesmo padrão da canula)
+     * Objetivo: acordar o usuário com instrução clara ("vire de lado e durma")
+     * em vez de ele acordar confuso com uma hipo falsa.
+     *
+     * VALIDADO com dados reais (07/Ago/2026): 0 falsos positivos nas noites
+     * pós-insulina (06/08, 07/08) e detecção em 6/6 noites de compressão.
+     */
+    override fun checkCompressionAlert() {
+        // 1. Toggle nas preferências (default OFF — usuário ativa conscientemente)
+        if (!sp.getBoolean(app.aaps.core.utils.R.string.key_enable_compression_alert, false)) return
+
+        try {
+            // 2. Janela noturna (padrão isNight do projeto: 22-23h e 0-5h)
+            val isNight = LocalTime.now().run { hour in 22..23 || hour in 0..5 }
+            if (!isNight) return
+
+            // 3. Reutiliza glucoseStatus (já disponível no LocalAlertUtilsImpl)
+            val glucoseStatus = glucoseStatusProvider.glucoseStatusData ?: return
+            val currentBg = glucoseStatus.glucose
+            val iobCalcs = iobCobCalculator.calculateIobFromBolus()
+            val iob = iobCalcs.iob + iobCalcs.basaliob.toFloat()
+
+            // 4. Thresholds configuráveis (defaults calibrados com dados reais)
+            val bgThreshold = sp.getString(app.aaps.core.utils.R.string.key_compression_bg_threshold, "80").toDouble()
+            val iobThreshold = sp.getString(app.aaps.core.utils.R.string.key_compression_iob_threshold, "0.3").toDouble()
+            val streakThreshold = sp.getInt(app.aaps.core.utils.R.string.key_compression_streak_threshold, 6)
+
+            // 5. Calcular streak de quedas consecutivas (últimas 6 leituras)
+            val streak = calcularStreakQuedas()
+            if (streak < streakThreshold) return
+
+            // 6. Condições principais (IOB é o ator principal)
+            if (iob >= iobThreshold) return
+            if (currentBg >= bgThreshold) return
+
+            // 7. Cooldown 30 min (mesmo padrão da canula)
+            val nextAllowed = sp.getLong(SP_NEXT_COMPRESSION_ALERT, 0L)
+            if (nextAllowed > System.currentTimeMillis()) return
+            sp.putLong(SP_NEXT_COMPRESSION_ALERT,
+                System.currentTimeMillis() + COMPRESSION_ALERT_COOLDOWN_MIN * 60 * 1000L)
+
+            // 8. Notificação INFORMATIVA (nível INFO, som suave de calibração)
+            val msg = rh.gs(app.aaps.core.ui.R.string.compression_alert_message) +
+                "\nBG ${currentBg.toInt()} (IOB ${"%.1f".format(iob)}U, ${streak} consecutive drops)" +
+                "\n→ TURN OVER and sleep (no sugar needed)" +
+                "\n→ If BG < 70: real hypo, take sugar"
+            aapsLogger.warn(LTag.CORE, "🛌 $msg")
+
+            rxBus.send(EventNewNotification(
+                Notification(COMPRESSION_ALERT_ID, msg, Notification.INFO).also {
+                    it.soundId = app.aaps.core.ui.R.raw.calibration   // som suave (não alarm)
+                }
+            ))
+
+            // 9. Announcement opcional (mesmo padrão dos outros alarmes)
+            if (sp.getBoolean(app.aaps.core.utils.R.string.key_ns_create_announcements_from_errors, true)) {
+                disposable += repository.runTransaction(
+                    InsertTherapyEventAnnouncementTransaction(msg)
+                ).subscribe()
+            }
+
+        } catch (e: Exception) {
+            aapsLogger.error(LTag.CORE, "Error checking compression alert", e)
+        }
+    }
+
+    /**
+     * Calcula o streak de quedas consecutivas nas últimas ~30 min.
+     * Reutiliza o mesmo padrão de query do projeto (compatGetBgReadingsDataFromTime).
+     */
+    private fun calcularStreakQuedas(): Int {
+        return try {
+            val agora = System.currentTimeMillis()
+            val readings = repository.compatGetBgReadingsDataFromTime(
+                agora - COMPRESSION_LOOKBACK_READINGS * 5 * 60 * 1000L, agora, false)
+                .timeout(3, TimeUnit.SECONDS)
+                .onErrorReturnItem(emptyList())
+                .blockingGet()
+                .filter { it.isValid }
+                .sortedBy { it.timestamp }   // mais antiga → mais recente
+
+            var streak = 0
+            for (i in readings.lastIndex downTo 1) {
+                if (readings[i].value < readings[i - 1].value) streak++
+                else break
+            }
+            streak
+        } catch (e: Exception) {
+            aapsLogger.warn(LTag.CORE, "Erro ao calcular streak de quedas", e)
+            0
+        }
+    }
+
+    /**
+     * Verifica se dois timestamps são do mesmo dia
+     */
+    private fun isSameDay(timestamp1: Long, timestamp2: Long): Boolean {
+        if (timestamp1 == 0L || timestamp2 == 0L) return false
+
+        val cal1 = Calendar.getInstance().apply { timeInMillis = timestamp1 }
+        val cal2 = Calendar.getInstance().apply { timeInMillis = timestamp2 }
+
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+            cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)
+    }
+
+    /**
+     * Verifica se houve evento de ponta de dedo desde o timestamp especificado
+     */
+    private fun hasFingerStickEventSince(timestamp: Long): Boolean {
+        if (timestamp == 0L) return false
+
+        try {
+            // Buscar eventos de ponta de dedo desde o timestamp do último alarme
+            val fingerStickEvents = repository.getTherapyEventDataFromTime(
+                timestamp,
+                TherapyEvent.Type.FINGER_STICK_BG_VALUE,
+                true
+            ).blockingGet()
+
+            val hasEvent = fingerStickEvents?.isNotEmpty() == true
+
+            if (hasEvent) {
+                aapsLogger.debug(LTag.CORE, "🖐️ Finger stick event found since ${dateUtil.dateAndTimeString(timestamp)}")
+            } else {
+                aapsLogger.debug(LTag.CORE, "🖐️ No finger stick event since last alarm")
+            }
+
+            return hasEvent
+        } catch (e: Exception) {
+            aapsLogger.error(LTag.CORE, "Error checking finger stick events", e)
+            return false
+        }
+    }
+
+
+
+    // =====================================================
+    // FUNÇÕES AUXILIARES PARA ALARMES
+    // =====================================================
+
+    private fun incrementarContadorAlarme() {
+        val currentCount = sp.getInt("low_glucose_alarm_counter", 0)
+        sp.putInt("low_glucose_alarm_counter", currentCount + 1)
+        aapsLogger.debug(LTag.CORE, "📊 Low glucose alarm counter incremented: ${currentCount + 1}")
+    }
+
+    private fun incrementarContadorAlarmeEstavel() {
+        val currentCount = sp.getInt("stable_good_glucose_alarm_counter", 0)
+        sp.putInt("stable_good_glucose_alarm_counter", currentCount + 1)
+        aapsLogger.debug(LTag.CORE, "📊 Stable good glucose alarm counter incremented: ${currentCount + 1}")
+    }
+
+    private fun registrarTimestampAlarme() {
+        try {
+            val timestampsJson = sp.getString("low_glucose_alarm_timestamps", "[]")
+            val jsonArray = JSONArray(timestampsJson)
+            jsonArray.put(System.currentTimeMillis())
+            sp.putString("low_glucose_alarm_timestamps", jsonArray.toString())
+            aapsLogger.debug(LTag.CORE, "⏰ Low glucose alarm timestamp registered")
+        } catch (e: Exception) {
+            aapsLogger.error(LTag.CORE, "Error registering low glucose alarm timestamp", e)
+        }
+    }
+
+    private fun registrarTimestampAlarmeEstavel() {
+        try {
+            val timestampsJson = sp.getString("stable_good_glucose_alarm_timestamps", "[]")
+            val jsonArray = JSONArray(timestampsJson)
+            jsonArray.put(System.currentTimeMillis())
+            sp.putString("stable_good_glucose_alarm_timestamps", jsonArray.toString())
+            aapsLogger.debug(LTag.CORE, "⏰ Stable good glucose alarm timestamp registered")
+        } catch (e: Exception) {
+            aapsLogger.error(LTag.CORE, "Error registering stable good glucose alarm timestamp", e)
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // =====================================================
+    // NOVO ALARME: FIM!!!! GLICEMIA ESTÁVEL EM FAIXA BOA
+    // =====================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+    private fun incrementarContadorAlarme() {
+        val currentCount = sp.getInt("low_glucose_alarm_counter", 0)
+        sp.putInt("low_glucose_alarm_counter", currentCount + 1)
+        aapsLogger.debug(LTag.CORE, "📊 Alarm counter incremented: ${currentCount + 1}")
+    }
+
+    private fun registrarTimestampAlarme() {
+        try {
+            val timestampsJson = sp.getString("low_glucose_alarm_timestamps", "[]")
+            val jsonArray = JSONArray(timestampsJson)
+            jsonArray.put(System.currentTimeMillis())
+            sp.putString("low_glucose_alarm_timestamps", jsonArray.toString())
+            aapsLogger.debug(LTag.CORE, "⏰ Alarm timestamp registered")
+        } catch (e: Exception) {
+            aapsLogger.error(LTag.CORE, "Error registering alarm timestamp", e)
+        }
+    }
+
+*/
+
+
 
     override fun checkPumpUnreachableAlarm(lastConnection: Long, isStatusOutdated: Boolean, isDisconnected: Boolean) {
         val alarmTimeoutExpired = isAlarmTimeoutExpired(lastConnection, pumpUnreachableThreshold())
@@ -73,6 +701,7 @@ class LocalAlertUtilsImpl @Inject constructor(
                 uel.log(Action.CAREPORTAL, Sources.Aaps, rh.gs(app.aaps.core.ui.R.string.pump_unreachable), ValueWithUnit.TherapyEventType(TherapyEvent.Type.ANNOUNCEMENT))
                 if (sp.getBoolean(app.aaps.core.utils.R.string.key_ns_create_announcements_from_errors, true))
                     disposable += repository.runTransaction(InsertTherapyEventAnnouncementTransaction(rh.gs(app.aaps.core.ui.R.string.pump_unreachable))).subscribe()
+                 // disposable += repository.runTransaction(InsertTherapyEventAnnouncementTransaction(rh.gs(app.aaps.core.ui.R.string.pump_unreachable))).subscribe()
             }
             if (sp.getBoolean(app.aaps.core.utils.R.string.key_smscommunicator_report_pump_unreachable, true))
                 smsCommunicator.sendNotificationToAllNumbers(rh.gs(app.aaps.core.ui.R.string.pump_unreachable))
@@ -107,6 +736,14 @@ class LocalAlertUtilsImpl @Inject constructor(
         var nextPumpDisconnectedAlarm = sp.getLong("nextPumpDisconnectedAlarm", 0L)
         nextPumpDisconnectedAlarm = min(System.currentTimeMillis() + pumpUnreachableThreshold(), nextPumpDisconnectedAlarm)
         sp.putLong("nextPumpDisconnectedAlarm", nextPumpDisconnectedAlarm)
+        // PARTE 2 - INICIO
+        // Novo: shorten para alarme de glicemia baixa
+        var nextLowGlucoseAlarm = sp.getLong("nextLowGlucoseAlarm", 0L)
+        nextLowGlucoseAlarm = min(System.currentTimeMillis() + T.mins(30).msecs(), nextLowGlucoseAlarm)
+        sp.putLong("nextLowGlucoseAlarm", nextLowGlucoseAlarm)
+        // PARTE 2 0 FIM
+
+
     }
 
     override fun notifyPumpStatusRead() { //TODO: persist the actual time the pump is read and simplify the whole logic when to alarm
@@ -120,6 +757,72 @@ class LocalAlertUtilsImpl @Inject constructor(
             }
         }
     }
+
+
+    override fun getAlarmesUltimaHora(): Int{
+        return getAlarmesNoPeriodo(T.hours(1).msecs())
+    }
+
+    override fun getAlarmesNoPeriodo(periodoMillis: Long): Int {
+        try {
+            val timestampsJson = sp.getString("low_glucose_alarm_timestamps", "[]")
+            val jsonArray = JSONArray(timestampsJson)
+            val agora = System.currentTimeMillis()
+            var count = 0
+
+            for (i in 0 until jsonArray.length()) {
+                val timestamp = jsonArray.getLong(i)
+                if (agora - timestamp <= periodoMillis) {
+                    count++
+                }
+            }
+
+            return count
+        } catch (e: Exception) {
+            aapsLogger.error(LTag.CORE, "Erro ao contar alarmes", e)
+            return 0
+        }
+    }
+
+    override fun getEstatisticasAlarmes(): JSONObject {
+        return JSONObject().apply {
+            put("total_alarmes", getTotalAlarmes())
+            put("ultima_hora", getAlarmesUltimaHora())
+            put("ultimas_24h", getAlarmesNoPeriodo(T.hours(24).msecs()))
+            put("ultima_semana", getAlarmesNoPeriodo(T.days(7).msecs()))
+        }
+    }
+
+    override fun getTotalAlarmes(): Int {
+        return sp.getInt("low_glucose_alarm_counter", 0)
+    }
+
+    private fun registrarAlarmeLowGlucose() {
+        incrementarContadorAlarme()
+        registrarTimestampAlarme()
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     override fun checkStaleBGAlert() {
         val bgReadingWrapped = repository.getLastGlucoseValueWrapped().blockingGet()
@@ -154,4 +857,7 @@ class LocalAlertUtilsImpl @Inject constructor(
             rxBus.send(EventDismissNotification(Notification.BG_READINGS_MISSED))
         }
     }
+
+
+
 }

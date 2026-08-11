@@ -20,4 +20,16 @@
         <item>@string/custom_pin</item>
     </string-array>
 
+    <string-array name="auto_adjust_interval_entries">
+        <item>Every 2 hours</item>
+        <item>Every 3 hours</item>
+        <item>Every 4 hours</item>
+    </string-array>
+
+    <string-array name="auto_adjust_interval_values">
+        <item>120</item>
+        <item>180</item>
+        <item>240</item>
+    </string-array>
+
 </resources>

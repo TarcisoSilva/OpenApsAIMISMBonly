@@ -1,3 +1,4 @@
+// Alterado pelo Tarciso
 package app.aaps.plugins.main.skins
 
 import android.util.TypedValue.COMPLEX_UNIT_PX
@@ -15,6 +16,9 @@ interface SkinInterface {
 
     val mainGraphHeight: Int // in dp
     val secondaryGraphHeight: Int // in dp
+    
+    // Layout resource ID for overview fragment
+    fun getOverviewLayoutId(): Int = R.layout.overview_fragment
 
     // no pre processing by default
     fun preProcessLandscapeActionsLayout(isLandscape: Boolean, binding: ActionsFragmentBinding) {
@@ -23,21 +27,34 @@ interface SkinInterface {
     fun preProcessLandscapeOverviewLayout(binding: OverviewFragmentBinding, isLandscape: Boolean, isTablet: Boolean, isSmallHeight: Boolean) {
         if (isLandscape) {
             val iobLayout = binding.infoLayout.iobLayout
-            val iobLayoutParams = iobLayout.layoutParams as ConstraintLayout.LayoutParams
+            // Alterado pelo Tarciso - Fix ClassCastException - Add type check before casting
+            val iobLayoutParams = iobLayout.layoutParams
+            if (iobLayoutParams !is ConstraintLayout.LayoutParams) return
+            
             val timeLayout = binding.infoLayout.timeLayout
             //iobLayoutParams.startToStart = ConstraintLayout.LayoutParams.UNSET
             //iobLayoutParams.startToEnd = timeLayout.id
             //iobLayoutParams.topToBottom = ConstraintLayout.LayoutParams.UNSET
             //iobLayoutParams.topToTop = ConstraintLayout.LayoutParams.PARENT_ID
-            val timeLayoutParams = timeLayout.layoutParams as ConstraintLayout.LayoutParams
+            
+            // Alterado pelo Tarciso - Fix ClassCastException - Add type check before casting
+            val timeLayoutParams = timeLayout.layoutParams
+            if (timeLayoutParams !is ConstraintLayout.LayoutParams) return
             timeLayoutParams.endToEnd = ConstraintLayout.LayoutParams.UNSET
             timeLayoutParams.endToStart = iobLayout.id
+            
             //Tarciso. Tarciso removido a area do alarme de CARBO necessário
             //val cobLayoutParams = binding.infoLayout.cobLayout.layoutParams as ConstraintLayout.LayoutParams
             //cobLayoutParams.topToTop = ConstraintLayout.LayoutParams.PARENT_ID
-            val basalLayoutParams = binding.infoLayout.basalLayout.layoutParams as ConstraintLayout.LayoutParams
+            
+            // Alterado pelo Tarciso - Fix ClassCastException - Add type check before casting
+            val basalLayoutParams = binding.infoLayout.basalLayout.layoutParams
+            if (basalLayoutParams !is ConstraintLayout.LayoutParams) return
             basalLayoutParams.topToTop = ConstraintLayout.LayoutParams.PARENT_ID
-            val extendedLayoutParams = binding.infoLayout.extendedLayout.layoutParams as ConstraintLayout.LayoutParams
+            
+            // Alterado pelo Tarciso - Fix ClassCastException - Add type check before casting
+            val extendedLayoutParams = binding.infoLayout.extendedLayout.layoutParams
+            if (extendedLayoutParams !is ConstraintLayout.LayoutParams) return
             extendedLayoutParams.topToTop = ConstraintLayout.LayoutParams.PARENT_ID
             // Remove sensitivy e extended layout
             //val asLayoutParams = binding.infoLayout.asLayout.layoutParams as ConstraintLayout.LayoutParams

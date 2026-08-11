@@ -118,7 +118,7 @@ class ComboV2Fragment : DaggerFragment() {
                             when (connectionState) {
                                 ComboV2Plugin.DriverState.Error     -> Color.RED
                                 ComboV2Plugin.DriverState.Suspended -> Color.YELLOW
-                                else                                -> Color.WHITE
+                                else                                -> Color.GRAY
                             }
                         )
                     }
@@ -160,7 +160,7 @@ class ComboV2Fragment : DaggerFragment() {
 
                             BatteryState.FULL_BATTERY -> {
                                 binding.combov2Battery.text = rh.gs(R.string.combov2_battery_full_indicator)
-                                binding.combov2Battery.setTextColor(Color.WHITE)
+                                binding.combov2Battery.setTextColor(Color.GRAY)
                             }
                         }
                     }
@@ -175,10 +175,10 @@ class ComboV2Fragment : DaggerFragment() {
 
                         binding.combov2Reservoir.setTextColor(
                             when (reservoirLevel?.state) {
-                                null                 -> Color.WHITE
+                                null                 -> Color.GRAY
                                 ReservoirState.EMPTY -> Color.RED
                                 ReservoirState.LOW   -> Color.YELLOW
-                                ReservoirState.FULL  -> Color.WHITE
+                                ReservoirState.FULL  -> Color.GRAY
                             }
                         )
                     }
@@ -249,12 +249,12 @@ class ComboV2Fragment : DaggerFragment() {
 
             in 0..60         -> {
                 binding.combov2LastConnection.text = rh.gs(R.string.combov2_less_than_one_minute_ago)
-                binding.combov2LastConnection.setTextColor(Color.WHITE)
+                binding.combov2LastConnection.setTextColor(Color.GRAY)
             }
 
             in 60..(30 * 60) -> {
                 binding.combov2LastConnection.text = rh.gs(app.aaps.core.interfaces.R.string.minago, secondsPassed / 60)
-                binding.combov2LastConnection.setTextColor(Color.WHITE)
+                binding.combov2LastConnection.setTextColor(Color.GRAY)
             }
 
             else             -> {
@@ -269,6 +269,7 @@ class ComboV2Fragment : DaggerFragment() {
 
         if (lastBolus == null) {
             binding.combov2LastBolus.text = ""
+            binding.combov2LastBolus.setTextColor(Color.GRAY)
             return
         }
 

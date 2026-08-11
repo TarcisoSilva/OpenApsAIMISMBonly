@@ -104,6 +104,14 @@ class KeepAliveWorker(
 
         localAlertUtils.shortenSnoozeInterval()
         localAlertUtils.checkStaleBGAlert()
+
+
+        //Tarciso_NEW_ALARM_ADD
+        localAlertUtils.checkLowGlucoseAlert()
+        localAlertUtils.checkStableGoodGlucoseAlert()
+        localAlertUtils.checkCannulaFailureAlert()
+        localAlertUtils.checkCompressionAlert()   // Tarciso_COMPRESSION_ALERT
+
         checkPump()
         checkAPS()
         maintenancePlugin.deleteLogs(30)

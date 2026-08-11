@@ -26,3 +26,17 @@ app/pumpcontrol/*
 wear/aapsclient/*
 wear/aapsclient2/*
 wear/pumpcontrol/*
+
+# ─── Tarciso (11/Ago/2026) — proteção de privacidade ───
+# Workspace Hermes (dados clínicos, anexos, emulator_daily — NUNCA versionar)
+.hermes/
+# Dados de paciente / leituras de BG / doses
+*.csv
+*.xlsx
+*.mp3
+# Dependências locais (docx para relatórios)
+node_modules/
+# Relatórios de análise clínica (não versionar — contêm dados do paciente)
+/relatorio_*.docx
+/proposta_*.docx
+/analise_*.docx

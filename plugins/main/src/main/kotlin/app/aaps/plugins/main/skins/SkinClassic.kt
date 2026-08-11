@@ -1,3 +1,4 @@
+// Alterado pelo Tarciso
 package app.aaps.plugins.main.skins
 
 import app.aaps.core.interfaces.configuration.Config
@@ -12,6 +13,8 @@ class SkinClassic @Inject constructor(private val config: Config) : SkinInterfac
     override val description: Int get() = R.string.classic_description
     override val mainGraphHeight: Int get() = 200
     override val secondaryGraphHeight: Int get() = 100
+    
+    override fun getOverviewLayoutId(): Int = R.layout.overview_fragment_classic
 
     override fun preProcessLandscapeOverviewLayout(binding: OverviewFragmentBinding, isLandscape: Boolean, isTablet: Boolean, isSmallHeight: Boolean) {
         super.preProcessLandscapeOverviewLayout(binding, isLandscape, isTablet, isSmallHeight)

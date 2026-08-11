@@ -14,6 +14,9 @@ import dagger.android.HasAndroidInjector
 interface UiInteraction {
 
     val mainActivity: Class<*>
+    // Tarciso
+    val statsActivity: Class<*>
+    val treatmentsActivity: Class<*>
     val tddStatsActivity: Class<*>
     val historyBrowseActivity: Class<*>
     val errorHelperActivity: Class<*>

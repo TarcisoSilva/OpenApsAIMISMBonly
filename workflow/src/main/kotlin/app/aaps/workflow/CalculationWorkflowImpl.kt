@@ -84,7 +84,7 @@ class CalculationWorkflowImpl @Inject constructor(
                            if (event.isChanged(rh.gs(app.aaps.core.utils.R.string.key_rangetodisplay))) {
                                overviewData.initRange()
                                runOnScaleChanged()
-                               rxBus.send(EventNewHistoryData(0, false))
+                               // rxBus.send(EventNewHistoryData(0, false))
                            }
                        }, fabricPrivacy::logException)
         disposable += rxBus

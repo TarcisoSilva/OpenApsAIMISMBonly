@@ -76,7 +76,21 @@
     <string name="key_carbs_button_increment_2" translatable="false">carbs_button_increment_2</string>
     <string name="key_carbs_button_increment_3" translatable="false">carbs_button_increment_3</string>
     <string name="key_enable_pump_unreachable_alert" translatable="false">enable_pump_unreachable_alert</string>
+    <!-- Tarciso_NEW_ALARM_ADD -->
     <string name="key_enable_missed_bg_readings_alert" translatable="false">enable_missed_bg_readings</string>
+    <string name="key_enable_stable_good_glucose_alert" translatable="false">enable_stable_good_glucose_alert</string>
+    <string name="key_enable_low_glucose_alert" translatable="false">enable_low_glucose_alert</string>
+    <string name="key_bg_threshold_alert" translatable="false">bg_threshold_alert</string>
+    <string name="key_delta_threshold_alert" translatable="false">delta_threshold_alert</string>
+    <string name="key_iob_threshold_alert" translatable="false">iob_threshold_alert</string>
+    <string name="key_aimi_cannula_failure_alert" translatable="false">enable_cannula_failure_alert</string>
+    <!-- Tarciso_COMPRESSION_ALERT -->
+    <string name="key_enable_compression_alert" translatable="false">enable_compression_alert</string>
+    <string name="key_compression_bg_threshold" translatable="false">compression_bg_threshold</string>
+    <string name="key_compression_iob_threshold" translatable="false">compression_iob_threshold</string>
+    <string name="key_compression_streak_threshold" translatable="false">compression_streak_threshold</string>
+
+
     <string name="key_enable_carbs_required_alert_local" translatable="false">enable_carbs_required_alert_local</string>
     <string name="key_smscommunicator_report_pump_unreachable" translatable="false">smscommunicator_report_pump_unreachable</string>
     <string name="key_rangetodisplay" translatable="false">rangetodisplay</string>

@@ -15,6 +15,8 @@ class SkinLowRes @Inject constructor(private val config: Config) : SkinInterface
     override val description: Int get() = R.string.lowres_description
     override val mainGraphHeight: Int get() = 200
     override val secondaryGraphHeight: Int get() = 100
+    
+    override fun getOverviewLayoutId(): Int = R.layout.overview_fragment
 
     override fun preProcessLandscapeActionsLayout(isLandscape: Boolean, binding: ActionsFragmentBinding) {
         if (!isLandscape) {

@@ -14,5 +14,6 @@ abstract class ActivitiesModule {
     @ContributesAndroidInjector abstract fun contributesHistoryBrowseActivity(): HistoryBrowseActivity
     @ContributesAndroidInjector abstract fun contributesMainActivity(): MainActivity
     @ContributesAndroidInjector abstract fun contributesPreferencesActivity(): PreferencesActivity
+    @ContributesAndroidInjector abstract fun contributesToolsActivity(): app.aaps.ui.activities.ToolsActivity
     @ContributesAndroidInjector abstract fun contributesPreferencesFragment(): MyPreferenceFragment
 }

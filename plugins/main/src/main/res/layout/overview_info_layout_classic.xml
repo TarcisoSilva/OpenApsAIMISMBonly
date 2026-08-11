@@ -1,0 +1,715 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Alterado pelo Tarciso -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/info_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="5dp">
+
+    <!-- Guidelines para compatibilidade -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.185" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.325" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="202dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.69" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="75dp" />
+
+    <!-- LEFT SIDE BUTTONS -->
+    <!-- Insulin Age and Reservoir Button (Left Top) -->
+
+    <!-- Cannula Age Button (Left Middle) -->
+
+    <!-- Battery Button (Left Bottom) -->
+
+    <!-- CENTER: BG CIRCLE CONTAINER -->
+
+    <!-- RIGHT SIDE BUTTONS -->
+    <!-- Sensor Age Button (Right Top) -->
+
+    <LinearLayout
+        android:id="@+id/left_insulin_reservoir_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="6dp"
+        android:background="@drawable/overview_pill_background"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="10dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="4dp"
+        app:layout_constraintBottom_toTopOf="@id/left_cannula_button"
+        app:layout_constraintEnd_toStartOf="@id/bg_circle_container"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Alterado pelo Tarciso - Added tint to match text color -->
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:contentDescription="@string/a11y_insulin_label"
+            app:srcCompat="@drawable/ic_cp_age_insulin"
+            app:tint="@color/defaultText" />
+
+        <TextView
+            android:id="@+id/left_insulin_age"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="1dp"
+            android:fontFamily="@font/inter_font"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:textSize="14sp"
+            tools:text="542h 50U" />
+
+        <TextView
+            android:id="@+id/left_insulin_reservoir"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="1dp"
+            android:fontFamily="@font/inter_font"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:textSize="14sp"
+            tools:text="100%" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/left_cannula_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="09dp"
+        android:background="@drawable/overview_pill_background"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="10dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="4dp"
+        app:layout_constraintBottom_toTopOf="@id/left_battery_button"
+        app:layout_constraintEnd_toStartOf="@id/bg_circle_container"
+        app:layout_constraintTop_toBottomOf="@id/left_insulin_reservoir_button">
+
+        <!-- Alterado pelo Tarciso - Added tint to match text color -->
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            app:tint="@color/defaultTextColor"
+            android:contentDescription="@string/statuslights_cannula_age"
+            app:srcCompat="@drawable/ic_cp_age_cannula" />
+
+        <TextView
+            android:id="@+id/left_cannula_age"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:fontFamily="@font/inter_font"
+            android:paddingStart="3dp"
+            android:paddingEnd="0dp"
+            android:textSize="14sp"
+            tools:text="12d2h" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/left_battery_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="06dp"
+        android:background="@drawable/overview_pill_background"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="10dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="4dp"
+        app:layout_constraintBottom_toBottomOf="@id/bg_circle_container"
+        app:layout_constraintEnd_toStartOf="@id/bg_circle_container">
+
+        <!-- Alterado pelo Tarciso - Added tint to match text color -->
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            app:tint="@color/defaultTextColor"
+            android:contentDescription="@string/battery_label"
+            app:srcCompat="@drawable/ic_cp_age_battery" />
+
+        <TextView
+            android:id="@+id/left_battery_level"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:fontFamily="@font/inter_font"
+            android:paddingStart="3dp"
+            android:paddingEnd="0dp"
+            android:textSize="14sp"
+            tools:text="100%" />
+    </LinearLayout>
+
+    <!-- Sensor Battery Button (Right Middle) -->
+
+    <!-- Conf Button (Right Bottom) -->
+
+    <!-- IOB/COB/Basal Row (Horizontal Layout) -->
+
+    <FrameLayout
+        android:id="@+id/bg_circle_container"
+        android:layout_width="136dp"
+        android:layout_height="142dp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.509"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Green Circle Background -->
+
+        <!-- BG Value (centered in circle) -->
+
+        <!-- MinAgo (below BG) -->
+
+        <!-- Arrow and Delta Container (below MinAgo) -->
+
+        <ImageView
+            android:id="@+id/bg_circle"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:background="@drawable/bg_circle_green"
+            />
+
+        <TextView
+            android:id="@+id/bg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="-20dp"
+            android:fontFamily="@font/inter_font"
+            android:textColor="#00FF00"
+            android:textSize="48sp"
+            android:textStyle="bold"
+            tools:text="314" />
+
+        <TextView
+            android:id="@+id/time_ago"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/inter_font"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            tools:text="5 min ago" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="33dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/arrow"
+                android:layout_width="26dp"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/trend_arrow" />
+
+            <TextView
+                android:id="@+id/delta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:fontFamily="@font/inter_font"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                tools:text="+1" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/right_sensor_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="06dp"
+        android:background="@drawable/overview_pill_background"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="10dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="4dp"
+        app:layout_constraintBottom_toTopOf="@id/right_sensor_battery_button"
+        app:layout_constraintStart_toEndOf="@id/bg_circle_container"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Alterado pelo Tarciso - Added tint to match text color -->
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            app:tint="@color/defaultTextColor"
+            android:contentDescription="@string/sensor_label"
+            app:srcCompat="@drawable/ic_cp_age_sensor" />
+
+        <TextView
+            android:id="@+id/right_sensor_age"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="1dp"
+            android:fontFamily="@font/inter_font"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:textSize="14sp"
+            tools:text="12d2h" />
+
+        <TextView
+            android:id="@+id/right_sensor_battery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="1dp"
+            android:fontFamily="@font/inter_font"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:textSize="14sp"
+            tools:text="100%" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/right_sensor_battery_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="09dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/overview_pill_background"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="10dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="4dp"
+        app:layout_constraintBottom_toTopOf="@id/right_conf_button"
+        app:layout_constraintStart_toEndOf="@id/bg_circle_container"
+        app:layout_constraintTop_toBottomOf="@id/right_sensor_button">
+
+        <!-- Loop Icon (Top Left) -->
+        <ImageView
+            android:id="@+id/aps_mode"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:contentDescription="@string/aps_mode_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_loop_closed" />
+
+        <TextView
+            android:id="@+id/aps_mode_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="1dp"
+            android:fontFamily="@font/inter_font"
+            android:paddingStart="2dp"
+            android:paddingEnd="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Loop" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/right_conf_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="06dp"
+        android:background="@drawable/overview_pill_background"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="10dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="4dp"
+        app:layout_constraintBottom_toBottomOf="@id/bg_circle_container"
+        app:layout_constraintStart_toEndOf="@id/bg_circle_container">
+
+        <!-- Alterado pelo Tarciso - Added tint to match text color -->
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            app:tint="@color/defaultTextColor"
+            android:contentDescription="@string/configbuilder"
+            app:srcCompat="@drawable/ic_settings" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="1dp"
+            android:fontFamily="@font/inter_font"
+            android:paddingStart="2dp"
+            android:paddingEnd="0dp"
+            android:text="Conf"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/metrics_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:weightSum="3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bg_circle_container">
+
+        <!-- IOB -->
+        <LinearLayout
+            android:id="@+id/iob_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:fontFamily="@font/inter_font"
+                android:text="IOB"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/iob"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_font"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="0.0 U" />
+        </LinearLayout>
+
+        <!-- COB -->
+
+        <!-- Basal -->
+        <LinearLayout
+            android:id="@+id/cob_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:fontFamily="@font/inter_font"
+                android:text="Target"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/temp_target"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/overview_pill_temptarget"
+                android:fontFamily="@font/inter_font"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="120 (999h 32)" />
+
+            <ImageView
+                android:id="@+id/carbs_icon"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/basal_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:fontFamily="@font/inter_font"
+                android:text="Basal"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/base_basal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_font"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="0.05 U/h" />
+
+            <ImageView
+                android:id="@+id/base_basal_icon"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Time Layout (Top Right - moved from circle) -->
+    <LinearLayout
+        android:id="@+id/time_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:gravity="end"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/time_ago_short"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:text="15%" />
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:text="8:00 PM" />
+
+        <ImageView
+            android:id="@+id/bg_quality"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/a11y_bg_quality"
+            android:visibility="gone" />
+    </LinearLayout>
+
+
+    <!-- Status Light Buttons (Original Position - kept for compatibility) -->
+    <LinearLayout
+        android:id="@+id/extended_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/overview_pill_background"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="6dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="6dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/metrics_row">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:contentDescription="@string/extended_bolus"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_actions_start_extended_bolus" />
+
+        <TextView
+            android:id="@+id/extended_bolus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FF0000"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            tools:text="944/7h 50U"
+            tools:visibility="gone" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/reservoir_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/overview_pill_background"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="6dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="6dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toEndOf="@id/extended_layout"
+        app:layout_constraintTop_toTopOf="@id/extended_layout">
+
+        <ImageView
+            android:id="@+id/reservoir_icon"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_reservoir" />
+
+        <TextView
+            android:id="@+id/reservoirLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FF0000"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            tools:text="944/7h 50U" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tt_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/overview_pill_background"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="6dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="6dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toEndOf="@id/reservoir_layout"
+        app:layout_constraintTop_toTopOf="@id/extended_layout">
+
+        <ImageView
+            android:id="@+id/temp_target_icon"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:contentDescription="@string/temporary_target"
+            android:visibility="gone" />
+
+
+    </LinearLayout>
+
+
+    <!-- Sensitivity Layout (hidden but kept for compatibility) -->
+    <LinearLayout
+        android:id="@+id/as_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/cob"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="0 g"
+            tools:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/sensitivity_icon"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/sensitivity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            tools:text="90" />
+    </LinearLayout>
+
+    <!-- Hidden elements for compatibility -->
+    <TextView
+        android:id="@+id/avg_delta"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/long_avg_delta"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/delta_large"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/variable_sensitivity"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/aps_time_column"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/bg_column"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="20dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

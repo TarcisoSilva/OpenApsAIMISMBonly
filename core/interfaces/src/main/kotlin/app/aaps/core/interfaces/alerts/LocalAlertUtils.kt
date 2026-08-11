@@ -1,8 +1,22 @@
 package app.aaps.core.interfaces.alerts
 
+import org.json.JSONObject
+
 interface LocalAlertUtils {
 
     fun checkPumpUnreachableAlarm(lastConnection: Long, isStatusOutdated: Boolean, isDisconnected: Boolean)
+
+    //Tarciso_NEW_ALARM_ADD
+    // Tarciso low Glucose Alarm
+    fun checkLowGlucoseAlert()
+
+    fun checkStableGoodGlucoseAlert()
+
+    fun checkCannulaFailureAlert()
+
+    // Tarciso_COMPRESSION_ALERT
+    fun checkCompressionAlert()
+
 
     /* Pre-snoozes the alarms with 5 minutes if no snooze exists.
      * Call only at startup!
@@ -14,4 +28,8 @@ interface LocalAlertUtils {
     fun shortenSnoozeInterval()
     fun notifyPumpStatusRead()
     fun checkStaleBGAlert()
+    fun getAlarmesUltimaHora(): Int
+    fun getAlarmesNoPeriodo(periodoMillis: Long): Int
+    fun getEstatisticasAlarmes(): JSONObject
+    fun getTotalAlarmes(): Int
 }

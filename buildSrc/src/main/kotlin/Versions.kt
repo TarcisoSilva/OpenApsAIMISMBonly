@@ -13,6 +13,6 @@ object Versions {
     const val wearMinSdk = 26
     const val wearTargetSdk = 29
 
-    val javaVersion = JavaVersion.VERSION_11
+    val javaVersion = JavaVersion.VERSION_1_8
     const val jacoco = "0.8.11"
 }

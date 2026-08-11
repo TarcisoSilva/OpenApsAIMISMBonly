@@ -1,3 +1,3 @@
 package app.aaps.core.interfaces.rx.events
 
-class EventScale(val hours: Int) : Event()
+class EventScale(val hours: Int, val resethours: Int) : Event()

@@ -1,0 +1,180 @@
+Kotlin does not yet support 23 JDK target, falling back to Kotlin JVM_21 JVM target
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+
+> Task :buildSrc:compileKotlin
+Kotlin does not yet support 23 JDK target, falling back to Kotlin JVM_21 JVM target
+w: Inconsistent JVM-target compatibility detected for tasks 'compileJava' (23) and 'compileKotlin' (21).
+This will become an error in Gradle 8.0.
+Consider using JVM Toolchain: https://kotl.in/gradle/jvm/toolchain
+Learn more about JVM-target validation: https://kotl.in/gradle/jvm/target-validation 
+
+
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+
+> Task :buildSrc:compileKotlin
+w: file:///Users/tarciso/Downloads/OpenApsAIMI-master_Plugin_OpenApsAIMI_Steps-DEV-2/buildSrc/src/main/kotlin/jacoco-app-dependencies.gradle.kts:120:24 'getter for buildDir: File' is deprecated. Deprecated in Java
+w: file:///Users/tarciso/Downloads/OpenApsAIMI-master_Plugin_OpenApsAIMI_Steps-DEV-2/buildSrc/src/main/kotlin/jacoco-app-dependencies.gradle.kts:124:24 'getter for buildDir: File' is deprecated. Deprecated in Java
+w: file:///Users/tarciso/Downloads/OpenApsAIMI-master_Plugin_OpenApsAIMI_Steps-DEV-2/buildSrc/src/main/kotlin/jacoco-app-dependencies.gradle.kts:140:30 'getter for buildDir: File' is deprecated. Deprecated in Java
+w: file:///Users/tarciso/Downloads/OpenApsAIMI-master_Plugin_OpenApsAIMI_Steps-DEV-2/buildSrc/src/main/kotlin/jacoco-module-dependencies.gradle.kts:120:24 'getter for buildDir: File' is deprecated. Deprecated in Java
+w: file:///Users/tarciso/Downloads/OpenApsAIMI-master_Plugin_OpenApsAIMI_Steps-DEV-2/buildSrc/src/main/kotlin/jacoco-module-dependencies.gradle.kts:124:24 'getter for buildDir: File' is deprecated. Deprecated in Java
+w: file:///Users/tarciso/Downloads/OpenApsAIMI-master_Plugin_OpenApsAIMI_Steps-DEV-2/buildSrc/src/main/kotlin/jacoco-module-dependencies.gradle.kts:140:30 'getter for buildDir: File' is deprecated. Deprecated in Java
+
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+
+> Configure project :app
+Declaring client module dependencies has been deprecated. This is scheduled to be removed in Gradle 9.0. Please use component metadata rules instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.9/userguide/upgrading_version_8.html#declaring_client_module_dependencies
+error: No such remote 'origin'
+-------------------
+isMaster: false
+gitAvailable: true
+allCommitted: false
+-------------------
+The Configuration.fileCollection(Spec) method has been deprecated. This is scheduled to be removed in Gradle 9.0. Use Configuration.getIncoming().artifactView(Action) with a componentFilter instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.9/userguide/upgrading_version_8.html#deprecate_filtered_configuration_file_and_filecollection_methods
+
+> Task :core:main:preBuild UP-TO-DATE
+> Task :core:utils:preBuild UP-TO-DATE
+> Task :database:entities:preBuild UP-TO-DATE
+> Task :database:impl:preBuild UP-TO-DATE
+> Task :core:graphview:preBuild UP-TO-DATE
+> Task :core:interfaces:preBuild UP-TO-DATE
+> Task :core:ui:preBuild UP-TO-DATE
+> Task :core:utils:preFullReleaseBuild UP-TO-DATE
+> Task :core:ui:preFullReleaseBuild UP-TO-DATE
+> Task :database:impl:preFullReleaseBuild UP-TO-DATE
+> Task :core:graphview:preFullReleaseBuild UP-TO-DATE
+> Task :implementation:checkKotlinGradlePluginConfigurationErrors
+> Task :database:entities:preFullReleaseBuild UP-TO-DATE
+> Task :implementation:preBuild UP-TO-DATE
+> Task :core:main:preFullReleaseBuild UP-TO-DATE
+> Task :core:interfaces:preFullReleaseBuild UP-TO-DATE
+> Task :implementation:preFullReleaseBuild UP-TO-DATE
+
+> Task :core:graphview:dataBindingMergeDependencyArtifactsFullRelease
+Mutating the dependencies of configuration ':core:graphview:fullReleaseCompileClasspath' after it has been resolved or consumed. This behavior has been deprecated. This will fail with an error in Gradle 9.0. After a Configuration has been resolved, consumed as a variant, or used for generating published metadata, it should not be modified. Consult the upgrading guide for further information: https://docs.gradle.org/8.9/userguide/upgrading_version_8.html#mutate_configuration_after_locking
+
+> Task :database:entities:dataBindingMergeDependencyArtifactsFullRelease
+Mutating the dependencies of configuration ':database:entities:fullReleaseCompileClasspath' after it has been resolved or consumed. This behavior has been deprecated. This will fail with an error in Gradle 9.0. After a Configuration has been resolved, consumed as a variant, or used for generating published metadata, it should not be modified. Consult the upgrading guide for further information: https://docs.gradle.org/8.9/userguide/upgrading_version_8.html#mutate_configuration_after_locking
+
+> Task :core:graphview:generateFullReleaseResValues
+> Task :core:graphview:generateFullReleaseResources
+> Task :database:entities:generateFullReleaseResValues
+> Task :database:entities:generateFullReleaseResources
+
+> Task :core:utils:dataBindingMergeDependencyArtifactsFullRelease
+Mutating the dependencies of configuration ':core:utils:fullReleaseCompileClasspath' after it has been resolved or consumed. This behavior has been deprecated. This will fail with an error in Gradle 9.0. After a Configuration has been resolved, consumed as a variant, or used for generating published metadata, it should not be modified. Consult the upgrading guide for further information: https://docs.gradle.org/8.9/userguide/upgrading_version_8.html#mutate_configuration_after_locking
+
+> Task :database:entities:packageFullReleaseResources
+
+> Task :core:ui:dataBindingMergeDependencyArtifactsFullRelease
+Mutating the dependencies of configuration ':core:ui:fullReleaseCompileClasspath' after it has been resolved or consumed. This behavior has been deprecated. This will fail with an error in Gradle 9.0. After a Configuration has been resolved, consumed as a variant, or used for generating published metadata, it should not be modified. Consult the upgrading guide for further information: https://docs.gradle.org/8.9/userguide/upgrading_version_8.html#mutate_configuration_after_locking
+
+> Task :core:graphview:packageFullReleaseResources
+
+> Task :database:impl:dataBindingMergeDependencyArtifactsFullRelease
+Mutating the dependencies of configuration ':database:impl:fullReleaseCompileClasspath' after it has been resolved or consumed. This behavior has been deprecated. This will fail with an error in Gradle 9.0. After a Configuration has been resolved, consumed as a variant, or used for generating published metadata, it should not be modified. Consult the upgrading guide for further information: https://docs.gradle.org/8.9/userguide/upgrading_version_8.html#mutate_configuration_after_locking
+
+> Task :database:entities:parseFullReleaseLocalResources
+> Task :core:graphview:parseFullReleaseLocalResources
+
+> Task :core:interfaces:dataBindingMergeDependencyArtifactsFullRelease
+Mutating the dependencies of configuration ':core:interfaces:fullReleaseCompileClasspath' after it has been resolved or consumed. This behavior has been deprecated. This will fail with an error in Gradle 9.0. After a Configuration has been resolved, consumed as a variant, or used for generating published metadata, it should not be modified. Consult the upgrading guide for further information: https://docs.gradle.org/8.9/userguide/upgrading_version_8.html#mutate_configuration_after_locking
+
+> Task :core:graphview:processFullReleaseManifest
+> Task :database:impl:generateFullReleaseResValues
+> Task :database:impl:generateFullReleaseResources
+> Task :database:impl:packageFullReleaseResources
+
+> Task :core:main:dataBindingMergeDependencyArtifactsFullRelease
+Mutating the dependencies of configuration ':core:main:fullReleaseCompileClasspath' after it has been resolved or consumed. This behavior has been deprecated. This will fail with an error in Gradle 9.0. After a Configuration has been resolved, consumed as a variant, or used for generating published metadata, it should not be modified. Consult the upgrading guide for further information: https://docs.gradle.org/8.9/userguide/upgrading_version_8.html#mutate_configuration_after_locking
+
+> Task :database:impl:parseFullReleaseLocalResources
+> Task :database:entities:dataBindingGenBaseClassesFullRelease
+> Task :core:graphview:dataBindingGenBaseClassesFullRelease
+
+> Task :implementation:dataBindingMergeDependencyArtifactsFullRelease
+Mutating the dependencies of configuration ':implementation:fullReleaseCompileClasspath' after it has been resolved or consumed. This behavior has been deprecated. This will fail with an error in Gradle 9.0. After a Configuration has been resolved, consumed as a variant, or used for generating published metadata, it should not be modified. Consult the upgrading guide for further information: https://docs.gradle.org/8.9/userguide/upgrading_version_8.html#mutate_configuration_after_locking
+
+> Task :database:impl:processFullReleaseManifest
+> Task :database:entities:processFullReleaseManifest
+> Task :database:entities:generateFullReleaseRFile
+> Task :core:graphview:generateFullReleaseRFile
+> Task :core:graphview:checkKotlinGradlePluginConfigurationErrors
+> Task :core:graphview:compileFullReleaseKotlin NO-SOURCE
+> Task :core:graphview:javaPreCompileFullRelease
+> Task :database:impl:generateFullReleaseRFile
+> Task :database:entities:checkKotlinGradlePluginConfigurationErrors
+> Task :core:utils:generateFullReleaseResValues
+> Task :core:utils:generateFullReleaseResources
+> Task :core:interfaces:generateFullReleaseResValues
+> Task :core:interfaces:generateFullReleaseResources
+> Task :core:ui:generateFullReleaseResValues
+> Task :core:ui:generateFullReleaseResources
+> Task :core:main:generateFullReleaseResValues
+> Task :core:main:generateFullReleaseResources
+> Task :core:utils:packageFullReleaseResources
+> Task :database:impl:dataBindingGenBaseClassesFullRelease
+> Task :database:impl:checkKotlinGradlePluginConfigurationErrors
+> Task :core:utils:parseFullReleaseLocalResources
+> Task :database:impl:javaPreCompileFullRelease
+> Task :implementation:generateFullReleaseResValues
+> Task :implementation:generateFullReleaseResources
+> Task :core:utils:dataBindingGenBaseClassesFullRelease
+> Task :core:utils:checkKotlinGradlePluginConfigurationErrors
+> Task :core:utils:javaPreCompileFullRelease
+> Task :core:utils:processFullReleaseManifest
+> Task :core:utils:generateFullReleaseRFile
+> Task :implementation:packageFullReleaseResources
+> Task :implementation:processFullReleaseManifest
+> Task :core:interfaces:packageFullReleaseResources
+> Task :implementation:parseFullReleaseLocalResources
+> Task :implementation:generateFullReleaseRFile
+> Task :core:interfaces:checkKotlinGradlePluginConfigurationErrors
+> Task :core:interfaces:processFullReleaseManifest
+> Task :core:interfaces:parseFullReleaseLocalResources
+> Task :core:interfaces:javaPreCompileFullRelease
+> Task :core:interfaces:dataBindingGenBaseClassesFullRelease
+> Task :core:interfaces:generateFullReleaseRFile
+> Task :database:entities:javaPreCompileFullRelease
+> Task :core:main:packageFullReleaseResources
+> Task :core:main:checkKotlinGradlePluginConfigurationErrors
+> Task :core:main:processFullReleaseManifest
+> Task :core:main:javaPreCompileFullRelease
+> Task :core:main:parseFullReleaseLocalResources
+> Task :core:main:generateFullReleaseRFile
+> Task :core:ui:packageFullReleaseResources
+> Task :core:ui:checkKotlinGradlePluginConfigurationErrors
+> Task :core:ui:javaPreCompileFullRelease
+> Task :core:ui:processFullReleaseManifest
+> Task :core:ui:parseFullReleaseLocalResources
+> Task :core:graphview:compileFullReleaseJavaWithJavac FAILED
+> Task :core:ui:dataBindingGenBaseClassesFullRelease
+> Task :core:utils:kaptGenerateStubsFullReleaseKotlin
+> Task :database:entities:kaptGenerateStubsFullReleaseKotlin
+w: Detected multiple Kotlin daemon sessions at kotlin/sessions
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':core:graphview:compileFullReleaseJavaWithJavac'.
+> Could not resolve all files for configuration ':core:graphview:androidJdkImage'.
+   > Failed to transform core-for-system-modules.jar to match attributes {artifactType=_internal_android_jdk_image, org.gradle.libraryelements=jar, org.gradle.usage=java-runtime}.
+      > Execution failed for JdkImageTransform: /Users/tarciso/Library/Android/sdk/platforms/android-34/core-for-system-modules.jar.
+         > Error while executing process /Users/tarciso/Library/Java/JavaVirtualMachines/openjdk-23.0.1/Contents/Home/bin/jlink with arguments {--module-path /Users/tarciso/.gradle/caches/8.9/transforms/82c17dcb1a79ba31d2bb8b723f649a51-5af48102-e1c4-4e45-9640-8d6a3a656a36/transformed/output/temp/jmod --add-modules java.base --output /Users/tarciso/.gradle/caches/8.9/transforms/82c17dcb1a79ba31d2bb8b723f649a51-5af48102-e1c4-4e45-9640-8d6a3a656a36/transformed/output/jdkImage --disable-plugin system-modules}
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 4m 29s
+81 actionable tasks: 74 executed, 7 up-to-date

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Alterado pelo Tarciso - Tools screen layout -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Toolbar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        app:title="Tools"
+        app:titleTextColor="?attr/colorOnPrimary"
+        app:navigationIcon="?attr/homeAsUpIndicator" />
+
+    <!-- ScrollView for buttons -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:gravity="center_horizontal">
+
+
+
+            <!-- Actions Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/action_button"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="68dp"
+                android:layout_marginBottom="12dp"
+                android:text="Actions"
+                android:textSize="16sp"
+                android:fontFamily="@font/inter_font"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_action"
+                android:textColor="?attr/defaultTextColor"
+                app:iconGravity="start"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp" />
+
+            <!-- Rapid-Acting Oref Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/rapid_acting_button"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="68dp"
+                android:layout_marginBottom="12dp"
+                android:text="Rapid-Acting Oref"
+                android:textSize="16sp"
+                android:fontFamily="@font/inter_font"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_insulin"
+                android:textColor="?attr/defaultTextColor"
+                app:iconGravity="start"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp" />
+
+            <!-- Profile Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/profile_button"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="68dp"
+                android:layout_marginBottom="12dp"
+                android:text="Profile"
+                android:textSize="16sp"
+                android:fontFamily="@font/inter_font"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_local_activate"
+                android:textColor="?attr/defaultTextColor"
+                app:iconGravity="start"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp" />
+
+            <!-- Automation Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/automation_button"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="68dp"
+                android:layout_marginBottom="12dp"
+                android:text="Automation"
+                android:textSize="16sp"
+                android:fontFamily="@font/inter_font"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_automation"
+                android:textColor="?attr/defaultTextColor"
+                app:iconGravity="start"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp" />
+
+            <!-- NSClient Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/nsclient_button"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="68dp"
+                android:layout_marginBottom="12dp"
+                android:text="NSClient"
+                android:textSize="16sp"
+                android:fontFamily="@font/inter_font"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_nsclient_bg"
+                android:textColor="?attr/defaultTextColor"
+                app:iconGravity="start"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp" />
+
+            <!-- Tidepool Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/tidepool_button"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="68dp"
+                android:layout_marginBottom="12dp"
+                android:text="Tidepool"
+                android:textSize="16sp"
+                android:fontFamily="@font/inter_font"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_settings"
+                android:textColor="?attr/defaultTextColor"
+                app:iconGravity="start"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp" />
+
+            <!-- Xdrip+ Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/xdrip_button"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="68dp"
+                android:layout_marginBottom="12dp"
+                android:text="Xdrip+"
+                android:textSize="16sp"
+                android:fontFamily="@font/inter_font"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_blooddrop_48"
+                android:textColor="?attr/defaultTextColor"
+                app:iconGravity="start"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp" />
+
+            <!-- Maintenance Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/maintenance_button"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="68dp"
+                android:layout_marginBottom="12dp"
+                android:text="Maintenance"
+                android:textSize="16sp"
+                android:fontFamily="@font/inter_font"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_maintenance"
+                android:textColor="?attr/defaultTextColor"
+                app:iconGravity="start"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp" />
+
+            <!-- Xdrip+ BG Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/xdrip_bg_button"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="68dp"
+                android:layout_marginBottom="12dp"
+                android:text="Xdrip+ BG"
+                android:textSize="16sp"
+                android:fontFamily="@font/inter_font"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_blooddrop_48"
+                android:textColor="?attr/defaultTextColor"
+                app:iconGravity="start"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>

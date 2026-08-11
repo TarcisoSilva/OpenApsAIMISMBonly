@@ -31,6 +31,7 @@
         <item name="android:textColor">@color/black</item>
         <!---TextColor -->
         <item name="defaultTextColor">@color/black</item>
+        <item name="text_color_primary">@color/black</item>
         <!---Disabled Text Color  -->
         <item name="disabledTextColor">@color/sandGray</item>
         <!---Notification -->

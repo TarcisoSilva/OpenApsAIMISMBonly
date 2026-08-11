@@ -109,6 +109,12 @@
             android:summary="@string/theme_switcher_summary"
             android:title="@string/app_color_scheme" />
 
+        <SwitchPreference
+            android:key="@string/key_menu_enable"
+            android:title="@string/menu_enable"
+            android:summary="@string/menu_enable_summary"
+            android:defaultValue="true" />
+
     </PreferenceCategory>
 
 </androidx.preference.PreferenceScreen>

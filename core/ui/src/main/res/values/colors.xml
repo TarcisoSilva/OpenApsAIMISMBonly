@@ -145,8 +145,8 @@
     <color name="ribbonWarning">#f4d700</color>
     <color name="ribbonCritical">#ff0400</color>
     <color name="ribbonTextDefault">#FFFFFF</color>
-    <color name="ribbonTextDefault2">#7A7B80</color>
-    <color name="ribbonTextDefault2_ORI">@color/black</color>
+    <color name="ribbonTextDefault2_CLARO">#7A7B80</color>
+    <color name="ribbonTextDefault2">@color/black</color>
 
     <color name="ribbonTextWarning">#303030</color>
     <color name="tempTargetConfirmation">#00FF00</color>

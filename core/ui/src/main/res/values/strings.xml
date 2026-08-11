@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--    Tarciso Alarm Low Glucose and Calibration-->
+    <string name="low_glucose_alert_message">Low Glucose</string>
+    <string name="stable_good_glucose_alert_message">BG stable, calibration needed</string>
+    <string name="cannula_failure_alert_message">Possível falha de canula</string>
+    <!-- Tarciso_COMPRESSION_ALERT -->
+    <string name="compression_alert_message">POSSIBLE COMPRESSION — sensor under pressure</string>
+    <string name="compression_alert_title">🛌 POSSIBLE COMPRESSION</string>
+    <string name="enable_compression_alert">Sensor compression alarm</string>
+    <string name="compression_bg_threshold">Max BG for compression (mg/dL)</string>
+    <string name="compression_iob_threshold">Max IOB for compression (U)</string>
+    <string name="compression_streak_threshold">Minimum consecutive drops</string>
     <!--    General-->
     <string name="refresh">Refresh</string>
     <string name="error">Error</string>

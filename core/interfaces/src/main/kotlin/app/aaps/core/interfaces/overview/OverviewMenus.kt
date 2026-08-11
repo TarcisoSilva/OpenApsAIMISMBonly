@@ -1,7 +1,6 @@
 package app.aaps.core.interfaces.overview
 
 import android.content.Context
-import android.widget.ImageButton
 
 interface OverviewMenus {
     enum class CharType {
@@ -22,7 +21,7 @@ interface OverviewMenus {
 
     val setting: List<Array<Boolean>>
     fun loadGraphConfig()
-    fun setupChartMenu(context: Context, chartButton: ImageButton)
+    fun setupChartMenu(context: Context, chartButton: android.view.View)
     fun enabledTypes(graph: Int): String
     fun isEnabledIn(type: CharType): Int
 }

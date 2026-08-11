@@ -30,6 +30,13 @@ import javax.inject.Inject
  */
 class ResourceHelperImpl @Inject constructor(var context: Context, private val fabricPrivacy: FabricPrivacy) : ResourceHelper {
 
+    override val isNightMode: Boolean
+        get() = when (AppCompatDelegate.getDefaultNightMode()) {
+            AppCompatDelegate.MODE_NIGHT_YES -> true
+            AppCompatDelegate.MODE_NIGHT_NO -> false
+            else -> (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        }
+
     override fun gs(@StringRes id: Int): String =
         context.createConfigurationContext(Configuration().apply { setLocale(LocaleHelper.currentLocale(context)) }).resources.getString(id)
 

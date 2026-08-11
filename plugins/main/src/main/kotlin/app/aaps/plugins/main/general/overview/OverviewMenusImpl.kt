@@ -6,7 +6,6 @@ import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import android.view.Menu
 import android.view.View
-import android.widget.ImageButton
 import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.PopupMenu
@@ -20,6 +19,7 @@ import app.aaps.core.interfaces.rx.events.EventRefreshOverview
 import app.aaps.core.interfaces.rx.events.EventScale
 import app.aaps.core.interfaces.sharedPreferences.SP
 import app.aaps.core.interfaces.utils.fabric.FabricPrivacy
+import app.aaps.core.ui.elements.SingleClickButton
 import app.aaps.plugins.main.R
 import com.google.gson.Gson
 import javax.inject.Inject
@@ -193,11 +193,14 @@ class OverviewMenusImpl @Inject constructor(
         }
     }
 
-    override fun setupChartMenu(context: Context, chartButton: ImageButton) {
+    override fun setupChartMenu(context: Context, chartButton: View) {
+        val btn = chartButton as? SingleClickButton
+        if (btn == null) return
+
         val settingsCopy = setting
         val numOfGraphs = settingsCopy.size // 1 main + x secondary
 
-        chartButton.setOnClickListener { v: View ->
+        btn.setOnClickListener { v: View ->
             val predictionsAvailable: Boolean = when {
                 config.APS      -> loop.lastRun?.request?.hasPredictions ?: false
                 config.NSCLIENT -> true
@@ -260,7 +263,7 @@ class OverviewMenusImpl @Inject constructor(
 
                             it.itemId > SCALE_ID && it.itemId < SCALE_ID + 100 -> {
                                 val hours = it.itemId - SCALE_ID // 6,12,....
-                                rxBus.send(EventScale(hours))
+                                rxBus.send(EventScale(hours, 1))
                             }
 
                             it.itemId == numOfGraphs                           -> {
@@ -284,12 +287,12 @@ class OverviewMenusImpl @Inject constructor(
                     }
                 }
                 storeGraphConfig()
-                setupChartMenu(context, chartButton)
+                setupChartMenu(context, btn)
                 rxBus.send(EventRefreshOverview("OnMenuItemClickListener", now = true))
                 return@setOnMenuItemClickListener true
             }
-            chartButton.setImageResource(R.drawable.ic_arrow_drop_up_white_24dp)
-            popup.setOnDismissListener { chartButton.setImageResource(R.drawable.ic_arrow_drop_down_white_24dp) }
+            btn.setIconResource(R.drawable.ic_arrow_drop_up_white_24dp)
+            popup.setOnDismissListener { btn.setIconResource(R.drawable.ic_arrow_drop_down_white_24dp) }
             popup.show()
         }
     }

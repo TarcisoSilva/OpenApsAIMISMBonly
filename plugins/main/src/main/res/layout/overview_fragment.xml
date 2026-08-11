@@ -50,9 +50,6 @@
                     android:id="@+id/info_layout"
                     layout="@layout/overview_info_layout" />
 
-
-
-
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
@@ -197,8 +194,11 @@
         android:max="100"
         android:progress="100" />
 
+
+    <!-- Alterado pelo Tarciso - buttons_layout is included here for fragment binding compatibility -->
     <include
         android:id="@+id/buttons_layout"
-        layout="@layout/overview_buttons_layout" />
+        layout="@layout/overview_buttons_layout"
+        android:visibility="gone"/>
 
 </LinearLayout>

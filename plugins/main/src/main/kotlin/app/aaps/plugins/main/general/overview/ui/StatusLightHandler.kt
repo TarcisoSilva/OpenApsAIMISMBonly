@@ -122,8 +122,8 @@ class StatusLightHandler @Inject constructor(
             } else {
                 batteryLevel?.text = rh.gs(app.aaps.core.ui.R.string.value_unavailable_short)
                 // app.aaps.core.ui.R.attr.ribbonTextDefaultColor2
-                // batteryLevel?.setTextColor(rh.gac(batteryLevel.context, app.aaps.core.ui.R.attr.defaultTextColor))
-                batteryLevel?.setTextColor(rh.gac(batteryLevel.context, app.aaps.core.ui.R.attr.ribbonTextDefaultColor2))
+                //batteryLevel?.setTextColor(rh.gac(batteryLevel.context, app.aaps.core.ui.R.attr.defaultTextColor))
+                batteryLevel?.setTextColor(rh.gac(batteryLevel.context, app.aaps.core.ui.R.attr.ribbonTextDefaultColor2)) // Cor mais clara
             }
         }
     }
@@ -159,8 +159,8 @@ class StatusLightHandler @Inject constructor(
             view?.text = decimalFormatter.to0Decimal(maxReading, units)
 
             // app.aaps.core.ui.R.attr.ribbonTextDefaultColor2
-            // view?.setTextColor(rh.gac(view.context, app.aaps.core.ui.R.attr.defaultTextColor))
-            view?.setTextColor(rh.gac(view.context, app.aaps.core.ui.R.attr.ribbonTextDefaultColor2))
+             //view?.setTextColor(rh.gac(view.context, app.aaps.core.ui.R.attr.defaultTextColor))
+            view?.setTextColor(rh.gac(view.context, app.aaps.core.ui.R.attr.ribbonTextDefaultColor2)) // Cor mais clara
         } else {
             handleLevel(view, criticalSetting, criticalDefaultValue, warnSetting, warnDefaultValue, level, units)
         }

@@ -95,7 +95,7 @@ class HistoryBrowseActivity : TranslatedDaggerAppCompatActivity() {
         binding.zoom.setOnClickListener {
             var hours = rangeToDisplay + 6
             hours = if (hours > 24) 6 else hours
-            rxBus.send(EventScale(hours))
+            rxBus.send(EventScale(hours, 1))
         }
         binding.zoom.setOnLongClickListener {
             Calendar.getInstance().also { calendar ->

@@ -66,7 +66,6 @@
             android:textSize="43sp"
             android:textStyle="normal"
             android:fontFamily="@font/inter_font"
-            android:textColor="@color/secondaryText"
             tools:text="00.0" />
 
         <LinearLayout
@@ -91,8 +90,7 @@
                     android:layout_height="wrap_content"
                     android:text="Δ: "
                     android:textSize="14sp"
-                    android:fontFamily="@font/inter_font"
-                    android:textColor="@color/secondaryText"/>
+                    android:fontFamily="@font/inter_font"/>
 
                 <TextView
                     android:id="@+id/delta"
@@ -100,7 +98,6 @@
                     android:layout_height="wrap_content"
                     android:textSize="14sp"
                     android:fontFamily="@font/inter_font"
-                    android:textColor="@color/secondaryText"
                     tools:text="n/a" />
             </LinearLayout>
         </LinearLayout>
@@ -132,7 +129,6 @@
             android:gravity="center"
             android:textSize="14sp"
             android:fontFamily="@font/inter_font"
-            android:textColor="@color/secondaryText"
             tools:text="n/a" />
     </LinearLayout>
 
@@ -161,7 +157,6 @@
             android:gravity="center"
             android:textSize="14sp"
             android:fontFamily="@font/inter_font"
-            android:textColor="@color/secondaryText"
             tools:text="n/a" />
     </LinearLayout>
 
@@ -191,7 +186,6 @@
             android:gravity="center"
             android:textSize="14sp"
             android:fontFamily="@font/inter_font"
-            android:textColor="@color/secondaryText"
             tools:text="n/a" />
     </LinearLayout>
 
@@ -220,7 +214,6 @@
             android:gravity="center"
             android:textSize="14sp"
             android:fontFamily="@font/inter_font"
-            android:textColor="@color/secondaryText"
             android:text="@string/value_unavailable_short" />
     </LinearLayout>
 
@@ -250,7 +243,6 @@
             android:gravity="center"
             android:textSize="14sp"
             android:fontFamily="@font/inter_font"
-            android:textColor="@color/secondaryText"
             tools:text="50+U" />
     </LinearLayout>
 
@@ -350,5 +342,114 @@
 
 
     </LinearLayout>
+
+    <!-- Side buttons (hidden but kept for compatibility with Original Skin) -->
+    <LinearLayout
+        android:id="@+id/left_insulin_reservoir_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/left_insulin_age"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/left_cannula_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/left_cannula_age"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/left_insulin_reservoir"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+
+
+
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/left_battery_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/left_battery_level"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/right_sensor_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/right_sensor_age"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/right_sensor_battery_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/right_sensor_battery"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/bg_circle"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:background="@drawable/bg_circle_green"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/right_conf_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

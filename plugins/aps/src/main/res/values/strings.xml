@@ -126,7 +126,7 @@
     <string name="run_now">Run now</string>
     <string name="smb_frequency_exceeded">A bolus was delivered within the last 3 minutes, skipping SMB</string>
     <string name="pump_not_initialized">Pump not initialized!</string>
-    <string name="loop_shortname">LOOP</string>
+    <string name="loop_shortname">LoopP</string>
     <string name="description_loop">Activate or deactivate the implementation triggering the loop.</string>
     <string name="no_aps_selected">NO APS SELECTED OR PROVIDED RESULT</string>
     <string name="ignore5m">Ignore 5m</string>
@@ -178,15 +178,8 @@
     <string name="key_B30_duration">key_B30_duration</string>
     <string name="count_steps_watch">count_steps_watch</string>
     <string name="night_protection">night_protection</string>
-    <string name="oaps_aimi_evening_factor_summary">% of Reactivity of the plugin between 22pm and 5am. High number means LESS power.</string>
-    <string name="key_oaps_aimi_evening_factor">key_oaps_aimi_evening_factor</string>
-    <string name="oaps_aimi_evening_factor_title">Evening Reactivity Percentage</string>
-    <string name="oaps_aimi_afternoon_factor_title">Afternoon Reactivity Percentage</string>
-    <string name="oaps_aimi_morning_factor_title">Morning Reactivity Percentage</string>
-    <string name="oaps_aimi_morning_factor_summary">Morning Reactivity Percentage between 5am and 11am. High number means LESS power.</string>
-    <string name="key_oaps_aimi_morning_factor">key_oaps_aimi_morning_factor</string>
-    <string name="oaps_aimi_afternoon_factor_summary">Afternoon reactivity percentage between 11am and 22pm. High number means LESS power.</string>
-    <string name="key_oaps_aimi_afternoon_factor">key_oaps_aimi_afternoon_factor</string>
+    <string name="low_alert_protection">low_alert_protection</string>
+    <string name="auto_mode">auto_mode</string>
     <string name="key_oaps_aimi_hyper_factor">key_oaps_aimi_hyper_factor</string>
     <string name="key_DynISFAdjusthyper">key_DynISFAdjusthyper</string>
     <string name="oaps_aimi_hyper_factor_summary"><![CDATA[Reactivity factor when bg > 180]]></string>
@@ -294,4 +287,30 @@
     <string name="oaps_aimi_adj_hourly_summary_23"><![CDATA[Hourly Adjust to 23:00. High number means LESS power.]]></string>
 
 
- </resources>
+    <string name="key_aimi_auto_adjust">key_aimi_auto_adjust</string>
+    <string name="aimi_auto_adjust_title">Auto-Adjust Hourly Factors</string>
+    <string name="aimi_auto_adjust_summary">Analyse BG every 4h and automatically adjust hourly factors based on hypo/hyper events with correlation to SMBs.</string>
+
+    <string name="key_aimi_smb_refine">key_aimi_smb_refine</string>
+    <string name="aimi_smb_refine_title">ML SMB Refinement</string>
+    <string name="aimi_smb_refine_summary">Refine SMB prediction using on-device neural network trained from your BG history. Falls back silently on error. (Experimental)</string>
+
+    <string name="key_aimi_magnitude_collect">key_aimi_magnitude_collect</string>
+
+    <string name="key_aimi_seasonal_offset">key_aimi_seasonal_offset</string>
+    <string name="aimi_seasonal_offset_title">Seasonal Offset %</string>
+    <string name="aimi_seasonal_offset_summary">Shift all hourly factors by X% for seasonal variation. Positive = less aggressive (summer), Negative = more aggressive (winter). Range: -30 to +30. Default 0.</string>
+
+    <string name="key_aimi_auto_adjust_hypo_threshold">key_aimi_auto_adjust_hypo_threshold</string>
+    <string name="aimi_auto_adjust_hypo_threshold_title">Auto-Ajust Hypo Trigger Threshold</string>
+    <string name="aimi_auto_adjust_hypo_threshold_summary">BG value (mg/dL) that triggers a hypo event for auto-adjustment. Lower = less sensitive. Range: 40-100. Default 69.</string>
+
+    <string name="key_aimi_auto_adjust_hyper_threshold">key_aimi_auto_adjust_hyper_threshold</string>
+    <string name="aimi_auto_adjust_hyper_threshold_title">Auto-Ajust Hyper Trigger Threshold</string>
+    <string name="aimi_auto_adjust_hyper_threshold_summary">BG value (mg/dL) that triggers a hyper event for auto-adjustment. Higher = less sensitive. Range: 120-300. Default 155.</string>
+
+    <string name="key_aimi_auto_adjust_interval">key_aimi_auto_adjust_interval</string>
+    <string name="aimi_auto_adjust_interval_title">Auto-Adjust Analysis Interval</string>
+    <string name="aimi_auto_adjust_interval_summary">How often to analyse BG and adjust hourly factors. Lower = more responsive but may oscillate. Default 4h.</string>
+
+</resources>

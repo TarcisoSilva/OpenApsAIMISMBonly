@@ -2,14 +2,16 @@
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:validate="http://schemas.android.com/apk/res-auto">
-
     <PreferenceCategory
         android:key="@string/key_openapsaimi_settings"
         android:title="@string/openapsaimi"
         app:initialExpandedChildrenCount="0">
-
-
-
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/auto_mode"
+            android:title="Enable Auto Mode"
+            android:summary="This option will enable auto mode behavior."
+            android:disableDependentsState="true"/>
         <app.aaps.core.validators.ValidatingEditTextPreference
             android:defaultValue="5"
             android:dialogMessage="@string/openapssmb_max_iob_summary"
@@ -17,9 +19,9 @@
             android:key="@string/key_openapssmb_max_iob"
             android:title="@string/openapssmb_max_iob_title"
             validate:floatmaxNumber="15.0"
-            validate:floatminNumber="1"
-            validate:testType="floatNumericRange" />
-
+            validate:floatminNumber="0.05"
+            validate:testType="floatNumericRange"
+            android:dependency="@string/auto_mode" />
         <app.aaps.core.validators.ValidatingEditTextPreference
             android:defaultValue="2"
             android:dialogMessage="@string/openapsaimi_maxsmb_summary"
@@ -28,9 +30,8 @@
             android:title="@string/openapsaimi_maxsmb_title"
             validate:floatmaxNumber="15.0"
             validate:floatminNumber="0.05"
-            validate:testType="floatNumericRange" />
-
-
+            validate:testType="floatNumericRange"
+            android:dependency="@string/auto_mode"/>
         <app.aaps.core.validators.ValidatingEditTextPreference
             android:defaultValue="120"
             android:enabled="true"
@@ -40,12 +41,11 @@
             android:title="@string/DynISFAdjust_title"
             validate:floatmaxNumber="500"
             validate:floatminNumber="1"
-            validate:testType="floatNumericRange" />
-
+            validate:testType="floatNumericRange"
+            android:dependency="@string/auto_mode"/>
         <androidx.preference.PreferenceScreen
             android:key="hourly_adj_settings"
             android:title="Hourly Adjusts Preferences">
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -56,7 +56,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -67,7 +66,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -78,8 +76,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -90,7 +86,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -101,7 +96,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -112,7 +106,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -123,8 +116,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -135,7 +126,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -146,8 +136,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -158,8 +146,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -170,7 +156,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -181,8 +166,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -193,7 +176,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -204,7 +186,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -215,7 +196,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -226,8 +206,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -238,7 +216,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -249,9 +226,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
-
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -262,7 +236,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -273,8 +246,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -285,7 +256,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -296,8 +266,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -308,7 +276,6 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -319,10 +286,7 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
-
         </androidx.preference.PreferenceScreen>
-
         <app.aaps.core.validators.ValidatingEditTextPreference
             android:defaultValue="2"
             android:dialogMessage="@string/openapsaimi_power_hipo_summary"
@@ -332,7 +296,6 @@
             validate:floatmaxNumber="10.0"
             validate:floatminNumber="0.0"
             validate:testType="floatNumericRange" />
-
         <app.aaps.core.validators.ValidatingEditTextPreference
             android:defaultValue="6"
             android:dialogMessage="@string/openapsaimi_power_std_summary"
@@ -342,25 +305,19 @@
             validate:floatmaxNumber="15.0"
             validate:floatminNumber="0.0"
             validate:testType="floatNumericRange" />
-
-
-
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@string/low_alert_protection"
+            android:title="Enable Low BG Protection"
+            android:summary="This option will reduce the app's behavior if a low glucose alert is triggered." />
         <SwitchPreference
             android:defaultValue="false"
             android:key="@string/night_protection"
             android:title="Enable Night Protection"
             android:summary="This option will reduce the app´s behavior durant the night." />
-
-
-
-
-
-
-
         <androidx.preference.PreferenceScreen
             android:key="high_BG_settings"
             android:title="High BG Preferences">
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="150"
                 android:enabled="true"
@@ -371,7 +328,6 @@
                 validate:floatmaxNumber="500"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
             <app.aaps.core.validators.ValidatingEditTextPreference
                 android:defaultValue="50"
                 android:enabled="true"
@@ -382,65 +338,71 @@
                 validate:floatmaxNumber="300"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
-
         </androidx.preference.PreferenceScreen>
-
-
-
-
-
-
-
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_aimi_auto_adjust"
+            android:title="@string/aimi_auto_adjust_title"
+            android:summary="@string/aimi_auto_adjust_summary" />
+        <!-- ════════════════════════════════════════════════════════════════
+             Hypo/Hyper Thresholds (Tarciso, Jul/2026)
+             Controlam os gatilhos de hipo e hiper no HourlyAdjustWorker.
+             ════════════════════════════════════════════════════════════════ -->
         <app.aaps.core.validators.ValidatingEditTextPreference
-            android:defaultValue="50"
-            android:enabled="true"
-            android:dialogMessage="@string/oaps_aimi_morning_factor_summary"
+            android:defaultValue="69"
             android:inputType="numberDecimal"
-            android:key="@string/key_oaps_aimi_morning_factor"
-            android:title="@string/oaps_aimi_morning_factor_title"
-            validate:floatmaxNumber="300"
-            validate:floatminNumber="1"
+            android:key="@string/key_aimi_auto_adjust_hypo_threshold"
+            android:title="@string/aimi_auto_adjust_hypo_threshold_title"
+            android:summary="@string/aimi_auto_adjust_hypo_threshold_summary"
+            android:dependency="@string/key_aimi_auto_adjust"
+            validate:floatminNumber="40"
+            validate:floatmaxNumber="100"
             validate:testType="floatNumericRange" />
-
         <app.aaps.core.validators.ValidatingEditTextPreference
-            android:defaultValue="50"
-            android:enabled="true"
-            android:dialogMessage="@string/oaps_aimi_afternoon_factor_summary"
+            android:defaultValue="155"
             android:inputType="numberDecimal"
-            android:key="@string/key_oaps_aimi_afternoon_factor"
-            android:title="@string/oaps_aimi_afternoon_factor_title"
+            android:key="@string/key_aimi_auto_adjust_hyper_threshold"
+            android:title="@string/aimi_auto_adjust_hyper_threshold_title"
+            android:summary="@string/aimi_auto_adjust_hyper_threshold_summary"
+            android:dependency="@string/key_aimi_auto_adjust"
+            validate:floatminNumber="120"
             validate:floatmaxNumber="300"
-            validate:floatminNumber="1"
             validate:testType="floatNumericRange" />
-
-        <app.aaps.core.validators.ValidatingEditTextPreference
-            android:defaultValue="50"
-            android:enabled="true"
-            android:dialogMessage="@string/oaps_aimi_evening_factor_summary"
-            android:inputType="numberDecimal"
-            android:key="@string/key_oaps_aimi_evening_factor"
-            android:title="@string/oaps_aimi_evening_factor_title"
-            validate:floatmaxNumber="300"
-            validate:floatminNumber="1"
-            validate:testType="floatNumericRange" />
-
-
-
-
-
+        <ListPreference
+            android:defaultValue="240"
+            android:entries="@array/auto_adjust_interval_entries"
+            android:entryValues="@array/auto_adjust_interval_values"
+            android:key="@string/key_aimi_auto_adjust_interval"
+            android:title="@string/aimi_auto_adjust_interval_title"
+            android:summary="@string/aimi_auto_adjust_interval_summary"
+            android:dependency="@string/key_aimi_auto_adjust" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_aimi_smb_refine"
+            android:title="@string/aimi_smb_refine_title"
+            android:summary="@string/aimi_smb_refine_summary" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_aimi_magnitude_collect"
+            android:title="Collect Magnitude Data"
+            android:summary="Log each adjustment with context to /AAPS/oapsaimi_magnitude.csv. Offline analysis only." />
         <SwitchPreference
             android:defaultValue="false"
             android:key="@string/count_steps_watch"
             android:title="Enable Counting from the watch"
             android:summary="This option will use the hardware from the watch instead of the phone." />
-
-
-
-
-
-
-
-
+        <!-- ════════════════════════════════════════════════════════════════
+             Seasonal Offset (Tarciso, Jul/2026)
+             ════════════════════════════════════════════════════════════════ -->
+        <app.aaps.core.validators.ValidatingEditTextPreference
+            android:defaultValue="0"
+            android:inputType="numberSigned"
+            android:key="@string/key_aimi_seasonal_offset"
+            android:title="@string/aimi_seasonal_offset_title"
+            android:summary="@string/aimi_seasonal_offset_summary"
+            validate:floatminNumber="-30"
+            validate:floatmaxNumber="30"
+            validate:testType="floatNumericRange" />
         <app.aaps.core.validators.ValidatingEditTextPreference
             android:defaultValue="50"
             android:dialogMessage="Weight in kg to calculate the basal"
@@ -450,7 +412,6 @@
             validate:floatmaxNumber="150"
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
-
         <app.aaps.core.validators.ValidatingEditTextPreference
             android:defaultValue="50"
             android:dialogMessage="TDD average 7 days"
@@ -460,7 +421,6 @@
             validate:floatmaxNumber="150"
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
-
         <app.aaps.core.validators.ValidatingEditTextPreference
             android:defaultValue="50"
             android:dialogMessage="Average carbs for a meal. it's an estimation not a precise value"
@@ -470,8 +430,5 @@
             validate:floatmaxNumber="150"
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
-
-
-
     </PreferenceCategory>
 </androidx.preference.PreferenceScreen>

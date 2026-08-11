@@ -74,8 +74,6 @@ class HourlyAdjustWorker @Inject constructor(
         // ════════════════════════════════════════════════════════════════
         /** Se a canula foi trocada ha menos que este tempo, o auto-adjust e bloqueado. */
         private const val CANNULA_AGE_THRESHOLD_MINUTES = 300L             // 5 horas
-        /** Threshold de BG para bloqueio: so bloqueia se BG < 170 (canula problematica causa hiper). */
-        private const val CANNULA_BG_THRESHOLD = 170.0                     // mg/dL
         // ════════════════════════════════════════════════════════════════
         // Sensor change protection constants (Tarciso, Ago/2026)
         // ════════════════════════════════════════════════════════════════
@@ -345,14 +343,16 @@ class HourlyAdjustWorker @Inject constructor(
             }
 
             // ════════════════════════════════════════════════════════════════
-            // Cannula protection (Tarciso, Jul/2026)
+            // Cannula protection (Tarciso, Jul/2026 — Opção A em 11/Ago/2026)
             // ════════════════════════════════════════════════════════════════
-            // Se a canula foi trocada ha < 5h e BG < 170, bloqueia o ajuste:
-            // o problema é mecânico (canula), não de tuning.
+            // Se a canula foi trocada ha < 5h, bloqueia o ajuste SEMPRE (independente
+            // do BG). Caso real 11/Ago: canula entupida → BG 220 → a condição BG<170
+            // desativava a proteção e o worker aprendeu "6 hipers" como tuning,
+            // deixando h12-h14 MAIS agressivos (risco de hipo com a canula nova).
             if (isCannulaProtectionActive(bgData)) {
                 val cannulaAge = getCannulaAgeMinutes()
                 val msg = "Auto-Adjust: Bloqueado por idade da canula " +
-                    "(canula ha ${cannulaAge}min, BG < ${CANNULA_BG_THRESHOLD.toInt()})"
+                    "(canula ha ${cannulaAge}min)"
                 aapsLogger.debug(LTag.APS, msg)
                 try {
                     repository.runTransaction(
@@ -614,15 +614,12 @@ class HourlyAdjustWorker @Inject constructor(
 
     /**
      * Verifica se a proteção por idade da canula está ativa.
-     * Condicoes: canula < 5h E BG atual < 170.
-     * Se a canula está causando hiper, o BG estara > 170 e o ajuste prossegue (nao e problema de tuning).
-     * Se BG < 170 e canula recente, bloqueia — o problema pode ser a canula.
+     * Opção A (11/Ago/2026): canula < 5h → bloqueia SEMPRE, independente do BG.
+     * Antes bloqueava só com BG < 170 — caso real 11/Ago mostrou que com canula
+     * entupida (BG 220) a proteção desativava e o worker aprendia com o período
+     * mecânico (fatores ficavam mais agressivos → risco de hipo no dia seguinte).
      */
     private fun isCannulaProtectionActive(bgData: List<GlucoseValue>): Boolean {
-        val currentBg = bgData.maxByOrNull { it.timestamp }?.value
-            ?: return false  // sem BG disponivel, nao bloqueia
-        if (currentBg >= CANNULA_BG_THRESHOLD) return false  // ja hiper, problema pode ser canula ou nao
-
         val cannulaAge = getCannulaAgeMinutes()
         return cannulaAge < CANNULA_AGE_THRESHOLD_MINUTES && cannulaAge > 0L  // 0 = acabou de trocar, nao bloqueia
     }

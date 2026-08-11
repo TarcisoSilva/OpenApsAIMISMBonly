@@ -41,3 +41,16 @@ node_modules/
 /relatorio_*.docx
 /proposta_*.docx
 /analise_*.docx
+# Documentos de trabalho (análises/bugs/melhorias — internos, com observações clínicas)
+/AGENTS.md
+/ANALYSIS_BUGS_IMPROVEMENTS.md
+/BUGS_SUMMARY.md
+/GRAPH_IMPROVEMENTS.md
+/IMPLEMENTATION_SCRIPT_LOTE1.md
+/INDEX.md
+/PATCH_BUG_2_Override2_IOB_Guard.md
+/PATCH_BUG_3_DIA_Adaptativo_When_Logic.md
+/PATCH_BUG_4_iobArray_Never_Populated.md
+/PERFORMANCE_OPTIMIZATIONS.md
+/README_ANALYSIS.md
+/plugins/aps/src/main/kotlin/app/aaps/plugins/aps/openAPSAIMI/plano_magnitude_model.md

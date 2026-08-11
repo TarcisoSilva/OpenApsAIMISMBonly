@@ -33,7 +33,8 @@ wear/pumpcontrol/*
 # Dados de paciente / leituras de BG / doses
 *.csv
 *.xlsx
-*.mp3
+# Obs: *.mp3 NÃO ignorado — sons de alarme do projeto ficam em res/raw/
+# (anexos de áudio do Hermes já são cobertos por .hermes/)
 # Dependências locais (docx para relatórios)
 node_modules/
 # Relatórios de análise clínica (não versionar — contêm dados do paciente)

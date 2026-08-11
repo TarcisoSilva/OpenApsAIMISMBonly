@@ -54,3 +54,7 @@ node_modules/
 /PERFORMANCE_OPTIMIZATIONS.md
 /README_ANALYSIS.md
 /plugins/aps/src/main/kotlin/app/aaps/plugins/aps/openAPSAIMI/plano_magnitude_model.md
+# Backups de trabalho (o git já é o backup do código — nunca versionar .bak)
+backups_compressao/
+*.bak*
+*.git_backup

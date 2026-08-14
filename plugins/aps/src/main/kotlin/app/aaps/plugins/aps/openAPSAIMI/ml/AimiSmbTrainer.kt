@@ -7,7 +7,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
@@ -100,14 +99,15 @@ object AimiSmbTrainer {
         if (isCircuitOpen(now)) return
 
         scope.launch {
-            if (trainMutex.isLocked) return@launch
-            trainMutex.withLock {
-                try {
-                    trainNow(dir, csvFile)
-                } catch (e: Exception) {
-                    recordFailure()
-                    Log.e(TAG, "Training failed: ${e.message}")
-                }
+            // MEL-4: tryLock() previne TOCTOU race condition (mesmo padrão do BG trainer)
+            if (!trainMutex.tryLock()) return@launch
+            try {
+                trainNow(dir, csvFile)
+            } catch (e: Exception) {
+                recordFailure()
+                Log.e(TAG, "Training failed: ${e.message}")
+            } finally {
+                trainMutex.unlock()
             }
         }
     }
@@ -175,20 +175,6 @@ object AimiSmbTrainer {
 
     // ---- Internal: Training -------------------------------------------------
 
-    private fun computeTrendIndicator(features: FloatArray): Float {
-        val delta = features.getOrElse(3) { 0f }
-        val shortAvg = features.getOrElse(4) { 0f }
-        val longAvg = features.getOrElse(5) { 0f }
-        val shortVsLong = shortAvg - longAvg
-        return when {
-            delta > 2 && shortVsLong > 1 -> 2f    // accelerating up
-            delta < -2 && shortVsLong < -1 -> -2f // accelerating down
-            delta > 1 -> 1f                       // going up
-            delta < -1 -> -1f                     // going down
-            else -> 0f                            // stable
-        }
-    }
-
     private suspend fun trainNow(dir: File, csvFile: File) {
         if (!csvFile.exists()) {
             Log.d(TAG, "CSV not found — skip training")
@@ -239,7 +225,7 @@ object AimiSmbTrainer {
             if (rawFeatures.any { it == null }) continue
 
             val raw = rawFeatures.map { it!! }.toFloatArray()
-            val trendIndicator = computeTrendIndicator(raw)
+            val trendIndicator = computeTrendIndicator(raw.getOrElse(3) { 0f }, raw.getOrElse(4) { 0f }, raw.getOrElse(5) { 0f })
             val enhanced = raw.copyOf(raw.size + 1).also { it[raw.size] = trendIndicator }
 
             val targetVal = cols[targetIndex].toDoubleOrNull() ?: continue
@@ -267,9 +253,12 @@ object AimiSmbTrainer {
             outputSize = 1,
             config = app.aaps.plugins.aps.openAPSAIMI.TrainingConfig(
                 learningRate = 0.001,
-                epochs = 300
-            ),
-            regularizationLambda = 0.01
+                epochs = 300,
+                // BUG-5: dropout desligado no SMB (rede pequena, 8 unidades ocultas).
+                // Com dropoutRate 0.5 (default) o modelo descartava metade dos
+                // neurônios a cada forward, tornando o treino instável.
+                useDropout = false
+            )
         )
 
         net.trainWithValidation(trainInputs, trainTargets, valInputs, valTargets)

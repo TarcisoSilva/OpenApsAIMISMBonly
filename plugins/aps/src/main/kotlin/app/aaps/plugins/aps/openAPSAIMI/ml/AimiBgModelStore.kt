@@ -67,13 +67,14 @@ object AimiBgModelStore {
         return try {
             // Validação REAL (Fase 2, 11/Ago/2026): modelo com INPUT_SIZE diferente do
             // esperado é INCOMPATÍVEL (features desalinhadas → classificação errada).
-            // Antes só copiava pesos (no-op) e aceitava qualquer arquitetura.
             if (net.inputSize != expectedInputSize) {
                 Log.w(TAG, "BG confidence model inputSize=${net.inputSize} != esperado $expectedInputSize — rejeitado")
                 return false
             }
-            net.copyWeightsFrom(net)
-            true
+            // MEL-2: mesmo padrão do AimiSmbModelStore — rejeita modelo com NaN/Inf
+            // nos pesos (probe de predict) em vez do antigo copyWeightsFrom no-op.
+            val probe = FloatArray(expectedInputSize) { 0f }
+            net.predict(probe).all { it.isFinite() }
         } catch (e: Exception) {
             Log.e(TAG, "BG confidence model validation failed: ${e.message}")
             false

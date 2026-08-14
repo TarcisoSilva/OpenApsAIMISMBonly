@@ -33,6 +33,7 @@ import app.aaps.plugins.aps.APSResultObject
 import app.aaps.plugins.aps.R
 import app.aaps.plugins.aps.openAPSAIMI.ml.AimiSmbTrainer
 import app.aaps.plugins.aps.openAPSAIMI.ml.AimiBgConfidenceTrainer
+import app.aaps.plugins.aps.openAPSAIMI.ml.computeTrendIndicator
 import dagger.android.HasAndroidInjector
 import org.json.JSONArray
 import org.json.JSONException
@@ -257,13 +258,10 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
         // ML Refinement: ajuste fino do SMB via rede neural on-device
         var mlRefinedSMB = predictedSMB
         if (!tfliteFailed && sp.getBoolean(R.string.key_aimi_smb_refine, false)) {
-            val ti = when {
-                delta > 2 && (shortAvgDelta - longAvgDelta) > 1 -> 2f
-                delta < -2 && (shortAvgDelta - longAvgDelta) < -1 -> -2f
-                delta > 1 -> 1f
-                delta < -1 -> -1f
-                else -> 0f
-            }
+            // BUG-11: função única compartilhada com os trainers (antes duplicada inline)
+            val ti = computeTrendIndicator(
+                delta.toFloat(), shortAvgDelta.toFloat(), longAvgDelta.toFloat()
+            )
             val features = floatArrayOf(
                 bg.toFloat(), iob.toFloat(), cob.toFloat(), delta.toFloat(),
                 shortAvgDelta.toFloat(), longAvgDelta.toFloat(),
@@ -397,8 +395,8 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
         smbToGive = applySafetyPrecautions(smbToGive)
         smbToGive = roundToPoint05(smbToGive)
 
-        logDataToCsv(false, predictedSMB, smbToGive)
-        logDataToCsv(true, predictedSMB, smbToGive)
+        logDataToCsv(false, predictedSMB, smbToGive, this.bg)
+        logDataToCsv(true, predictedSMB, smbToGive, this.bg)
 
         // ML training trigger (fire-and-forget, rate-limited a 6h)
         if (sp.getBoolean(R.string.key_aimi_smb_refine, false)) {
@@ -533,7 +531,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
     }
 
 
-    private fun logDataToCsv(hb: Boolean, predictedSMB: Float1, smbToGive: Float1) {
+    private fun logDataToCsv(hb: Boolean, predictedSMB: Float1, smbToGive: Float1, bgCorrigido: Double) {
         //val dateStr = dateUtil.dateAndTimeString(dateUtil.now())
         val dateStr = getFormattedDateTime()
 
@@ -547,7 +545,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
                     "tdd7DaysPerHour,tdd2DaysPerHour,tddDailyPerHour,tdd24HrsPerHour," +
                     "recentSteps5Minutes,recentSteps10Minutes,recentSteps15Minutes,recentSteps30Minutes,recentSteps60Minutes,recentSteps180Minutes,averageBeatsPerMinute, averageBeatsPerMinute180," +
                     "tags0to60minAgo,tags60to120minAgo,tags120to180minAgo,tags180to240minAgo," +
-                    "variableSensitivity,predictedSMB,DinMaxIob,DynMaxSmb,smbGiven,bgConfidence\n"
+                    "variableSensitivity,predictedSMB,DinMaxIob,DynMaxSmb,smbGiven,bgConfidence,bgCorrigido\n"
                 file.appendText(headerRow)
             }
             val valuesToRecord = "$dateStr,${dateUtil.now()},$hourOfDay,$weekend," +
@@ -557,7 +555,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
                 "$recentSteps5Minutes,$recentSteps10Minutes,$recentSteps15Minutes,$recentSteps30Minutes,$recentSteps60Minutes,$recentSteps180Minutes," +
                 "$averageBeatsPerMinute, $averageBeatsPerMinute180," +
                 "$tags0to60minAgo,$tags60to120minAgo,$tags120to180minAgo,$tags180to240minAgo," +
-                "$variableSensitivity,$predictedSMB,$DinMaxIob,$DynMaxSmb,$smbToGive,$bgConfidence"
+                "$variableSensitivity,$predictedSMB,$DinMaxIob,$DynMaxSmb,$smbToGive,$bgConfidence,$bgCorrigido"
             file.appendText(valuesToRecord + "\n")
         } else {
             val file = recordsFile
@@ -568,7 +566,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
                     "tdd7DaysPerHour,tdd2DaysPerHour,tddPerHour,tdd24HrsPerHour," +
                     "recentSteps5Minutes,recentSteps10Minutes,recentSteps15Minutes,recentSteps30Minutes,recentSteps60Minutes,recentSteps180Minutes," +
                     "tags0to60minAgo,tags60to120minAgo,tags120to180minAgo,tags180to240minAgo," +
-                    "predictedSMB,maxIob,maxSMB,smbGiven,bgConfidence\n"
+                    "predictedSMB,maxIob,maxSMB,smbGiven,bgConfidence,bgCorrigido\n"
                 file.appendText(headerRow)
             }
             val valuesToRecord = "$dateStr,${dateUtil.now()},$hourOfDay,$weekend," +
@@ -576,7 +574,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
                 "$tdd7DaysPerHour,$tdd2DaysPerHour,$tddPerHour,$tdd24HrsPerHour," +
                 "$recentSteps5Minutes,$recentSteps10Minutes,$recentSteps15Minutes,$recentSteps30Minutes,$recentSteps60Minutes,$recentSteps180Minutes," +
                 "$tags0to60minAgo,$tags60to120minAgo,$tags120to180minAgo,$tags180to240minAgo," +
-                "$predictedSMB,${DinMaxIob},${DynMaxSmb},$smbToGive,$bgConfidence"
+                "$predictedSMB,${DinMaxIob},${DynMaxSmb},$smbToGive,$bgConfidence,$bgCorrigido"
             file.appendText(valuesToRecord + "\n")
         }
     }
@@ -654,11 +652,18 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
         // Sem modelo (retreino) → tier 0 → ×1.0 → comportamento inalterado (fail-safe).
         // Reversão: remover este bloco.
         val confMultiplier = BgConfidenceGuard.smbMultiplier(this.bgConfidence, isDigesting, delta)
+        // MELHORIA-6: loga SEMPRE (inclusive tier 0 / ×1.0) para diagnóstico do
+        // veredito da rede neural de confiança do BG.
+        aapsLogger.debug(
+            LTag.APS,
+            "BG Confidence: tier=$bgConfidence, bg=" + "%.1f".format(bg) +
+                ", delta=" + "%.1f".format(delta) + ", mult=$confMultiplier, smb=" +
+                "%.2f".format(smbToGive.toDouble()) + " U"
+        )
         if (confMultiplier < 1.0) {
-            aapsLogger.debug(LTag.APS, "BG Confidence (tier=$bgConfidence): " +
-                "%.2f".format(smbToGive.toDouble()) + " -> " +
-                "%.2f".format((smbToGive * confMultiplier).toDouble()) + " U (×$confMultiplier)")
-            smbToGive = (smbToGive * confMultiplier.toFloat()).coerceAtLeast(0f)
+            val adjusted = (smbToGive * confMultiplier.toFloat()).coerceAtLeast(0f)
+            aapsLogger.debug(LTag.APS, "  → SMB ajustado: " + "%.2f".format(adjusted.toDouble()) + " U")
+            smbToGive = adjusted
         }
 
         // smbToGive = (smbToGive + mealTrigger).toFloat()
@@ -1450,27 +1455,53 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
                 idadeSensor < 12 * 24 * 60 -> 1.0     // dias 2-11: mais preciso
                 else -> 2.0                            // dia 12+: perde precisão
             }
+
+            // Cálculo real das features de salto anterior e reversão a partir do histórico recente (Bug 8)
+            val historicoRecente = repository.compatGetBgReadingsDataFromTime(now - 15 * 60 * 1000L, now, false)
+                .timeout(2, TimeUnit.SECONDS)
+                .onErrorReturnItem(emptyList())
+                .blockingGet()
+                .filter { it.isValid }
+                .sortedBy { it.timestamp }
+
+            val bgAnt1 = if (historicoRecente.size >= 2) historicoRecente[historicoRecente.size - 2].value else glucoseStatus.glucose
+            val bgAnt2 = if (historicoRecente.size >= 3) historicoRecente[historicoRecente.size - 3].value else bgAnt1
+
+            val saltoAnteriorCalc = (glucoseStatus.glucose - bgAnt1).coerceAtLeast(0.0)
+            val prevDeltaCalc = bgAnt1 - bgAnt2          // delta da leitura ANTERIOR (para TRAVA 8)
+            val reverteuCalc = if ((bgAnt1 - bgAnt2 > 15.0 && glucoseStatus.glucose < bgAnt1 - 15.0) ||
+                (bgAnt2 - bgAnt1 > 15.0 && glucoseStatus.glucose > bgAnt1 + 15.0)) 1.0 else 0.0
+
             bgConfidence = AimiBgConfidenceTrainer.classify(
                 bg = glucoseStatus.glucose,
                 delta = glucoseStatus.delta,
+                prevDelta = prevDeltaCalc,
                 shortAvgDelta = glucoseStatus.shortAvgDelta,
                 longAvgDelta = glucoseStatus.longAvgDelta,
-                saltoAnterior = 0.0,   // TODO: calcular do histórico (Fase 2)
-                reversao = 0.0,         // TODO: calcular do histórico (Fase 2)
+                saltoAnterior = saltoAnteriorCalc,
+                reversao = reverteuCalc,
                 idadeSensorMin = if (idadeSensor == Long.MAX_VALUE) 0L else idadeSensor,
-                compressaoAtiva = 0.0,  // Fase 2: integrar CompressionDetector aqui
+                compressaoAtiva = 0.0,
                 iob = this.iob.toDouble(),
                 cob = mealData.mealCOB.toDouble(),
                 tdd7DaysPerHour = tdd7DaysPerHour.toDouble(),
                 isNight = if (LocalTime.now().run { hour in 22..23 || hour in 0..5 }) 1.0 else 0.0,
                 faseSensor = faseSensor,
-                direcaoDivergencia = 0.0,   // inferência: sem ponta de dedo no ciclo (só no treino)
+                direcaoDivergencia = 0.0,
                 emJanelaRefeicao = emJanelaRefeicao()
             )
         } catch (e: Exception) {
             bgConfidence = 0
             aapsLogger.warn(LTag.APS, "BG confidence classify failed (fallback OK): ${e.message}")
         }
+
+        // Item 7 - Opção A-v2: BG Corrigido para ser utilizado nos cálculos de dose
+        val bgDeTrabalho = BgConfidenceGuard.calculateCorrectedBg(
+            bg = glucoseStatus.glucose,
+            delta = glucoseStatus.delta,
+            shortAvgDelta = glucoseStatus.shortAvgDelta,
+            tier = bgConfidence
+        )
 
         // ─── Tarciso_BG_CONFIDENCE_V2 (09/Ago/2026) — captura automática de suspeitas ───
         // Usa as leituras anteriores/futuras do histórico para detectar reversões de salto,
@@ -1523,7 +1554,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
         this.iob = iobCalcs.iob + iobCalcs.basaliob.toFloat()
         this.iobArray = iobArray.toList()  // Bug #4 fix (Jul/2026) — popula array para Fase 1 PK/PD
         // this.iob = iobCalcs.iob.toFloat() + iobCalcs.basaliob.toFloat()
-        this.bg = glucoseStatus.glucose
+        this.bg = bgDeTrabalho  // Item 7: Usa BG corrigido (não BG cru) para cálculos subsequentes
         this.bgTime = glucoseStatus.date
         calcularBgAltoUltimas4h()
         calcularLowestBgUltimaHora()
@@ -1835,14 +1866,27 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
                         idadeSensor < 12 * 24 * 60 -> 1.0
                         else -> 2.0
                     }
+                    // BUG-12: mesmas features reais do classify (histórico recente) em vez de 0.0/0.0
+                    val historicoRecentef = repository.compatGetBgReadingsDataFromTime(now - 15 * 60 * 1000L, now, false)
+                        .timeout(2, TimeUnit.SECONDS)
+                        .onErrorReturnItem(emptyList())
+                        .blockingGet()
+                        .filter { it.isValid }
+                        .sortedBy { it.timestamp }
+                    val bgAnt1f = if (historicoRecentef.size >= 2) historicoRecentef[historicoRecentef.size - 2].value else glucoseStatus.glucose
+                    val bgAnt2f = if (historicoRecentef.size >= 3) historicoRecentef[historicoRecentef.size - 3].value else bgAnt1f
+                    val saltoAnteriorReal = (glucoseStatus.glucose - bgAnt1f).coerceAtLeast(0.0)
+                    val reversaoReal = if ((bgAnt1f - bgAnt2f > 15.0 && glucoseStatus.glucose < bgAnt1f - 15.0) ||
+                        (bgAnt2f - bgAnt1f > 15.0 && glucoseStatus.glucose > bgAnt1f + 15.0)) 1.0 else 0.0
+
                     AimiBgConfidenceTrainer.recordSample(
                         csvFile = File(path, "AAPS/ml/bg_confidence_training.csv"),
                         bg = glucoseStatus.glucose,
                         delta = glucoseStatus.delta,
                         shortAvgDelta = glucoseStatus.shortAvgDelta,
                         longAvgDelta = glucoseStatus.longAvgDelta,
-                        saltoAnterior = 0.0,   // TODO: calcular do histórico (Fase 2)
-                        reversao = 0.0,         // TODO: calcular do histórico (Fase 2)
+                        saltoAnterior = saltoAnteriorReal,
+                        reversao = reversaoReal,
                         idadeSensorMin = if (idadeSensor == Long.MAX_VALUE) 0L else idadeSensor,
                         compressaoAtiva = 0.0,  // Fase 2: integrar CompressionDetector aqui
                         iob = this.iob.toDouble(),
@@ -2466,7 +2510,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
         // 05/Ago: lockout pós-alarme + target 140 noturno (isNight 22-5)
         // 11/Ago: Fase 2 — rede neural de confiança do BG ligada ao SMB (INPUT_SIZE 16,
         //         travas 5/6/7, piso 0.8 digestão, features direção/janela de refeição)
-        private const val BUILD_VERSION = "231 / 11-Ago-2026"
+        private const val BUILD_VERSION = "233 / 13-Ago-2026"
 
         // PD gains
         private const val KP = 0.0075

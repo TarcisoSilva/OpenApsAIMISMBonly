@@ -9,7 +9,6 @@ data class TrainingConfig(
     var batchSize: Int = 32,
     var weightDecay: Double = 0.01,
     var epochs: Int = 1000,
-    var useBatchNorm: Boolean = true,
     var useDropout: Boolean = true,
     var dropoutRate: Double = 0.5,
     var leakyReluAlpha: Double = 0.01

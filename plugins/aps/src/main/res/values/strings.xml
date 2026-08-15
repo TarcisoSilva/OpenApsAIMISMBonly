@@ -313,4 +313,9 @@
     <string name="aimi_auto_adjust_interval_title">Auto-Adjust Analysis Interval</string>
     <string name="aimi_auto_adjust_interval_summary">How often to analyse BG and adjust hourly factors. Lower = more responsive but may oscillate. Default 4h.</string>
 
+    <!-- Delta Suspeito — TRAVA 7 configurável (15/Ago/2026) -->
+    <string name="key_aimi_delta_suspeito" translatable="false">key_aimi_delta_suspeito</string>
+    <string name="aimi_delta_suspeito_title" translatable="false">Delta Suspeito (mg/dL)</string>
+    <string name="aimi_delta_suspeito_summary" translatable="false">Limiar TRAVA 7: 6=m�s sensível, 7=padrão, 8=conservador</string>
+
 </resources>

@@ -32,6 +32,17 @@
             validate:floatminNumber="0.05"
             validate:testType="floatNumericRange"
             android:dependency="@string/auto_mode"/>
+        <!-- Delta Suspeito — TRAVA 7 configurável (15/Ago/2026) -->
+        <app.aaps.core.validators.ValidatingEditTextPreference
+            android:defaultValue="7"
+            android:dialogMessage="@string/aimi_delta_suspeito_summary"
+            android:inputType="numberDecimal"
+            android:key="@string/key_aimi_delta_suspeito"
+            android:title="@string/aimi_delta_suspeito_title"
+            validate:floatmaxNumber="15.0"
+            validate:floatminNumber="4.0"
+            validate:testType="floatNumericRange"
+            android:dependency="@string/auto_mode" />
         <app.aaps.core.validators.ValidatingEditTextPreference
             android:defaultValue="120"
             android:enabled="true"

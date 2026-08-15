@@ -23,7 +23,9 @@ object BgConfidenceGuard {
     private const val TRAVA_3_HIPER_ATIVA = true
     private const val SAFETY_RISE_DELTA = 1.0
     private const val SAFETY_DELTA_RUIDO = 10.0
-    private const val SAFETY_DELTA_SUSPEITO = 7.0
+    // Delta Suspeito — valor padrão, pode ser sobrescrito por parâmetro
+    // (padrão 7.0 mg/dL, configurável via Preferências AIMI)
+    const val DEFAULT_DELTA_SUSPEITO = 7.0
 
     /**
      * Aplica as travas de segurança sobre o veredito bruto da rede.
@@ -33,7 +35,8 @@ object BgConfidenceGuard {
         bg: Double,
         delta: Double,
         prevDelta: Double = 0.0,
-        shortAvgDelta: Double = 0.0
+        shortAvgDelta: Double = 0.0,
+        deltaSuspeito: Double = DEFAULT_DELTA_SUSPEITO
     ): Int {
         var tier = rawTier
 
@@ -56,8 +59,9 @@ object BgConfidenceGuard {
         // TRAVA 6 — delta > 10 é RUÍDO provável. Por REGRA, não depende da rede
         if (delta > SAFETY_DELTA_RUIDO) return 2
 
-        // TRAVA 7 — delta 7-10: zona de SUSPEITA → no mínimo UNCERTAIN
-        if (delta > SAFETY_DELTA_SUSPEITO && tier == 0) {
+        // TRAVA 7 — delta > limiar configurável: zona de SUSPEITA → no mínimo UNCERTAIN
+        // Default: 7.0 mg/dL (configurável em Preferências → AIMI → Delta Suspeito)
+        if (delta > deltaSuspeito && tier == 0) {
             tier = 1
         }
 

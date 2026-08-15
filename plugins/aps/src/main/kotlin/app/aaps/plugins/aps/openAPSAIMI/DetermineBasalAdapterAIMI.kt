@@ -1488,7 +1488,8 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
                 isNight = if (LocalTime.now().run { hour in 22..23 || hour in 0..5 }) 1.0 else 0.0,
                 faseSensor = faseSensor,
                 direcaoDivergencia = 0.0,
-                emJanelaRefeicao = emJanelaRefeicao()
+                emJanelaRefeicao = emJanelaRefeicao(),
+                deltaSuspeito = sp.getDouble(R.string.key_aimi_delta_suspeito, BgConfidenceGuard.DEFAULT_DELTA_SUSPEITO)
             )
         } catch (e: Exception) {
             bgConfidence = 0

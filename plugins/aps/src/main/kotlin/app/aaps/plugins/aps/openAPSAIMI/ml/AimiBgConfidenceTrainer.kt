@@ -78,7 +78,8 @@ object AimiBgConfidenceTrainer {
         saltoAnterior: Double, reversao: Double, idadeSensorMin: Long,
         compressaoAtiva: Double, iob: Double, cob: Double,
         tdd7DaysPerHour: Double, isNight: Double, faseSensor: Double,
-        direcaoDivergencia: Double, emJanelaRefeicao: Double
+        direcaoDivergencia: Double, emJanelaRefeicao: Double,
+        deltaSuspeito: Double = BgConfidenceGuard.DEFAULT_DELTA_SUSPEITO
     ): Int {
         val now = System.currentTimeMillis()
         if (isCircuitOpen(now)) return 0
@@ -106,7 +107,9 @@ object AimiBgConfidenceTrainer {
                 else -> 2         // BAD (alvo 2.0)
             }
 
-            BgConfidenceGuard.applySafety(rawTier, bg, delta, prevDelta, shortAvgDelta)
+            BgConfidenceGuard.applySafety(
+                rawTier, bg, delta, prevDelta, shortAvgDelta, deltaSuspeito
+            )
         } catch (e: Exception) {
             recordFailure()
             Log.w(TAG, "classify() exception: ${e.message}")

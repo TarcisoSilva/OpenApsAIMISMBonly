@@ -59,9 +59,9 @@ object BgConfidenceGuard {
         // TRAVA 6 — delta > 10 é RUÍDO provável. Por REGRA, não depende da rede
         if (delta > SAFETY_DELTA_RUIDO) return 2
 
-        // TRAVA 7 — delta > limiar configurável: zona de SUSPEITA → no mínimo UNCERTAIN
+        // TRAVA 7 — delta >= limiar configurável: zona de SUSPEITA → no mínimo UNCERTAIN
         // Default: 7.0 mg/dL (configurável em Preferências → AIMI → Delta Suspeito)
-        if (delta > deltaSuspeito && tier == 0) {
+        if (delta >= deltaSuspeito && tier == 0) {
             tier = 1
         }
 

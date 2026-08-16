@@ -2511,7 +2511,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
         // 05/Ago: lockout pós-alarme + target 140 noturno (isNight 22-5)
         // 11/Ago: Fase 2 — rede neural de confiança do BG ligada ao SMB (INPUT_SIZE 16,
         //         travas 5/6/7, piso 0.8 digestão, features direção/janela de refeição)
-        private const val BUILD_VERSION = "233 / 13-Ago-2026"
+        private const val BUILD_VERSION = "234 / 15-Ago-2026"
 
         // PD gains
         private const val KP = 0.0075

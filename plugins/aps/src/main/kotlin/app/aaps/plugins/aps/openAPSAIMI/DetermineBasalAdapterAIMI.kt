@@ -115,8 +115,9 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
     private var stable: Int = 0
     private var stable2: Int = 0
     private var bgstatus: Int = 0
-    // Tarciso_BG_CONFIDENCE (08/Ago/2026) — confiança da leitura de BG via rede neural.
-    // FASE 1: apenas LOG no CSV (0=OK, 1=UNCERTAIN, 2=BAD). Não afeta SMB ainda.
+    // Tarciso_BG_CONFIDENCE (08/Ago/2026) — confiança da leitura de BG.
+    // OPÇÃO A (19/Ago/2026): rede neural DESATIVADA — tier vem só das TRAVAS 1-9
+    // (0=OK, 1=UNCERTAIN, 2=BAD). Ver plano_2026-08-19_opcao_A_desativar_nn.md.
     private var bgConfidence: Int = 0
     private var ProfileISF = 0.0
     // Tarciso
@@ -190,8 +191,6 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
     private val recordsFile = File(path, "AAPS/oapsaimi_records.csv")
     private val recordsHBFile = File(path, "AAPS/oapsaimiHB_records.csv")
     private var smbModelLoaded = false
-    // Tarciso_BG_CONFIDENCE: flag de carregamento do modelo de confiança do BG
-    private var bgConfidenceModelLoaded = false
 
     private var iobArray: List<IobTotal>? = null
     // ════════════════════════════════════════════════════════════════
@@ -1193,14 +1192,10 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
         //   Trava de IOB causava tratamento tardio do hiper (cortava SMB com BG
         //   130-165 subindo quando IOB >= 2.0/5.0). A proteção de hipo continua
         //   nas demais condições de isCriticalSafetyCondition (BG real < 120).
-        if (bg <= 165 && delta > 0) {
+        if (bg <= 220 && delta > 0) {
             futureBg = targetBg + 2
             }
 
-        if (LocalTime.now().run { hour in 4..22 } && iob <= 0.8 && delta > 0) {
-            futureBg = targetBg + 2
-
-        }
 
         /*if (LocalTime.now().run { hour in 1..3 } && bg >= 135 && bg <= 160 && delta > 2 && iob >= 2) {
             futureBg = targetBg + 2
@@ -1428,7 +1423,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
             // M4 (01/Ago/2026): fallback consistente com os branches (50.0, não 50.0/100=0.5).
             // Se hourOfDay sair do range 0-23 (bug de relógio/fuso), o fator horário
             // permanece 50.0 — evita SMB até 2.5× maior que o modelo pediu.
-            else -> 50.0
+            else -> 90.0
         }
 
         // Carregar modelo ML SMB uma vez
@@ -1437,26 +1432,17 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
             smbModelLoaded = true
         }
 
-        // ─── Tarciso_BG_CONFIDENCE (08/Ago/2026) — FASE 1 (log apenas) ───
-        // Carrega o modelo de confiança do BG (rede neural) e classifica a
-        // leitura atual. NÃO afeta o SMB nesta fase — apenas registra no CSV.
-        if (!bgConfidenceModelLoaded) {
-            AimiBgConfidenceTrainer.loadModel(File(path, "AAPS/ml"))
-            bgConfidenceModelLoaded = true
-        }
-        // Classifica a confiança da leitura atual (com travas de segurança).
-        // Usa a idade do sensor e a compressão noturna (se disponível) como
-        // features de contexto — mesmas fontes usadas nas travas de troca.
+        // ─── Tarciso_BG_CONFIDENCE (08/Ago/2026) — OPÇÃO A (19/Ago/2026) ───
+        // Rede neural DESATIVADA: rawTier=0 fixo, mantendo apenas as
+        // TRAVAS 1-9 determinísticas do BgConfidenceGuard.
+        // Motivo: analise_2026-08-19_rede_neural_avaliacao_6_propostas.md
+        // (modelo treinado com 48 amostras inválidas; falso-positivos BAD em
+        // BG estável cortavam SMB em 50% em ~35% dos ciclos).
         try {
+            // Idade do sensor (TRAVA 9 — substitui a feature faseSensor da NN)
             val idadeSensor = getSensorAgeMinutes()
-            val faseSensor = when {
-                idadeSensor == Long.MAX_VALUE -> 0.0
-                idadeSensor < 24 * 60 -> 0.0          // dia 1: menos preciso
-                idadeSensor < 12 * 24 * 60 -> 1.0     // dias 2-11: mais preciso
-                else -> 2.0                            // dia 12+: perde precisão
-            }
 
-            // Cálculo real das features de salto anterior e reversão a partir do histórico recente (Bug 8)
+            // Cálculo do delta da leitura ANTERIOR (feature da TRAVA 8)
             val historicoRecente = repository.compatGetBgReadingsDataFromTime(now - 15 * 60 * 1000L, now, false)
                 .timeout(2, TimeUnit.SECONDS)
                 .onErrorReturnItem(emptyList())
@@ -1466,34 +1452,22 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
 
             val bgAnt1 = if (historicoRecente.size >= 2) historicoRecente[historicoRecente.size - 2].value else glucoseStatus.glucose
             val bgAnt2 = if (historicoRecente.size >= 3) historicoRecente[historicoRecente.size - 3].value else bgAnt1
-
-            val saltoAnteriorCalc = (glucoseStatus.glucose - bgAnt1).coerceAtLeast(0.0)
             val prevDeltaCalc = bgAnt1 - bgAnt2          // delta da leitura ANTERIOR (para TRAVA 8)
-            val reverteuCalc = if ((bgAnt1 - bgAnt2 > 15.0 && glucoseStatus.glucose < bgAnt1 - 15.0) ||
-                (bgAnt2 - bgAnt1 > 15.0 && glucoseStatus.glucose > bgAnt1 + 15.0)) 1.0 else 0.0
 
-            bgConfidence = AimiBgConfidenceTrainer.classify(
+            // OPÇÃO A (19/Ago/2026): rede neural desativada — rawTier=0 fixo.
+            // TRAVAS 1-9 continuam aplicadas por regra (hipo/hiper/ruído/rebote/idade).
+            bgConfidence = BgConfidenceGuard.applySafety(
+                rawTier = 0,
                 bg = glucoseStatus.glucose,
                 delta = glucoseStatus.delta,
                 prevDelta = prevDeltaCalc,
                 shortAvgDelta = glucoseStatus.shortAvgDelta,
-                longAvgDelta = glucoseStatus.longAvgDelta,
-                saltoAnterior = saltoAnteriorCalc,
-                reversao = reverteuCalc,
-                idadeSensorMin = if (idadeSensor == Long.MAX_VALUE) 0L else idadeSensor,
-                compressaoAtiva = 0.0,
-                iob = this.iob.toDouble(),
-                cob = mealData.mealCOB.toDouble(),
-                tdd7DaysPerHour = tdd7DaysPerHour.toDouble(),
-                isNight = if (LocalTime.now().run { hour in 22..23 || hour in 0..5 }) 1.0 else 0.0,
-                faseSensor = faseSensor,
-                direcaoDivergencia = 0.0,
-                emJanelaRefeicao = emJanelaRefeicao(),
-                deltaSuspeito = sp.getDouble(R.string.key_aimi_delta_suspeito, BgConfidenceGuard.DEFAULT_DELTA_SUSPEITO)
+                deltaSuspeito = sp.getDouble(R.string.key_aimi_delta_suspeito, BgConfidenceGuard.DEFAULT_DELTA_SUSPEITO),
+                idadeSensorMin = if (idadeSensor == Long.MAX_VALUE) 0L else idadeSensor
             )
         } catch (e: Exception) {
             bgConfidence = 0
-            aapsLogger.warn(LTag.APS, "BG confidence classify failed (fallback OK): ${e.message}")
+            aapsLogger.warn(LTag.APS, "BG confidence travas falharam (fallback OK): ${e.message}")
         }
 
         // Item 7 - Opção A-v2: BG Corrigido para ser utilizado nos cálculos de dose
@@ -1784,7 +1758,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
 
         // Tarciso_REMOVER_ISF (09/Ago/2026): Delta Lock usa hourlyfactor (auto-ajustado) × (tdd/6),
         // nunca profile. Mais protetor que antes (HF~49-94 vs ISF equalizado = mesmo valor).
-        if (delta <= -1.0 && bg < 160 ) variableSensitivity = hourlyfactor.coerceAtLeast(1.0) * (tdd.toFloat()/6)
+        if (delta <= 0.0 && bg < 160 ) variableSensitivity = hourlyfactor.coerceAtLeast(1.0) * (tdd.toFloat()/6)
 
         // END OF DELTA LOCK
 
@@ -2010,7 +1984,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
      */
     private fun alarmeLowRecente(): Boolean {
         return try {
-            val timestampsJson = sp.getString("low_glucose_alarm_timestamps", "[]")
+            val timestampsJson = sp.getString(KEY_LOW_GLUCOSE_ALARM_TIMESTAMPS, "[]")
             val jsonArray = org.json.JSONArray(timestampsJson)
             if (jsonArray.length() > 0) {
                 val ultimoAlarme = jsonArray.getLong(jsonArray.length() - 1)
@@ -2035,7 +2009,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
      */
     private fun alarmeLowRecenteParaTarget(): Boolean {
         return try {
-            val timestampsJson = sp.getString("low_glucose_alarm_timestamps", "[]")
+            val timestampsJson = sp.getString(KEY_LOW_GLUCOSE_ALARM_TIMESTAMPS, "[]")
             val jsonArray = org.json.JSONArray(timestampsJson)
             if (jsonArray.length() > 0) {
                 val ultimoAlarme = jsonArray.getLong(jsonArray.length() - 1)
@@ -2433,7 +2407,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
     private fun determineMaxIOBandMaxSMB(profile: Profile) {
         // MaxIOB Definition -> Phase1
         if (targetBg < 122) {
-            if ((LocalTime.now().run { hour in 12..22 }) && bg < 145) {
+            if ((LocalTime.now().run { hour in 12..22 }) && bg < 130) {
                 this.maxIob = ((bg / (10 * hourOfDay)) + (delta / 70)) + sp.getDouble(R.string.key_openapssmb_max_iob, 5.0)
             } else {
                 if (bg >= 170) this.maxIob = ((bg / 130) + (delta / 70)) + sp.getDouble(R.string.key_openapssmb_max_iob, 5.0)
@@ -2511,7 +2485,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
         // 05/Ago: lockout pós-alarme + target 140 noturno (isNight 22-5)
         // 11/Ago: Fase 2 — rede neural de confiança do BG ligada ao SMB (INPUT_SIZE 16,
         //         travas 5/6/7, piso 0.8 digestão, features direção/janela de refeição)
-        private const val BUILD_VERSION = "234 / 15-Ago-2026"
+        private const val BUILD_VERSION = "235 / 16-Ago-2026"
 
         // PD gains
         private const val KP = 0.0075
@@ -2582,6 +2556,9 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
 
         // CSV rotation: max 2 MB per file (~10k lines, ~1-2 weeks)
         private const val MAX_CSV_SIZE_BYTES = 2 * 1024 * 1024L
+
+        // Key de SharedPreferences para timestamps de alarme de low glucose
+        private const val KEY_LOW_GLUCOSE_ALARM_TIMESTAMPS = "low_glucose_alarm_timestamps"
     }
 
     /**

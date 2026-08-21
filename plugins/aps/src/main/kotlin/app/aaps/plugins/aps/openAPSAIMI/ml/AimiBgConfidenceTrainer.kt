@@ -60,16 +60,16 @@ object AimiBgConfidenceTrainer {
 
     private var modelDir: File? = null
 
-    fun loadModel(dir: File) {
+    fun loadModel(dir: File): Boolean {
         modelDir = dir
-        scope.launch {
-            val net = AimiBgModelStore.load(dir, INPUT_SIZE)
-            modelRef.set(net)
-            if (net != null) {
-                Log.i(TAG, "BG confidence model loaded from $dir (${INPUT_SIZE} inputs)")
-            } else {
-                Log.i(TAG, "No pre-trained BG confidence model — classification inactive (OK fallback)")
-            }
+        val net = AimiBgModelStore.load(dir, INPUT_SIZE)
+        modelRef.set(net)
+        if (net != null) {
+            Log.i(TAG, "BG confidence model loaded from $dir (${INPUT_SIZE} inputs)")
+            return true
+        } else {
+            Log.i(TAG, "No pre-trained BG confidence model — classification inactive (OK fallback)")
+            return false
         }
     }
 
@@ -84,7 +84,13 @@ object AimiBgConfidenceTrainer {
         val now = System.currentTimeMillis()
         if (isCircuitOpen(now)) return 0
 
-        val model = modelRef.get() ?: return 0
+        val model = modelRef.get()
+        if (model == null) {
+            Log.w(TAG, "classify() called but modelRef is null - returning 0")
+            return 0
+        }
+
+        // ORIGINAL: val model = modelRef.get() ?: return 0
 
         return try {
             val features = floatArrayOf(

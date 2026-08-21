@@ -22,10 +22,18 @@ object BgConfidenceGuard {
     private const val SAFETY_BG_HIGH = 250.0
     private const val TRAVA_3_HIPER_ATIVA = true
     private const val SAFETY_RISE_DELTA = 1.0
-    private const val SAFETY_DELTA_RUIDO = 10.0
-    // Delta Suspeito — valor padrão, pode ser sobrescrito por parâmetro
-    // (padrão 7.0 mg/dL, configurável via Preferências AIMI)
+    private const val SAFETY_DELTA_RUIDO = 8.0
+    // Delta Suspeito — valor padrão, o valor correto vem das preferencias e é obtido pelo DetermineBasalAdapterAIMI.kt
+    // (padrão 7.0 mg/dL. Se o DetermineBasalAdapterAIMI.kt passar novo valor na chamada, vale
+    // o valor do DetermineBasalAdapterAIMI.kt que obtem o valor das Preferências AIMI)
     const val DEFAULT_DELTA_SUSPEITO = 7.0
+
+    // TRAVA 9 — Proteção por idade do sensor (19/Ago/2026).
+    // Substitui a feature faseSensor da NN por regra determinística.
+    // Sensor novo (<24h, dia 1) menos preciso; sem atenuação antes de 60 dias
+    // (valor inicial — revisável com o uso).
+    private const val SENSOR_NOVO_LIMIT_HORAS = 24.0
+    private const val SENSOR_VELHO_LIMIT_DIAS = 60.0
 
     /**
      * Aplica as travas de segurança sobre o veredito bruto da rede.
@@ -36,9 +44,11 @@ object BgConfidenceGuard {
         delta: Double,
         prevDelta: Double = 0.0,
         shortAvgDelta: Double = 0.0,
-        deltaSuspeito: Double = DEFAULT_DELTA_SUSPEITO
+        deltaSuspeito: Double = DEFAULT_DELTA_SUSPEITO, // Delta Suspeito — valor padrão, o valor correto vem das preferencias e é obtido pelo DetermineBasalAdapterAIMI.kt
+        idadeSensorMin: Long = 0L // idadeSensorMin — valor padrão, o valor
+                                  // correto vem do DetermineBasalAdapterAIMI.kt que calcula o valor e chama do BgConfidenceGuard.kt.
     ): Int {
-        var tier = rawTier
+        var tier = rawTier  // vem do DetermineBasalAdapterAIMI.kt. Valor definido lá = 0.0
 
         // TRAVA 1 — Nunca mascarar hipo: BG < 80 é sempre confiável
         if (bg < SAFETY_BG_LOW) return 0
@@ -52,12 +62,12 @@ object BgConfidenceGuard {
         }
 
         // TRAVA 5 — Subida sustentada nunca BAD: divergência moderada com delta > 1 é LAG de refeição
-        if (delta > SAFETY_RISE_DELTA && tier == 2) {
+        if (delta >= SAFETY_RISE_DELTA && tier == 2) {
             tier = 1
         }
 
         // TRAVA 6 — delta > 10 é RUÍDO provável. Por REGRA, não depende da rede
-        if (delta > SAFETY_DELTA_RUIDO) return 2
+        if (delta >= SAFETY_DELTA_RUIDO) return 2
 
         // TRAVA 7 — delta >= limiar configurável: zona de SUSPEITA → no mínimo UNCERTAIN
         // Default: 7.0 mg/dL (configurável em Preferências → AIMI → Delta Suspeito)
@@ -70,6 +80,16 @@ object BgConfidenceGuard {
         // força no mínimo UNCERTAIN. Nunca bloqueia (maxOf). Cobra deltas 5-7 que a TRAVA 7 não vê.
         if (prevDelta < 0.0 && delta >= 5.0 && abs(delta) > abs(shortAvgDelta) * 2.0) {
             tier = maxOf(tier, 1)
+        }
+
+        // TRAVA 9 — Idade do sensor: dia 1 (<24h) e após 60 dias perdem precisão.
+        // No mínimo UNCERTAIN. Nunca bloqueia (maxOf) e nunca mascara hipo
+        // (TRAVAS 1-2 rodam antes e retornam 0).
+        if (idadeSensorMin > 0L) {
+            val idadeHoras = idadeSensorMin / 60.0
+            if (idadeHoras < SENSOR_NOVO_LIMIT_HORAS || idadeHoras > SENSOR_VELHO_LIMIT_DIAS * 24.0) {
+                tier = maxOf(tier, 1)
+            }
         }
 
         return tier

@@ -8,7 +8,7 @@ on:
     branches:     
 
 jobs:
-  build-and-sign:
+  build:
 
     runs-on: ubuntu-latest
 
@@ -27,23 +27,10 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build Release APK
-      env:
-        KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
-        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-      run: |
-        echo "KEYSTORE_FILE=$KEYSTORE_FILE" > keystore.properties
-        echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> keystore.properties
-        echo "KEY_ALIAS=$KEY_ALIAS" >> keystore.properties
-        echo "KEY_PASSWORD=$KEY_PASSWORD" >> keystore.properties
-        ./gradlew :app:assembleFullRelease
+      run: ./gradlew :app:assembleFullRelease
 
-    - name: Archive APK
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: app-full-release.apk
         path: app/build/outputs/apk/full/release/app-full-release.apk
-    - name: List files in output directory
-      run: |
-          ls -R app/build/outputs/apk/full/release/

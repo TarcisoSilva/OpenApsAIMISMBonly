@@ -2,14 +2,12 @@ name: Android CI/CD
 
 on:
   push:
-    branches: 
-    
+    branches: [test/v235, main]
   pull_request:
-    branches:     
+    branches: [test/v235, main]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:

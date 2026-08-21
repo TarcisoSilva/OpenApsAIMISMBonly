@@ -1,17 +1,12 @@
 name: Generated APK
 
 on:
-
   push:
-    branches:
-      - 'dev_Plugin_OpenApsAIMI_autobuild'
-
-  # Allows you to run this workflow manually from the Actions tab
+    branches: ['dev_Plugin_OpenApsAIMI_autobuild', 'test/v235', 'main']
   workflow_dispatch:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:

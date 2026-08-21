@@ -45,7 +45,7 @@ jobs:
 
       # Run Build Project
     - name: Build gradle project
-      run: ./gradlew build
+      run: ./gradlew :app:assembleFullRelease
 
       # Create APK Debug
       #- name: Build apk debug project (APK)
@@ -60,4 +60,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: app-full-release.apk
-        path: full/release/app-full-release.apk
+        path: app/build/outputs/apk/full/release/app-full-release.apk

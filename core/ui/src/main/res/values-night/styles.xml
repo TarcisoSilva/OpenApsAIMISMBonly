@@ -23,6 +23,10 @@
         <item name="scrimBackground">@color/mtrl_scrim_color</item>
         <!---Application Background Color  -->
         <item name="android:windowBackground">@color/black</item>
+        <!---Status Bar Color (mesmo background do tema) -->
+        <item name="android:statusBarColor">@color/black</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@color/black</item>
         <!---Text Colors -->
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:textColor">@color/white</item>

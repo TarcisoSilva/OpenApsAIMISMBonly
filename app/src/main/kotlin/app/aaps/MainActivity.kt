@@ -3,6 +3,7 @@ package app.aaps
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
@@ -25,6 +26,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
@@ -118,6 +120,9 @@ class MainActivity : DaggerAppCompatActivityWithResult() {
         LocaleHelper.update(applicationContext)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        applyStatusBarTheme()
+
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -324,6 +329,7 @@ class MainActivity : DaggerAppCompatActivityWithResult() {
 
     override fun onResume() {
         super.onResume()
+        applyStatusBarTheme()
         if (config.appInitialized) binding.splash.visibility = View.GONE
         if (!isProtectionCheckActive) {
             isProtectionCheckActive = true
@@ -331,6 +337,37 @@ class MainActivity : DaggerAppCompatActivityWithResult() {
                                             UIRunnable { OKDialog.show(this, "", rh.gs(R.string.authorizationfailed)) { isProtectionCheckActive = false; finish() } },
                                             UIRunnable { OKDialog.show(this, "", rh.gs(R.string.authorizationfailed)) { isProtectionCheckActive = false; finish() } }
             )
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        applyStatusBarTheme()
+    }
+
+    private fun applyStatusBarTheme() {
+        // Lê o tema do SP e aplica cor da status bar correspondente
+        val isDark = try {
+            sp.getString(app.aaps.core.utils.R.string.key_use_dark_mode, "dark") == "dark"
+        } catch (e: Exception) {
+            true
+        }
+
+        val bgColor = if (isDark) 0xFF070E1B.toInt() else 0xFFE8EEF8.toInt()
+        window.statusBarColor = if (isDark) 0xFF000000.toInt() else 0xFFF1F5F9.toInt()
+
+        // Atualiza cor de fundo da root layout e da barra inferior
+        val rootLayout = binding.root
+        rootLayout.setBackgroundColor(bgColor)
+        binding.mainButtonsCard.setCardBackgroundColor(bgColor)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val decorView = window.decorView
+            if (isDark) {
+                decorView.systemUiVisibility = decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+            } else {
+                decorView.systemUiVisibility = decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            }
         }
     }
 
@@ -406,19 +443,80 @@ class MainActivity : DaggerAppCompatActivityWithResult() {
     }
 
     // Alterado pelo Tarciso - Bottom navigation menu setup
+    private fun hideGlassTools() {
+        val container = findViewById<android.widget.FrameLayout>(R.id.glass_tools_container)
+        if (container.visibility == android.view.View.VISIBLE) {
+            container.visibility = android.view.View.GONE
+            binding.mainPager.visibility = android.view.View.VISIBLE
+            supportFragmentManager.findFragmentByTag("glass_tools")?.let {
+                supportFragmentManager.beginTransaction().remove(it).commit()
+            }
+        }
+    }
+
     private fun setupBottomMenu() {
         // Home button - Navigate to overview (first tab)
         binding.mainButtonsLayout.homeButtonContainer.setOnClickListener {
+            hideGlassTools()
             binding.mainPager.currentItem = 0
         }
         
-        // Tools button - Navigate to Tools screen
+        // Tools button - Show GlassToolsFragment in overlay
         binding.mainButtonsLayout.toolsButtonContainer.setOnClickListener {
-            startActivity(Intent(this, app.aaps.ui.activities.ToolsActivity::class.java))
+            val container = findViewById<android.widget.FrameLayout>(R.id.glass_tools_container)
+            if (container.visibility == android.view.View.VISIBLE) {
+                hideGlassTools()
+            } else {
+                container.visibility = android.view.View.VISIBLE
+                binding.mainPager.visibility = android.view.View.GONE
+                val toolsFragment = app.aaps.plugins.main.general.tools.glass.GlassToolsFragment()
+                val nightMode = resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK
+                toolsFragment.isDark = nightMode == android.content.res.Configuration.UI_MODE_NIGHT_YES
+                toolsFragment.onOpenActions = {
+                    val plugin = activePlugin.getPluginsList().firstOrNull { it.javaClass.simpleName == "ActionsPlugin" }
+                    if (plugin != null) startActivity(Intent(this, SingleFragmentActivity::class.java).setAction("info.nightscout.androidaps.ToolsActivity").putExtra("plugin", activePlugin.getPluginsList().indexOf(plugin)))
+                }
+                toolsFragment.onOpenOref = {
+                    val plugin = activePlugin.getPluginsList().firstOrNull { it.javaClass.simpleName == "InsulinOrefRapidActingPlugin" }
+                    if (plugin != null) startActivity(Intent(this, SingleFragmentActivity::class.java).setAction("info.nightscout.androidaps.ToolsActivity").putExtra("plugin", activePlugin.getPluginsList().indexOf(plugin)))
+                }
+                toolsFragment.onOpenProfile = {
+                    val plugin = activePlugin.getPluginsList().firstOrNull { it.javaClass.simpleName == "ProfilePlugin" }
+                    if (plugin != null) startActivity(Intent(this, SingleFragmentActivity::class.java).setAction("info.nightscout.androidaps.ToolsActivity").putExtra("plugin", activePlugin.getPluginsList().indexOf(plugin)))
+                }
+                toolsFragment.onOpenAutomation = {
+                    val plugin = activePlugin.getPluginsList().firstOrNull { it.javaClass.simpleName == "AutomationPlugin" }
+                    if (plugin != null) startActivity(Intent(this, SingleFragmentActivity::class.java).setAction("info.nightscout.androidaps.ToolsActivity").putExtra("plugin", activePlugin.getPluginsList().indexOf(plugin)))
+                }
+                toolsFragment.onOpenNsClient = {
+                    val plugin = activePlugin.getPluginsList().firstOrNull { it.javaClass.simpleName == "NSClientPlugin" }
+                    if (plugin != null) startActivity(Intent(this, SingleFragmentActivity::class.java).setAction("info.nightscout.androidaps.ToolsActivity").putExtra("plugin", activePlugin.getPluginsList().indexOf(plugin)))
+                }
+                toolsFragment.onOpenTidepool = {
+                    val plugin = activePlugin.getPluginsList().firstOrNull { it.javaClass.simpleName == "TidepoolPlugin" }
+                    if (plugin != null) startActivity(Intent(this, SingleFragmentActivity::class.java).setAction("info.nightscout.androidaps.ToolsActivity").putExtra("plugin", activePlugin.getPluginsList().indexOf(plugin)))
+                }
+                toolsFragment.onOpenXdrip = {
+                    val plugin = activePlugin.getPluginsList().firstOrNull { it.javaClass.simpleName.contains("Xdrip", ignoreCase = true) }
+                    if (plugin != null) startActivity(Intent(this, SingleFragmentActivity::class.java).setAction("info.nightscout.androidaps.ToolsActivity").putExtra("plugin", activePlugin.getPluginsList().indexOf(plugin)))
+                }
+                toolsFragment.onOpenMaintenance = {
+                    val plugin = activePlugin.getPluginsList().firstOrNull { it.javaClass.simpleName == "MaintenancePlugin" }
+                    if (plugin != null) startActivity(Intent(this, SingleFragmentActivity::class.java).setAction("info.nightscout.androidaps.ToolsActivity").putExtra("plugin", activePlugin.getPluginsList().indexOf(plugin)))
+                }
+                toolsFragment.onOpenXdripBg = {
+                    val plugin = activePlugin.getPluginsList().firstOrNull { it.javaClass.simpleName == "XdripSourcePlugin" }
+                    if (plugin != null) startActivity(Intent(this, SingleFragmentActivity::class.java).setAction("info.nightscout.androidaps.ToolsActivity").putExtra("plugin", activePlugin.getPluginsList().indexOf(plugin)))
+                }
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.glass_tools_container, toolsFragment, "glass_tools")
+                    .commit()
+            }
         }
         
         // Bolus button - Navigate to treatments/bolus
         binding.mainButtonsLayout.bolusButtonContainer.setOnClickListener {
+            hideGlassTools()
             protectionCheck.queryProtection(this, ProtectionCheck.Protection.BOLUS, {
                 // startActivity(Intent(this, TreatmentsActivity::class.java))
 
@@ -429,6 +527,7 @@ class MainActivity : DaggerAppCompatActivityWithResult() {
         
         // Override button - Navigate to Config Builder
         binding.mainButtonsLayout.overrideButtonContainer.setOnClickListener {
+            hideGlassTools()
             protectionCheck.queryProtection(this, ProtectionCheck.Protection.PREFERENCES, {
                 val plugin = activePlugin.getPluginsList().firstOrNull { it is ConfigBuilderPlugin }
                 if (plugin != null) {
@@ -443,6 +542,7 @@ class MainActivity : DaggerAppCompatActivityWithResult() {
         
         // Settings button - Navigate to preferences
         binding.mainButtonsLayout.settingsButtonContainer.setOnClickListener {
+            hideGlassTools()
             protectionCheck.queryProtection(this, ProtectionCheck.Protection.PREFERENCES, {
                 startActivity(Intent(this, PreferencesActivity::class.java)
                     .setAction("info.nightscout.androidaps.MainActivity")

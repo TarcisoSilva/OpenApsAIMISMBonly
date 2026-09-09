@@ -130,6 +130,17 @@ object PkpdAbsorptionGuard {
             reasons.add("High rise: min ${"%.1f".format(HIGH_RISE_MIN_FACTOR)}")
         }
 
+        // ── HIPER-MIN HIPO 0 (24/08/2026) ──
+        val hyperMin = when {
+            bg > 180 && delta > 2.5 && shortAvgDelta > 2.0 && predBg > targetBg + 40 -> 0.90
+            bg > 160 && delta > 1.5 && predBg > targetBg + 40 -> 0.85
+            bg > 150 && delta > 0.5 -> 0.80
+            else -> factor
+        }
+        if (hyperMin > factor && bg >= targetBg + 40 && delta > 0 && !(bg < targetBg + HYPO_MARGIN && delta < 0)) {
+            factor = hyperMin
+            reasons.add("Hyper min $hyperMin")
+        }
         // Hipo iminente: bg próximo do target e caindo
         if (bg < targetBg + HYPO_MARGIN && delta < 0) {
             factor *= HYPO_EXTRA_FACTOR

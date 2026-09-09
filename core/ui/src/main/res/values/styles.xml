@@ -13,7 +13,7 @@
         <item name="colorOnBackground">@color/aaps_theme_light_onBackground</item>
         <item name="colorSurface">@color/aaps_theme_light_surface</item>
         <item name="colorOnSurface">@color/aaps_theme_light_onSurface</item>
-        <item name="colorPrimaryDark">@color/aaps_theme_light_primary</item>
+        <item name="colorPrimaryDark">#F1F5F9</item>
         <item name="colorAccent">@color/aaps_theme_light_secondary</item>
         <item name="dialogTitleBackground">@color/dialog_title_background</item>
         <item name="dialogTitleColor">@color/dialog_title_color</item>
@@ -26,6 +26,10 @@
         <item name="scrimBackground">@color/mtrl_scrim_color</item>
         <!---Application Background Color  -->
         <item name="android:windowBackground">@color/aaps_theme_light_background</item>
+        <!---Status Bar Color (mesmo background gradiente do Glass Overview) -->
+        <item name="android:statusBarColor">#F1F5F9</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">#F1F5F9</item>
         <!---Text Colors -->
         <item name="android:textColorPrimary">@color/black</item>
         <item name="android:textColor">@color/black</item>

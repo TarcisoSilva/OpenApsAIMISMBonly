@@ -99,6 +99,8 @@ class MainApp : DaggerApplication() {
         super.onCreate()
         aapsLogger.debug("onCreate")
         ProcessLifecycleOwner.get().lifecycle.addObserver(processLifecycleListener.get())
+        // Aplica tema SYNCRONO antes de qualquer Activity para evitar flash de status bar
+        themeSwitcherPlugin.setThemeMode()
         scope.launch {
             RxDogTag.install()
             setRxErrorHandler()
@@ -112,7 +114,6 @@ class MainApp : DaggerApplication() {
             }
             disposable += compatDBHelper.dbChangeDisposable()
             registerActivityLifecycleCallbacks(activityMonitor)
-            runOnUiThread { themeSwitcherPlugin.setThemeMode() }
             aapsLogger.debug("Version: " + config.VERSION_NAME)
             aapsLogger.debug("BuildVersion: " + config.BUILD_VERSION)
             aapsLogger.debug("Remote: " + config.REMOTE)

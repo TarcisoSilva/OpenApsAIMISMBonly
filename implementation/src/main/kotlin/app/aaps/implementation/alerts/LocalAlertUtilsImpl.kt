@@ -165,12 +165,10 @@ class LocalAlertUtilsImpl @Inject constructor(
                 }))
 
                 // Log no User Entry Logger
-                // uel.log(Action.ALARM, Sources.Aaps, message, ValueWithUnit.TherapyEventType(TherapyEvent.Type.ANNOUNCEMENT))
+                uel.log(Action.CAREPORTAL, Sources.Aaps, message)
 
-                // Criar announcement se configurado
-                if (sp.getBoolean(app.aaps.core.utils.R.string.key_ns_create_announcements_from_errors, true)) {
-                    disposable += repository.runTransaction(InsertTherapyEventAnnouncementTransaction(message)).subscribe()
-                }
+                // Criar announcement ( TherapyEvent.ANNOUNCEMENT )
+                disposable += repository.runTransaction(InsertTherapyEventAnnouncementTransaction(message)).subscribe()
 
                 // Enviar SMS se configurado
                 //if (sp.getBoolean(app.aaps.core.utils.R.string.key_smscommunicator_report_low_glucose, false)) {
@@ -850,7 +848,7 @@ class LocalAlertUtilsImpl @Inject constructor(
             sp.putLong("nextMissedReadingsAlarm", System.currentTimeMillis() + missedReadingsThreshold())
             rxBus.send(EventNewNotification(n))
             uel.log(Action.CAREPORTAL, Sources.Aaps, rh.gs(app.aaps.core.ui.R.string.missed_bg_readings), ValueWithUnit.TherapyEventType(TherapyEvent.Type.ANNOUNCEMENT))
-            if (sp.getBoolean(app.aaps.core.utils.R.string.key_ns_create_announcements_from_errors, true)) {
+            if (sp.getBoolean(app.aaps.core.utils.R.string.key_enable_missed_bg_readings_alert, false)) {
                 disposable += repository.runTransaction(InsertTherapyEventAnnouncementTransaction(n.text)).subscribe()
             }
         } else if (dateUtil.isOlderThan(bgReading.timestamp, 5).not()) {

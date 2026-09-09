@@ -119,6 +119,16 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
     // OPÇÃO A (19/Ago/2026): rede neural DESATIVADA — tier vem só das TRAVAS 1-9
     // (0=OK, 1=UNCERTAIN, 2=BAD). Ver plano_2026-08-19_opcao_A_desativar_nn.md.
     private var bgConfidence: Int = 0
+    // Pipeline phases last execution — for CSV (9 cols suffix: bruto,ajustes,pkpd,damping,brake,finalize,maxLimits,tier,final)
+    private var lastEtapaBruto: Float = 0f
+    private var lastEtapaAjustes: Float = 0f
+    private var lastEtapaPkpd: Float = 0f
+    private var lastEtapaDamping: Float = 0f
+    private var lastEtapaBrake: Float = 0f
+    private var lastEtapaFinalize: Float = 0f
+    private var lastEtapaMaxLimits: Float = 0f
+    private var lastEtapaTier: Float = 0f
+    private var lastEtapaFinal: Float = 0f
     private var ProfileISF = 0.0
     // Tarciso
     private var DinMaxIob = 0.0
@@ -341,13 +351,15 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
         // ******    IMPORTANT PARAMETER ************
         // Adjustments Phase 3 - maxIOB and maxSMB adjustment
         // DinMaxIob calc.
-        DinMaxIob = ((bg / BG_BASELINE) * (bg / DIN_MAX_IOB_DENOM_HIGH) + (delta / 2.0))
-        if (DinMaxIob < MAX_IOB_FLOOR) {
-            DinMaxIob = MAX_IOB_FLOOR
-        } else if (DinMaxIob < maxIob && delta > 0 && bg > 140) {
-            DinMaxIob = ((bg / BG_BASELINE) * (bg / DIN_MAX_IOB_DENOM_LOW) + (delta / 2.0))
-        } else if (DinMaxIob >= maxIob) {
-            DinMaxIob = maxIob.toDouble()
+        // DinMaxIob dinâmico — interpola DENOM 45→40 de bg 110→150 (sem degrau bg>140)
+        val baseDinMaxIob = ((bg / BG_BASELINE) * (bg / DIN_MAX_IOB_DENOM_HIGH) + (delta / 2.0)).coerceAtLeast(MAX_IOB_FLOOR)
+        DinMaxIob = if (delta > 0 && bg > 110) {
+            val progress = ((bg - 110).coerceIn(0.0, 40.0) / 40.0) // 0.0 em 110, 1.0 em 150
+            val denomEff = DIN_MAX_IOB_DENOM_HIGH - (DIN_MAX_IOB_DENOM_HIGH - DIN_MAX_IOB_DENOM_LOW) * progress // 45→40
+            val boosted = (bg / BG_BASELINE) * (bg / denomEff) + (delta / 2.0)
+            maxOf(baseDinMaxIob, boosted).coerceAtMost(maxIob.toDouble())
+        } else {
+            baseDinMaxIob.coerceAtMost(maxIob.toDouble())
         }
 
         // ******    IMPORTANT PARAMETER ************
@@ -379,7 +391,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
 
 
         smbToGive = when {
-            bg > 180            -> (smbToGive * hyperfactor).toFloat()
+            // bg > 180            -> (smbToGive * hyperfactor).toFloat()
             // N7 (03/Ago/2026): hora 0 (00:00-00:59) incluída no fator de período
             // noturno. Antes caía no else e ficava SEM multiplicador. Pré-existente.
             hourOfDay in 0..4   -> smbToGive * adjustedEveningFactor.toFloat()
@@ -474,10 +486,10 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
         //$stable"
         val iobStr = " IOB: ${roundToPoint05(iob.toFloat())} <br/> tdd 7d/h: ${roundToPoint05(tdd7DaysPerHour.toFloat())} <br/> " +
             "tdd 2d/h : ${roundToPoint05(tdd2DaysPerHour.toFloat())} <br/> " +
-            "tdd Last4h : ${roundToPoint05(tddBLast4Hrs.toFloat())}<br/>" +
-            "Auto Sense TDD Test:   ${roundToPoint05(Autosense.toFloat()) } <br/>"+
-            "Auto Sense BG/IOB Test:   ${roundToPoint05(Autosense2.toFloat()) } <br/>"+
-            "Auto Sense Delta/IOB Test:   ${roundToPoint05(Autosense3.toFloat()) } <br/>"
+            "tdd Last4h : ${roundToPoint05(tddBLast4Hrs.toFloat())}<br/>"
+            //"Auto Sense TDD Test:   ${roundToPoint05(Autosense.toFloat()) } <br/>"+
+            //"Auto Sense BG/IOB Test:   ${roundToPoint05(Autosense2.toFloat()) } <br/>"+
+            //"Auto Sense Delta/IOB Test:   ${roundToPoint05(Autosense3.toFloat()) } <br/>"
             //"tdd daily/h : ${roundToPoint05(tddPerHour)} <br/> " +
             //"tdd 24h/h : ${roundToPoint05(tdd24HrsPerHour)}<br/>" +
             //"tdd Last4h : ${roundToPoint05(tddBLast4Hrs)}<br/>"
@@ -488,7 +500,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
             //" Heart Beat/mim(average 5 min) : $averageBeatsPerMinute <br/> Heart Beat/min(average 180 min) : $averageBeatsPerMinute180"
 
         var mealStr = "Bg Adjust: ${TirStatus}<br/> TDD Adjust: $TDDStatus<br/>" +
-            "Night Protection: $nightprotection<br/>" +
+            //"Night Protection: $nightprotection<br/>" +
             "TIR Low: ${(lastHourTIRLow).roundToInt()}%/h, ${(currentTIRLow).roundToInt()}%/24h<br/>"+
             "Low Glucose Alarms: ${alarmesLowGlucoseUltimaHora}/h, ${alarmesLowGlucose24Horas}/24h<br/>"
 
@@ -565,7 +577,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
                     "tdd7DaysPerHour,tdd2DaysPerHour,tddPerHour,tdd24HrsPerHour," +
                     "recentSteps5Minutes,recentSteps10Minutes,recentSteps15Minutes,recentSteps30Minutes,recentSteps60Minutes,recentSteps180Minutes," +
                     "tags0to60minAgo,tags60to120minAgo,tags120to180minAgo,tags180to240minAgo," +
-                    "predictedSMB,maxIob,maxSMB,smbGiven,bgConfidence,bgCorrigido\n"
+                    "predictedSMB,maxIob,maxSMB,smbGiven,bgConfidence,bgCorrigido,bruto,ajustes,pkpd,damping,brake,finalize,maxLimits,tier,final\n"
                 file.appendText(headerRow)
             }
             val valuesToRecord = "$dateStr,${dateUtil.now()},$hourOfDay,$weekend," +
@@ -573,20 +585,33 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
                 "$tdd7DaysPerHour,$tdd2DaysPerHour,$tddPerHour,$tdd24HrsPerHour," +
                 "$recentSteps5Minutes,$recentSteps10Minutes,$recentSteps15Minutes,$recentSteps30Minutes,$recentSteps60Minutes,$recentSteps180Minutes," +
                 "$tags0to60minAgo,$tags60to120minAgo,$tags120to180minAgo,$tags180to240minAgo," +
-                "$predictedSMB,${DinMaxIob},${DynMaxSmb},$smbToGive,$bgConfidence,$bgCorrigido"
+                "$predictedSMB,${DinMaxIob},${DynMaxSmb},$smbToGive,$bgConfidence,$bgCorrigido," +
+                "${"%.2f".format(java.util.Locale.US, lastEtapaBruto.toDouble())},${"%.2f".format(java.util.Locale.US, lastEtapaAjustes.toDouble())},${"%.2f".format(java.util.Locale.US, lastEtapaPkpd.toDouble())},${"%.2f".format(java.util.Locale.US, lastEtapaDamping.toDouble())},${"%.2f".format(java.util.Locale.US, lastEtapaBrake.toDouble())},${"%.2f".format(java.util.Locale.US, lastEtapaFinalize.toDouble())},${"%.2f".format(java.util.Locale.US, lastEtapaMaxLimits.toDouble())},${"%.2f".format(java.util.Locale.US, lastEtapaTier.toDouble())},${"%.2f".format(java.util.Locale.US, lastEtapaFinal.toDouble())}"
             file.appendText(valuesToRecord + "\n")
         }
     }
     private fun applySafetyPrecautions(smbToGiveParam: Float1): Float1 {
         var smbToGive = smbToGiveParam
+        val etapaBruto = smbToGive
 
         // Vérifier les conditions de sécurité critiques
         if (isCriticalSafetyCondition()) {
+            // CSV phases: registra bruto e zera restante (final=0)
+            lastEtapaBruto = etapaBruto
+            lastEtapaAjustes = 0f
+            lastEtapaPkpd = 0f
+            lastEtapaDamping = 0f
+            lastEtapaBrake = 0f
+            lastEtapaFinalize = 0f
+            lastEtapaMaxLimits = 0f
+            lastEtapaTier = 0f
+            lastEtapaFinal = 0f
             return 0.0f  // Arrêt immédiat si une condition de sécurité critique est remplie
         }
 
         // Ajustements basés sur des conditions spécifiques
         smbToGive = applySpecificAdjustments(smbToGive)
+        val etapaAjustes = smbToGive
 
         // ════════════════════════════════════════════════════════════════
         // FASE 1 — PKPD ABSORPTION GUARD + SMB DAMPING (Jul/2026)
@@ -607,6 +632,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
                 "%.2f".format(beforeGuard.toDouble()) + " -> " +
                 "%.2f".format(smbToGive.toDouble()) + " U")
         }
+        val etapaPkpd = smbToGive
 
         val damping = SmbDampingUsecase.run(
             SmbDampingUsecase.Input(
@@ -625,6 +651,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
                 "%.2f".format(damping.smbAfterDamping) + " U")
         }
         smbToGive = damping.smbAfterDamping.toFloat()
+        val etapaDamping = smbToGive
         // ════════════════════════════════════════════════════════════════
 
         // ════════════════════════════════════════════════════════════════
@@ -636,11 +663,14 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
         // o freio impede que o sistema acumule insulina em excesso.
         // ════════════════════════════════════════════════════════════════
         smbToGive = applyCumulativeSmbBrake(smbToGive)
+        val etapaBrake = smbToGive
 
         smbToGive = finalizeSmbToGive(smbToGive)
+        val etapaFinalize = smbToGive
 
         // Appliquer les limites maximum
         smbToGive = applyMaxLimits(smbToGive)
+        val etapaMaxLimits = smbToGive
 
         // ═══════════════════════════════════════════════════════════════════
         // FASE 2 — BG Confidence Multiplier (Tarciso, 11/Ago/2026)
@@ -664,6 +694,24 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
             aapsLogger.debug(LTag.APS, "  → SMB ajustado: " + "%.2f".format(adjusted.toDouble()) + " U")
             smbToGive = adjusted
         }
+        val etapaTier = smbToGive
+
+        // SMB Chain — log único da cadeia completa (sempre emitido, debug, LTag.APS)
+        // Locale.US fixo — evita vírgula decimal em locale pt_BR
+        aapsLogger.debug(LTag.APS, String.format(java.util.Locale.US,
+            "SMB Chain: bruto=%.2f -> ajustes=%.2f -> pkpd=%.2f -> damping=%.2f -> brake=%.2f -> finalize=%.2f -> maxLimits=%.2f -> tier=%.2f -> final=%.2f U",
+            etapaBruto, etapaAjustes, etapaPkpd, etapaDamping, etapaBrake, etapaFinalize, etapaMaxLimits, etapaTier, smbToGive))
+
+        // Persiste fases para o CSV (9 cols suffix) — impacto zero no dosing, só serialização
+        lastEtapaBruto = etapaBruto
+        lastEtapaAjustes = etapaAjustes
+        lastEtapaPkpd = etapaPkpd
+        lastEtapaDamping = etapaDamping
+        lastEtapaBrake = etapaBrake
+        lastEtapaFinalize = etapaFinalize
+        lastEtapaMaxLimits = etapaMaxLimits
+        lastEtapaTier = etapaTier
+        lastEtapaFinal = smbToGive
 
         // smbToGive = (smbToGive + mealTrigger).toFloat()
         return smbToGive
@@ -742,6 +790,23 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
                         "distFactor=$distributionFactor, brake=$brakeFactor")
                 }
 
+                // ── ADAPTATIVO HIPO 0 + NOITE INTEGRAL (24/08/2026) ──
+                val isNight = hourOfDay in 0..5 // 00-06h: hipo noturna mais perigosa → freio integral
+                val hypoRisk = bg < 120 || (bg < targetBg + 30 && delta < 0) || iob > 4.5
+                val hyperSeverity = when {
+                    isNight -> 0.0 // pode flexibilizar se freio noturno estiver excessivo
+                    !hypoRisk && bg > 180 && delta > 2.5 && predictedBg > targetBg + 50 -> 0.70
+                    !hypoRisk && bg > 160 && delta > 1.5 -> 0.50
+                    !hypoRisk && bg > 150 && delta > 0.5 -> 0.30
+                    else -> 0.0
+                }
+                if (!isNight && !hypoRisk && hyperSeverity > 0) {
+                    val oldBrake = brakeFactor
+                    brakeFactor = (brakeFactor + (1.0 - brakeFactor) * hyperSeverity).coerceIn(0.0, 1.0)
+                    aapsLogger.debug(LTag.APS, "BRAKE Adapt: hypoRisk=$hypoRisk isNight=$isNight hyper=$hyperSeverity brake ${"%.3f".format(oldBrake)}→${"%.3f".format(brakeFactor)}")
+                } else if (isNight) {
+                    aapsLogger.debug(LTag.APS, "BRAKE Adapt: isNight=$isNight → freio integral mantido (hyperSeverity ignorado)")
+                }
                 val reducedSmb = (smbToGive * brakeFactor).toFloat()
                 aapsLogger.debug(LTag.APS,
                     "SMB Cumulative Brake: ${"%.1f".format(totalSMB)}U in ${lookbackHours}h " +
@@ -2485,7 +2550,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
         // 05/Ago: lockout pós-alarme + target 140 noturno (isNight 22-5)
         // 11/Ago: Fase 2 — rede neural de confiança do BG ligada ao SMB (INPUT_SIZE 16,
         //         travas 5/6/7, piso 0.8 digestão, features direção/janela de refeição)
-        private const val BUILD_VERSION = "235 / 16-Ago-2026"
+        private const val BUILD_VERSION = "241 / 09-Sep-2026"
 
         // PD gains
         private const val KP = 0.0075
@@ -2514,7 +2579,7 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
         private const val DELTA_DIVISOR = 25.0
 
         // Max IOB / SMB floors
-        private const val MAX_IOB_FLOOR = 1.0
+        private const val MAX_IOB_FLOOR = 1.1
         private const val DYN_MAX_SMB_FLOOR = 0.1
         private const val MAX_SMB_BUFFER = 1.15
 

@@ -37,6 +37,7 @@ import app.aaps.plugins.main.R
 import app.aaps.plugins.main.general.overview.notifications.NotificationStore
 import app.aaps.plugins.main.general.overview.notifications.NotificationWithAction
 import app.aaps.plugins.main.general.overview.notifications.events.EventUpdateOverviewNotification
+import app.aaps.plugins.main.general.overview.glass.GlassOverviewFragment
 import app.aaps.shared.impl.rx.bus.RxBusImpl
 import dagger.android.HasAndroidInjector
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -63,7 +64,7 @@ class OverviewPlugin @Inject constructor(
 ) : PluginBase(
     PluginDescription()
         .mainType(PluginType.GENERAL)
-        .fragmentClass(OverviewFragment::class.qualifiedName)
+        .fragmentClass(GlassOverviewFragment::class.qualifiedName)
         .alwaysVisible(true)
         .alwaysEnabled(true)
         .pluginIcon(app.aaps.core.ui.R.drawable.ic_home)

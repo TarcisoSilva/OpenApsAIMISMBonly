@@ -102,6 +102,12 @@ class NotificationStore @Inject constructor(
         }
     }
 
+    @Synchronized
+    fun getNotifications(): List<Notification> {
+        removeExpired()
+        return ArrayList(store)
+    }
+
     private fun raiseSystemNotification(n: Notification) {
         val mgr = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val largeIcon = rh.decodeResource(iconsProvider.getIcon())
@@ -164,13 +170,29 @@ class NotificationStore @Inject constructor(
             else holder.binding.dismiss.setText(app.aaps.core.ui.R.string.snooze)
             @Suppress("SetTextI18n")
             holder.binding.text.text = dateUtil.timeString(notification.date) + " " + notification.text
-            when (notification.level) {
-                Notification.URGENT       -> holder.binding.cv.setBackgroundColor(rh.gac(app.aaps.core.ui.R.attr.notificationUrgent))
-                Notification.NORMAL       -> holder.binding.cv.setBackgroundColor(rh.gac(app.aaps.core.ui.R.attr.notificationNormal))
-                Notification.LOW          -> holder.binding.cv.setBackgroundColor(rh.gac(app.aaps.core.ui.R.attr.notificationLow))
-                Notification.INFO         -> holder.binding.cv.setBackgroundColor(rh.gac(app.aaps.core.ui.R.attr.notificationInfo))
-                Notification.ANNOUNCEMENT -> holder.binding.cv.setBackgroundColor(rh.gac(app.aaps.core.ui.R.attr.notificationAnnouncement))
+
+            // Glass theme: consistent dark card, accent color on card stroke
+            val cardColor = when (notification.level) {
+                Notification.URGENT       -> android.graphics.Color.parseColor("#FF1E293B")
+                Notification.NORMAL       -> android.graphics.Color.parseColor("#FF1E293B")
+                Notification.LOW          -> android.graphics.Color.parseColor("#FF1E293B")
+                Notification.INFO         -> android.graphics.Color.parseColor("#FF1E293B")
+                Notification.ANNOUNCEMENT -> android.graphics.Color.parseColor("#FF1E293B")
+                else                      -> android.graphics.Color.parseColor("#FF1E293B")
             }
+            holder.binding.cv.setCardBackgroundColor(cardColor)
+
+            // Left accent stripe via stroke color
+            val strokeColor = when (notification.level) {
+                Notification.URGENT       -> android.graphics.Color.parseColor("#FFEF4444")
+                Notification.NORMAL       -> android.graphics.Color.parseColor("#FFF59E0B")
+                Notification.LOW          -> android.graphics.Color.parseColor("#FF38BDF8")
+                Notification.INFO         -> android.graphics.Color.parseColor("#FF94A3B8")
+                Notification.ANNOUNCEMENT -> android.graphics.Color.parseColor("#FF10B981")
+                else                      -> android.graphics.Color.parseColor("#FF94A3B8")
+            }
+            holder.binding.cv.setStrokeColor(strokeColor)
+            holder.binding.cv.setStrokeWidth(3)
         }
 
         override fun getItemCount(): Int {

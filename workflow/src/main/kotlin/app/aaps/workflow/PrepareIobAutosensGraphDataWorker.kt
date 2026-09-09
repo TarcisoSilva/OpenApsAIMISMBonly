@@ -172,7 +172,8 @@ class PrepareIobAutosensGraphDataWorker(
             val baseBasalIob = data.iobCobCalculator.calculateAbsoluteIobFromBaseBasals(time)
             val absIob = IobTotal.combine(iob, baseBasalIob)
             val autosensData = adsData.getAutosensDataAtTime(time)
-            if (abs(lastIob - iob.iob) > 0.02) {
+            val timeSinceLastIobPoint = time - (iobArray.lastOrNull()?.x?.toLong() ?: fromTime)
+            if (abs(lastIob - iob.iob) > 0.02 || timeSinceLastIobPoint >= 30 * 60 * 1000L) {
                 if (abs(lastIob - iob.iob) > 0.2) iobArray.add(ScaledDataPoint(time, lastIob, data.overviewData.iobScale))
                 iobArray.add(ScaledDataPoint(time, iob.iob, data.overviewData.iobScale))
                 data.overviewData.maxIobValueFound = maxOf(data.overviewData.maxIobValueFound, abs(iob.iob))

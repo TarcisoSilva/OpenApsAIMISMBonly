@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Alterado pelo Tarciso - Glass UI background (same gradient as Glass Overview) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="270"
+        android:startColor="#F1F5F9"
+        android:centerColor="#E8EEF8"
+        android:endColor="#DFE7F4" />
+</shape>

@@ -64,10 +64,22 @@
         android:layout_width="match_parent"
         android:layout_height="0dp">
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/main_pager"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/main_pager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <FrameLayout
+                android:id="@+id/glass_tools_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+        </FrameLayout>
 
         <com.google.android.material.navigation.NavigationView
             android:id="@+id/main_navigation_view"
@@ -80,9 +92,23 @@
             app:itemTextColor="?android:textColorPrimary"/>
     </androidx.drawerlayout.widget.DrawerLayout>
 
-    <!-- Alterado pelo Tarciso - Bottom navigation menu (always visible on all screens) -->
-    <include
-        android:id="@+id/main_buttons_layout"
-        layout="@layout/overview_buttons_layout" />
+    <!-- Alterado pelo Tarciso - Bottom navigation menu with material shadow -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/main_buttons_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        app:cardCornerRadius="26dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="#FF070E1B"
+        app:cardUseCompatPadding="false">
+
+        <include
+            android:id="@+id/main_buttons_layout"
+            layout="@layout/overview_buttons_layout" />
+
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>

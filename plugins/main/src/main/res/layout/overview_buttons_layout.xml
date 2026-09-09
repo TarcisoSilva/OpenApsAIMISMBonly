@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Alterado pelo Tarciso -->
+<!-- Alterado pelo Tarciso - Glass UI bottom navigation dock (lucide-react icons) -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/buttons_layout"
@@ -7,14 +7,12 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:weightSum="5"
-    android:background="@color/defaultBackground"
-    android:elevation="8dp"
-    android:paddingTop="6dp"
-    android:paddingBottom="6dp"
-    android:paddingStart="8dp"
-    android:paddingEnd="8dp">
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:paddingStart="6dp"
+    android:paddingEnd="6dp">
 
-    <!-- Main Button -->
+    <!-- Main Button (Home icon) -->
     <LinearLayout
         android:id="@+id/home_button_container"
         android:layout_width="0dp"
@@ -25,25 +23,27 @@
         android:clickable="true"
         android:focusable="true"
         android:background="?attr/selectableItemBackgroundBorderless">
-        
+
         <ImageView
             android:id="@+id/home_icon"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/ic_graph_line"/>
-        
+            android:src="@drawable/ic_nav_main"
+            app:tint="#0284C7"/>
+
         <TextView
             android:id="@+id/home_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Main"
-            android:textSize="10sp"
-            android:textColor="@color/defaultTextColor"
-            android:layout_marginTop="4dp"/>
+            android:textSize="10.5sp"
+            android:textStyle="bold"
+            android:textColor="#0284C7"
+            android:letterSpacing="-0.015"
+            android:layout_marginTop="3dp"/>
     </LinearLayout>
 
-    <!-- Tools Button (formerly History) -->
-    <!-- Alterado pelo Tarciso - Changed from History to Tools -->
+    <!-- Tools Button (Wrench icon) -->
     <LinearLayout
         android:id="@+id/tools_button_container"
         android:layout_width="0dp"
@@ -54,24 +54,26 @@
         android:clickable="true"
         android:focusable="true"
         android:background="?attr/selectableItemBackgroundBorderless">
-        
+
         <ImageView
             android:id="@+id/tools_icon"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/ic_settings"/>
-        
+            android:src="@drawable/ic_nav_tools"
+            app:tint="#64748B"/>
+
         <TextView
             android:id="@+id/tools_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Tools"
-            android:textSize="10sp"
-            android:textColor="@color/defaultTextColor"
-            android:layout_marginTop="4dp"/>
+            android:textSize="10.5sp"
+            android:textColor="#64748B"
+            android:letterSpacing="-0.015"
+            android:layout_marginTop="3dp"/>
     </LinearLayout>
 
-    <!-- Bolus Button -->
+    <!-- Bolus Button (Droplet icon) -->
     <LinearLayout
         android:id="@+id/bolus_button_container"
         android:layout_width="0dp"
@@ -82,24 +84,26 @@
         android:clickable="true"
         android:focusable="true"
         android:background="?attr/selectableItemBackgroundBorderless">
-        
+
         <ImageView
             android:id="@+id/bolus_icon"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/ic_bolus"/>
-        
+            android:src="@drawable/ic_nav_bolus"
+            app:tint="#64748B"/>
+
         <TextView
             android:id="@+id/bolus_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Bolus"
-            android:textSize="10sp"
-            android:textColor="@color/defaultTextColor"
-            android:layout_marginTop="4dp"/>
+            android:textSize="10.5sp"
+            android:textColor="#64748B"
+            android:letterSpacing="-0.015"
+            android:layout_marginTop="3dp"/>
     </LinearLayout>
 
-    <!-- Adjustments/Overrides Button -->
+    <!-- Config Builder Button (Gear+circle icon) -->
     <LinearLayout
         android:id="@+id/override_button_container"
         android:layout_width="0dp"
@@ -110,24 +114,26 @@
         android:clickable="true"
         android:focusable="true"
         android:background="?attr/selectableItemBackgroundBorderless">
-        
+
         <ImageView
             android:id="@+id/override_icon"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/ic_sliders"/>
-        
+            android:src="@drawable/ic_nav_config"
+            app:tint="#64748B"/>
+
         <TextView
             android:id="@+id/override_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Config Builder"
-            android:textSize="10sp"
-            android:textColor="@color/defaultTextColor"
-            android:layout_marginTop="4dp"/>
+            android:text="Config"
+            android:textSize="10.5sp"
+            android:textColor="#64748B"
+            android:letterSpacing="-0.015"
+            android:layout_marginTop="3dp"/>
     </LinearLayout>
 
-    <!-- Settings Button -->
+    <!-- Preferences Button (Sliders icon) -->
     <LinearLayout
         android:id="@+id/settings_button_container"
         android:layout_width="0dp"
@@ -138,36 +144,38 @@
         android:clickable="true"
         android:focusable="true"
         android:background="?attr/selectableItemBackgroundBorderless">
-        
+
         <ImageView
             android:id="@+id/settings_icon"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/ic_settings"/>
-        
+            android:src="@drawable/ic_nav_preferences"
+            app:tint="#64748B"/>
+
         <TextView
             android:id="@+id/settings_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Preferences"
-            android:textSize="10sp"
-            android:textColor="@color/defaultTextColor"
-            android:layout_marginTop="4dp"/>
+            android:textSize="10.5sp"
+            android:textColor="#64748B"
+            android:letterSpacing="-0.015"
+            android:layout_marginTop="3dp"/>
     </LinearLayout>
 
-    <!-- Hidden legacy buttons for compatibility -->
-    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/home_button" style="@style/ButtonSmallFontStyle" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/history_button" style="@style/ButtonSmallFontStyle" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/bolus_button" style="@style/ButtonSmallFontStyle" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/override_button" style="@style/ButtonSmallFontStyle" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/settings_button" style="@style/ButtonSmallFontStyle" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/accept_temp_button" style="@style/ButtonSmallFontStyle" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/treatment_button" style="@style/ButtonSmallFontStyle" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/insulin_button" style="@style/ButtonSmallFontStyle" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/carbs_button" style="@style/ButtonSmallFontStyle" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/wizard_button" style="@style/ButtonSmallFontStyle" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/calibration_button" style="@style/ButtonSmallFontStyle" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/cgm_button" style="@style/ButtonSmallFontStyle" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/quick_wizard_button" style="@style/ButtonSmallFontStyle" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    <!-- Hidden legacy buttons for code compatibility -->
+    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/home_button" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/history_button" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/bolus_button" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/override_button" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/settings_button" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/accept_temp_button" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/treatment_button" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/insulin_button" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/carbs_button" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/wizard_button" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/calibration_button" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/cgm_button" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    <app.aaps.core.ui.elements.SingleClickButton android:id="@+id/quick_wizard_button" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
 
 </LinearLayout>

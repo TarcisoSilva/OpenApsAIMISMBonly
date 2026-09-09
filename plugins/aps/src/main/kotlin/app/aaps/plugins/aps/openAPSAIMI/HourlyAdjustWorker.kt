@@ -721,8 +721,8 @@ class HourlyAdjustWorker @Inject constructor(
             // Calcula delta: diferença entre leitura atual e anterior (mg/dL por 5min)
             val bgDelta = current.value - previous.value
 
-            // Near-miss: BG entre 70-85, caindo (delta < -1)
-            if (current.value in 70.0..85.0 && bgDelta < -1.0) {
+            // Near-miss: BG entre 70-80, caindo rápido (delta < -2) — endurecido 28/08/2026 (antes 70-85 && < -1 gerava falso-positivo em 85 estável)
+            if (current.value in 70.0..80.0 && bgDelta < -2.0) {
                 if (current.timestamp - lastEventTimestamp > 15 * 60 * 1000L) {
                     events.add(BgEvent(current.timestamp, current.value, BgEvent.EventType.HYPO))
                     lastEventTimestamp = current.timestamp

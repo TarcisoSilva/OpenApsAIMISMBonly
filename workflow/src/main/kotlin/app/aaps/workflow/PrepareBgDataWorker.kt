@@ -88,10 +88,10 @@ class PrepareBgDataWorker(
 
     private fun addUpperChartMargin(maxBgValue: Double): Double {
         return if (profileUtil.units == GlucoseUnit.MGDL) {
-            val margin = maxOf(20.0, maxBgValue * 0.2)
+            val margin = maxOf(20.0, maxBgValue * 0.1)
             Round.roundTo(maxBgValue + margin, 20.0)
         } else {
-            val margin = maxOf(1.0, maxBgValue * 0.2)
+            val margin = maxOf(1.0, maxBgValue * 0.1)
             Round.roundTo(maxBgValue + margin, 1.0)
         }
     }

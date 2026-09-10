@@ -196,20 +196,9 @@ class GlassOverviewFragment : DaggerFragment() {
                         },
                         onOpenLoopAction = {
                             try {
-                                val containerId = requireContext().resources.getIdentifier(
-                                    "glass_tools_container", "id", requireContext().packageName
-                                )
-                                if (containerId != 0) {
-                                    val fragment = GlassLoopDashboardFragment()
-                                    requireActivity().supportFragmentManager.beginTransaction()
-                                        .replace(containerId, fragment, "GlassLoopDashboardFragment")
-                                        .addToBackStack(null)
-                                        .commit()
-                                    val container = requireActivity().findViewById<View>(containerId)
-                                    container?.visibility = View.VISIBLE
-                                }
+                                uiInteraction.runLoopDialog(childFragmentManager, 1)
                             } catch (e: Exception) {
-                                aapsLogger.error(LTag.UI, "Error opening Loop Dashboard", e)
+                                aapsLogger.error(LTag.UI, "Error opening Loop Dialog", e)
                             }
                         },
                         onOpenInsulin = {
@@ -218,6 +207,43 @@ class GlassOverviewFragment : DaggerFragment() {
                                 dialog.show(childFragmentManager, "GlassInsulinDialog")
                             } catch (e: Exception) {
                                 aapsLogger.error(LTag.UI, "Error opening Insulin Dialog", e)
+                            }
+                        },
+                        onOpenPump = {
+                            try {
+                                val pump = activePlugin.activePump
+                                val plugins = activePlugin.getPluginsList()
+                                var idx = plugins.indexOfFirst { it === pump }
+                                if (idx < 0) idx = plugins.indexOfFirst { it.javaClass == pump.javaClass }
+                                if (idx < 0) idx = plugins.indexOfFirst { it.javaClass.simpleName == pump.javaClass.simpleName }
+                                if (idx >= 0) {
+                                    startActivity(
+                                        Intent(requireContext(), uiInteraction.singleFragmentActivity)
+                                            .putExtra("plugin", idx)
+                                    )
+                                } else {
+                                    aapsLogger.error(LTag.UI, "Active pump plugin not found in config builder list")
+                                }
+                            } catch (e: Exception) {
+                                aapsLogger.error(LTag.UI, "Error opening active pump screen", e)
+                            }
+                        },
+                        onOpenCannula = {
+                            try {
+                                uiInteraction.runFillDialog(childFragmentManager)
+                            } catch (e: Exception) {
+                                aapsLogger.error(LTag.UI, "Error opening Fill Dialog", e)
+                            }
+                        },
+                        onOpenBattery = {
+                            try {
+                                uiInteraction.runCareDialog(
+                                    childFragmentManager,
+                                    UiInteraction.EventType.BATTERY_CHANGE,
+                                    app.aaps.core.ui.R.string.careportal
+                                )
+                            } catch (e: Exception) {
+                                aapsLogger.error(LTag.UI, "Error opening Battery Change Dialog", e)
                             }
                         },
                         onOpenTempTarget = {
@@ -507,6 +533,69 @@ class GlassOverviewFragment : DaggerFragment() {
             } else Pair("--", 0xFF94A3B8.toInt())
         } catch (e: Throwable) { Pair("--", 0xFF94A3B8.toInt()) }
         viewModel.updateSensorAge(sensorAgeResult.first, sensorAgeResult.second)
+
+        // Calcula idade da insulina
+        val insulinAgeResult = try {
+            val event = repository.getLastTherapyRecordUpToNow(TherapyEvent.Type.INSULIN_CHANGE).blockingGet()
+            if (event is ValueWrapper.Existing) {
+                val diffMs = System.currentTimeMillis() - event.value.timestamp
+                val diffHours = java.util.concurrent.TimeUnit.MILLISECONDS.toHours(diffMs)
+                val days = diffHours / 24
+                val hours = diffHours % 24
+                val text = "${days}d ${hours}h"
+                val warnThreshold = sp.getDouble(app.aaps.core.utils.R.string.key_statuslights_iage_warning, 72.0)
+                val urgentThreshold = sp.getDouble(app.aaps.core.utils.R.string.key_statuslights_iage_critical, 144.0)
+                val color = when {
+                    diffHours >= urgentThreshold -> 0xFFEF4444.toInt()
+                    diffHours >= warnThreshold   -> 0xFFF59E0B.toInt()
+                    else                         -> 0xFF94A3B8.toInt()
+                }
+                Pair(text, color)
+            } else Pair("--", 0xFF94A3B8.toInt())
+        } catch (e: Throwable) { Pair("--", 0xFF94A3B8.toInt()) }
+        viewModel.updateInsulinAge(insulinAgeResult.first, insulinAgeResult.second)
+
+        // Calcula idade da cânula
+        val cannulaAgeResult = try {
+            val event = repository.getLastTherapyRecordUpToNow(TherapyEvent.Type.CANNULA_CHANGE).blockingGet()
+            if (event is ValueWrapper.Existing) {
+                val diffMs = System.currentTimeMillis() - event.value.timestamp
+                val diffHours = java.util.concurrent.TimeUnit.MILLISECONDS.toHours(diffMs)
+                val days = diffHours / 24
+                val hours = diffHours % 24
+                val text = "${days}d ${hours}h"
+                val warnThreshold = sp.getDouble(app.aaps.core.utils.R.string.key_statuslights_cage_warning, 48.0)
+                val urgentThreshold = sp.getDouble(app.aaps.core.utils.R.string.key_statuslights_cage_critical, 72.0)
+                val color = when {
+                    diffHours >= urgentThreshold -> 0xFFEF4444.toInt()
+                    diffHours >= warnThreshold   -> 0xFFF59E0B.toInt()
+                    else                         -> 0xFF94A3B8.toInt()
+                }
+                Pair(text, color)
+            } else Pair("--", 0xFF94A3B8.toInt())
+        } catch (e: Throwable) { Pair("--", 0xFF94A3B8.toInt()) }
+        viewModel.updateCannulaAge(cannulaAgeResult.first, cannulaAgeResult.second)
+
+        // Calcula idade da bateria
+        val batteryAgeResult = try {
+            val event = repository.getLastTherapyRecordUpToNow(TherapyEvent.Type.PUMP_BATTERY_CHANGE).blockingGet()
+            if (event is ValueWrapper.Existing) {
+                val diffMs = System.currentTimeMillis() - event.value.timestamp
+                val diffHours = java.util.concurrent.TimeUnit.MILLISECONDS.toHours(diffMs)
+                val days = diffHours / 24
+                val hours = diffHours % 24
+                val text = "${days}d ${hours}h"
+                val warnThreshold = sp.getDouble(app.aaps.core.utils.R.string.key_statuslights_bage_warning, 216.0)
+                val urgentThreshold = sp.getDouble(app.aaps.core.utils.R.string.key_statuslights_bage_critical, 240.0)
+                val color = when {
+                    diffHours >= urgentThreshold -> 0xFFEF4444.toInt()
+                    diffHours >= warnThreshold   -> 0xFFF59E0B.toInt()
+                    else                         -> 0xFF94A3B8.toInt()
+                }
+                Pair(text, color)
+            } else Pair("--", 0xFF94A3B8.toInt())
+        } catch (e: Throwable) { Pair("--", 0xFF94A3B8.toInt()) }
+        viewModel.updateBatteryAge(batteryAgeResult.first, batteryAgeResult.second)
 
         viewModel.updateBasalAndTarget(
             basalPercent = basalPercent,
@@ -799,6 +888,19 @@ class GlassOverviewFragment : DaggerFragment() {
         for ((name, color) in texts) {
             val id = rid(name)
             if (id != 0) (root.findViewById<View>(id) as? TextView)?.setTextColor(color)
+        }
+
+        // Connect bottom bar buttons
+        val bolusContainerId = rid("bolus_button_container")
+        if (bolusContainerId != 0) {
+            root.findViewById<View>(bolusContainerId)?.setOnClickListener {
+                try {
+                    val dialog = GlassInsulinDialogFragment()
+                    dialog.show(childFragmentManager, "GlassInsulinDialog")
+                } catch (e: Exception) {
+                    aapsLogger.error(LTag.UI, "Error opening Insulin Dialog", e)
+                }
+            }
         }
     }
 

@@ -26,6 +26,12 @@ data class GlassUiState(
     val sensorLife: String = "--",
     val sensorAge: String = "--",
     val sensorAgeColor: Int = 0xFF94A3B8.toInt(),
+    val insulinAge: String = "--",
+    val insulinAgeColor: Int = 0xFF94A3B8.toInt(),
+    val cannulaAge: String = "--",
+    val cannulaAgeColor: Int = 0xFF94A3B8.toInt(),
+    val batteryAge: String = "--",
+    val batteryAgeColor: Int = 0xFF94A3B8.toInt(),
     val isLoopActive: Boolean = true,
     val loopStatusText: String = "Loop",
     val loopIconRes: Int = 0,
@@ -146,6 +152,24 @@ class GlassOverviewViewModel : ViewModel() {
     fun updateSensorAge(sensorAge: String, sensorAgeColor: Int) {
         _uiState.update {
             it.copy(sensorAge = sensorAge, sensorAgeColor = sensorAgeColor)
+        }
+    }
+
+    fun updateInsulinAge(insulinAge: String, insulinAgeColor: Int) {
+        _uiState.update {
+            it.copy(insulinAge = insulinAge, insulinAgeColor = insulinAgeColor)
+        }
+    }
+
+    fun updateCannulaAge(cannulaAge: String, cannulaAgeColor: Int) {
+        _uiState.update {
+            it.copy(cannulaAge = cannulaAge, cannulaAgeColor = cannulaAgeColor)
+        }
+    }
+
+    fun updateBatteryAge(batteryAge: String, batteryAgeColor: Int) {
+        _uiState.update {
+            it.copy(batteryAge = batteryAge, batteryAgeColor = batteryAgeColor)
         }
     }
 

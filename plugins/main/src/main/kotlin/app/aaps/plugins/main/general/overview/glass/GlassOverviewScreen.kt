@@ -52,6 +52,9 @@ fun GlassOverviewScreen(
     onOpenProfile: () -> Unit,
     onOpenLoopAction: () -> Unit,
     onOpenInsulin: () -> Unit,
+    onOpenPump: () -> Unit,
+    onOpenCannula: () -> Unit,
+    onOpenBattery: () -> Unit,
     onOpenTempTarget: () -> Unit,
     onOpenTempBasal: () -> Unit,
     onOpenSensorInsert: () -> Unit,
@@ -89,6 +92,9 @@ fun GlassOverviewScreen(
                 onOpenLoop = onOpenLoopAction,
                 onOpenTarget = onOpenTempTarget,
                 onOpenInsulin = onOpenInsulin,
+                onOpenPump = onOpenPump,
+                onOpenCannula = onOpenCannula,
+                onOpenBattery = onOpenBattery,
                 onOpenBasal = onOpenTempBasal,
                 onOpenSensorInsert = onOpenSensorInsert,
                 onRefresh = onRefreshData
@@ -147,7 +153,7 @@ fun GlassOverviewScreen(
 }
 
 // ==========================================
-// CARD: STATUS AGORA (LAYOUT 3 COLUNAS)
+// CARD: STATUS AGORA (LAYOUT 3 COLUNAS - GlycoCalm Design)
 // ==========================================
 @Composable
 fun StatusAgoraCard(
@@ -157,6 +163,9 @@ fun StatusAgoraCard(
     onOpenLoop: () -> Unit,
     onOpenTarget: () -> Unit,
     onOpenInsulin: () -> Unit,
+    onOpenPump: () -> Unit,
+    onOpenCannula: () -> Unit,
+    onOpenBattery: () -> Unit,
     onOpenBasal: () -> Unit,
     onOpenSensorInsert: () -> Unit,
     onRefresh: () -> Unit
@@ -169,60 +178,72 @@ fun StatusAgoraCard(
             modifier = Modifier.padding(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header: STATUS AGORA & Tempo decorrido (clicável para atualizar)
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.clickable { onRefresh() }
-            ) {
-                Text(
-                    text = "STATUS AGORA",
-                    fontSize = 12.5.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.2.sp,
-                    color = if (isDark) Color(0xFFE2E8F0) else Color(0xFF1E293B)
-                )
-                Text(
-                    text = state.timeAgo,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B),
-                    modifier = Modifier.padding(top = 1.dp)
-                )
-            }
-
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Grid Central de 3 Colunas: Esquerda (Pílulas) | Centro (Glicemia Gigante) | Direita (Sensor/Loop/Conf)
+            // 3-Column Layout: Left (Pump) | Center (Glucose) | Right (CGM/Loop)
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // COLUNA DA ESQUERDA: Sensor Reservatório & Bateria
+                // LEFT COLUMN: Pump Status (Insulina, Cânula, Bateria)
                 Column(
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     GlassPill(
-                        label = "Insulina:",
-                        value = state.sensorReservoir,
+                        label = "Insulina",
+                        value = state.insulinAge,
                         isDark = isDark,
-                        modifier = Modifier.width(96.dp)
+                        valueColor = Color(state.insulinAgeColor),
+                        modifier = Modifier.width(100.dp).clickable { onOpenPump() },
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = app.aaps.plugins.main.R.drawable.ic_glyco_insulin),
+                                contentDescription = null,
+                                tint = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B),
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
                     )
                     GlassPill(
-                        label = "Bateria:",
-                        value = state.batteryLife,
+                        label = "Cânula",
+                        value = state.cannulaAge,
                         isDark = isDark,
-                        modifier = Modifier.width(96.dp)
+                        valueColor = Color(state.cannulaAgeColor),
+                        modifier = Modifier.width(100.dp).clickable { onOpenCannula() },
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = app.aaps.plugins.main.R.drawable.ic_glyco_cannula),
+                                contentDescription = null,
+                                tint = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B),
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
+                    )
+                    GlassPill(
+                        label = "Bateria",
+                        value = state.batteryAge,
+                        isDark = isDark,
+                        valueColor = Color(state.batteryAgeColor),
+                        modifier = Modifier.width(100.dp).clickable { onOpenBattery() },
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = app.aaps.plugins.main.R.drawable.ic_glyco_battery),
+                                contentDescription = null,
+                                tint = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B),
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
                     )
                 }
 
-                // COLUNA CENTRAL: Leitura Glicêmica Gigante (48sp-54sp), Unidade e Tendência
+                // CENTER COLUMN: Glucose Display
                 Column(
                     modifier = Modifier.weight(1.3f),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Top
                 ) {
                     val bgNum = state.rawBg
                     val glucoseColor = when {
@@ -231,168 +252,136 @@ fun StatusAgoraCard(
                         else -> Color(0xFF22C55E)
                     }
 
+                    Spacer(modifier = Modifier.height(5.dp))
+
+                    // Large BG Value
                     Text(
                         text = state.currentBg,
-                        fontSize = 50.sp,
-                        fontWeight = FontWeight.Black,
+                        fontSize = 42.sp,
+                        fontWeight = FontWeight.ExtraBold,
                         color = glucoseColor,
                         letterSpacing = (-1.5).sp,
-                        lineHeight = 50.sp,
+                        lineHeight = 42.sp,
                         modifier = Modifier.clickable { onOpenLoop() }
                     )
 
+                    // Unit
                     Text(
                         text = state.unit,
-                        fontSize = 11.5.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B),
                         modifier = Modifier.padding(top = 1.dp)
                     )
 
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    // Delta with Arrow
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.padding(top = 1.dp)
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        // Seta de tendência (drawable icon)
                         if (state.trendArrowRes != 0) {
                             Icon(
                                 painter = painterResource(id = state.trendArrowRes),
                                 contentDescription = state.trend,
                                 tint = glucoseColor,
-                                modifier = Modifier.size(22.dp)
+                                modifier = Modifier.size(20.dp)
                             )
                         }
-
                         val deltaText = if (state.delta >= 0) "+${state.delta}" else "${state.delta}"
                         Text(
                             text = deltaText,
-                            fontSize = 13.5.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                             color = glucoseColor,
                             modifier = Modifier.padding(start = 3.dp)
                         )
                     }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    // Time Ago
+                    Text(
+                        text = state.timeAgo,
+                        fontSize = 9.5.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
+                    )
                 }
 
-                // COLUNA DA DIREITA: Sensor Vida, Loop Badge & Botão Conf (Tema)
+                // RIGHT COLUMN: CGM & Loop (Sensor, Loop, Ajustes)
                 Column(
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     GlassPill(
-                        label = "Sensor:",
+                        label = "Sensor",
                         value = state.sensorAge,
                         isDark = isDark,
                         valueColor = Color(state.sensorAgeColor),
-                        modifier = Modifier
-                            .width(96.dp)
-                            .clickable { onOpenSensorInsert() }
-                    )
-
-                    // Linha inferior direita: Badge Loop e Botão Conf
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        // Badge Loop Fechado com Ponto Verde Pulsante
-                        Row(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(13.dp))
-                                .background(
-                                    if (isDark) Brush.verticalGradient(listOf(Color(0x24FFFFFF), Color(0x0EFFFFFF)))
-                                    else Brush.verticalGradient(listOf(Color(0xF5FFFFFF), Color(0xE0EEF2FA)))
-                                )
-                                .border(1.dp, if (isDark) Color(0x26FFFFFF) else Color(0xB8CBD5E1), RoundedCornerShape(13.dp))
-                                .clickable { onOpenLoop() }
-                                .padding(horizontal = 7.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            if (state.loopIconRes != 0) {
-                                // Ícone do loop (suspensão, desconexão, etc.)
-                                Icon(
-                                    painter = painterResource(id = state.loopIconRes),
-                                    contentDescription = state.loopStatusText,
-                                    modifier = Modifier.size(18.dp),
-                                    tint = if (isDark) Color(0xFFE2E8F0) else Color(0xFF1E293B)
-                                )
-                            } else {
-                                // Círculo pulsante (loop ativo)
-                                val infiniteTransition = rememberInfiniteTransition()
-                                val pulseAlpha by infiniteTransition.animateFloat(
-                                    initialValue = 0f,
-                                    targetValue = 0.8f,
-                                    animationSpec = infiniteRepeatable(
-                                        animation = tween(1000, easing = LinearEasing),
-                                        repeatMode = RepeatMode.Reverse
-                                    )
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .size(10.dp)
-                                        .background(Color(0xFF22C55E).copy(alpha = pulseAlpha), CircleShape),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(5.dp)
-                                            .background(Color(0xFF10B981), CircleShape)
-                                    )
-                                }
-                            }
-                            if (state.loopTimeRemaining.isNotEmpty()) {
-                                Text(
-                                    text = state.loopTimeRemaining,
-                                    fontSize = 9.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (isDark) Color(0xFFFBBF24) else Color(0xFFD97706)
-                                )
-                            } else {
-                                Text(
-                                    text = state.loopStatusText,
-                                    fontSize = 10.5.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (isDark) Color(0xFFE2E8F0) else Color(0xFF1E293B)
-                                )
-                            }
-                        }
-
-                        // Botão Conf / Alternar Tema Claro <-> Escuro
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.clickable { onToggleTheme() }
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(30.dp)
-                                    .clip(CircleShape)
-                                    .background(if (isDark) Color(0xFF1E293B) else Color.White)
-                                    .border(1.dp, if (isDark) Color(0x33FFFFFF) else Color(0xFFCBD5E1), CircleShape),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Brightness6,
-                                    contentDescription = "Alternar Tema",
-                                    tint = if (isDark) Color(0xFF38BDF8) else Color(0xFF0284C7),
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                            Text(
-                                text = "Conf",
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
+                        modifier = Modifier.width(100.dp).clickable { onOpenSensorInsert() },
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = app.aaps.plugins.main.R.drawable.ic_glyco_sensor),
+                                contentDescription = null,
+                                tint = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B),
+                                modifier = Modifier.size(14.dp)
                             )
                         }
-                    }
+                    )
+                    // Loop with pulsing green dot on the left
+                    GlassPill(
+                        label = "Loop",
+                        value = state.loopStatusText,
+                        isDark = isDark,
+                        modifier = Modifier.width(100.dp).clickable { onOpenLoop() },
+                        leadingIcon = {
+                            val infiniteTransition = rememberInfiniteTransition()
+                            val pulseAlpha by infiniteTransition.animateFloat(
+                                initialValue = 0f,
+                                targetValue = 0.8f,
+                                animationSpec = infiniteRepeatable(
+                                    animation = tween(1000, easing = LinearEasing),
+                                    repeatMode = RepeatMode.Reverse
+                                )
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .size(10.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFF22C55E).copy(alpha = pulseAlpha), CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(5.dp)
+                                        .background(Color(0xFF10B981), CircleShape)
+                                )
+                            }
+                        }
+                    )
+                    GlassPill(
+                        label = "Ajustes",
+                        value = "Perfil auto",
+                        isDark = isDark,
+                        modifier = Modifier.width(100.dp).clickable { onToggleTheme() },
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = app.aaps.plugins.main.R.drawable.ic_glyco_settings),
+                                contentDescription = null,
+                                tint = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B),
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
+                    )
                 }
             }
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Linha Inferior: 3 Pílulas Grandes Iguais (IOB, Target, Basal T)
+            // Bottom Row: IOB, Target, Basal T
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -503,7 +492,8 @@ fun GlassPill(
     value: String,
     isDark: Boolean,
     valueColor: Color? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    leadingIcon: (@Composable () -> Unit)? = null
 ) {
     val shape = RoundedCornerShape(13.dp)
     val bgBrush = if (isDark) {
@@ -526,24 +516,33 @@ fun GlassPill(
             .padding(horizontal = 7.dp, vertical = 5.dp),
         contentAlignment = Alignment.Center
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(
-                text = label,
-                fontSize = 9.5.sp,
-                fontWeight = FontWeight.Medium,
-                color = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B),
-                lineHeight = 11.sp
-            )
-            Text(
-                text = value,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                color = valueColor ?: if (isDark) Color(0xFFE2E8F0) else Color(0xFF1E293B),
-                lineHeight = 13.sp
-            )
+            if (leadingIcon != null) {
+                leadingIcon()
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = label,
+                    fontSize = 9.5.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B),
+                    lineHeight = 11.sp
+                )
+                Text(
+                    text = value,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = valueColor ?: if (isDark) Color(0xFFE2E8F0) else Color(0xFF1E293B),
+                    lineHeight = 13.sp
+                )
+            }
         }
     }
 }

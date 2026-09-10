@@ -15,6 +15,8 @@ import app.aaps.core.interfaces.configuration.Constants
 import app.aaps.core.interfaces.constraints.ConstraintsChecker
 import app.aaps.core.interfaces.db.GlucoseUnit
 import app.aaps.core.interfaces.db.PersistenceLayer
+import app.aaps.core.interfaces.iob.GlucoseStatusProvider
+import app.aaps.core.interfaces.iob.IobCobCalculator
 import app.aaps.core.interfaces.logging.AAPSLogger
 import app.aaps.core.interfaces.logging.LTag
 import app.aaps.core.interfaces.logging.UserEntryLogger
@@ -61,6 +63,8 @@ class GlassInsulinDialogFragment : DaggerDialogFragment() {
     @Inject lateinit var dateUtil: DateUtil
     @Inject lateinit var uiInteraction: UiInteraction
     @Inject lateinit var protectionCheck: ProtectionCheck
+    @Inject lateinit var iobCobCalculator: IobCobCalculator
+    @Inject lateinit var glucoseStatusProvider: GlucoseStatusProvider
 
     private val disposable = CompositeDisposable()
 
@@ -84,6 +88,14 @@ class GlassInsulinDialogFragment : DaggerDialogFragment() {
         val plus3 = sp.getDouble(getString(app.aaps.core.interfaces.R.string.key_insulin_button_increment_3), Constants.INSULIN_PLUS3_DEFAULT)
         val bolusStep = activePlugin.activePump.pumpDescription.bolusStep
 
+        // Get current IOB and BG values
+        val currentIOB = try {
+            iobCobCalculator.calculateIobFromBolus().iob
+        } catch (e: Exception) { 0.0 }
+        val currentBG = try {
+            glucoseStatusProvider.glucoseStatusData?.glucose ?: 0.0
+        } catch (e: Exception) { 0.0 }
+
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
@@ -95,6 +107,8 @@ class GlassInsulinDialogFragment : DaggerDialogFragment() {
                         plus1 = plus1,
                         plus2 = plus2,
                         plus3 = plus3,
+                        currentIOB = currentIOB,
+                        currentBG = currentBG,
                         onDismiss = { dismiss() },
                         onConfirm = { amount, recordOnly, eatingSoon, notes ->
                             submitInsulin(amount, recordOnly, eatingSoon, notes)

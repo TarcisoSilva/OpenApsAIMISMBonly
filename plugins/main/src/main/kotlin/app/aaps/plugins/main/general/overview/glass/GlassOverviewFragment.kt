@@ -62,6 +62,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 /**
@@ -100,6 +101,11 @@ class GlassOverviewFragment : DaggerFragment() {
 
     private val viewModel: GlassOverviewViewModel by viewModels()
     private val disposables = CompositeDisposable()
+    private val pumpStatusLoading = AtomicBoolean(false)
+    private val graphLoading = AtomicBoolean(false)
+    // Last pump event: re-resolved with the activity locale (app preference) because
+    // OverviewPlugin resolves it with the application context (device locale)
+    private var lastPumpStatusEvent: EventPumpStatusChanged? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -315,6 +321,9 @@ class GlassOverviewFragment : DaggerFragment() {
     override fun onStart() {
         super.onStart()
         setupRxSubscriptions()
+        // Refresh imediato ao voltar para a tela (ex.: após tela desligada),
+        // senão o BG fica desatualizado até o próximo tick do timer (30s)
+        refreshAllData()
     }
 
     override fun onStop() {
@@ -334,7 +343,10 @@ class GlassOverviewFragment : DaggerFragment() {
 
         disposables += rxBus.toObservable(EventPumpStatusChanged::class.java)
             .observeOn(aapsSchedulers.main)
-            .subscribe({ refreshPumpStatus() }, fabricPrivacy::logException)
+            .subscribe({
+                lastPumpStatusEvent = it
+                refreshPumpStatus()
+            }, fabricPrivacy::logException)
 
         // Novo dado de glicemia gravado (alimenta BG/delta e gráficos)
         disposables += rxBus.toObservable(EventBucketedDataCreated::class.java)
@@ -475,7 +487,27 @@ class GlassOverviewFragment : DaggerFragment() {
         )
     }
 
+    /**
+     * Dispatches pump status loading to a background thread (Room queries must
+     * not run on the main thread). All ViewModel writes are thread-safe StateFlow updates.
+     */
     private fun refreshPumpStatus() {
+        if (!pumpStatusLoading.compareAndSet(false, true)) return
+        disposables += io.reactivex.rxjava3.core.Completable.fromAction {
+            try {
+                loadPumpStatus()
+            } finally {
+                pumpStatusLoading.set(false)
+            }
+        }
+            .subscribeOn(Schedulers.io())
+            .subscribe({}, {
+                pumpStatusLoading.set(false)
+                aapsLogger.error(LTag.UI, "Error refreshing pump status", it)
+            })
+    }
+
+    private fun loadPumpStatus() {
         val bolusIob = try { iobCobCalculator.calculateIobFromBolus().iob } catch (e: Throwable) { 0.0 }
         val basalIob = try { iobCobCalculator.calculateIobFromTempBasalsIncludingConvertedExtended().basaliob } catch (e: Throwable) { 0.0 }
         val totalIob = (bolusIob + basalIob).toFloat().coerceAtLeast(0f)
@@ -502,7 +534,9 @@ class GlassOverviewFragment : DaggerFragment() {
             if (bat in 0..100) "${bat}%" else "--"
         } else "--"
 
-        val pumpStatusText = try { overviewData.pumpStatus ?: "" } catch (e: Throwable) { "" }
+        val pumpStatusText = try {
+            lastPumpStatusEvent?.getStatus(requireContext()) ?: overviewData.pumpStatus ?: ""
+        } catch (e: Throwable) { "" }
 
         val basalPercent = try {
             val tbr = overviewData.temporaryBasalText(iobCobCalculator)
@@ -738,7 +772,27 @@ class GlassOverviewFragment : DaggerFragment() {
         viewModel.updateNotifications(notifications)
     }
 
+    /**
+     * Dispatches graph data loading to a background thread (Room queries and
+     * IOB sampling must not run on the main thread).
+     */
     private fun refreshGraphData() {
+        if (!graphLoading.compareAndSet(false, true)) return
+        disposables += io.reactivex.rxjava3.core.Completable.fromAction {
+            try {
+                loadGraphData()
+            } finally {
+                graphLoading.set(false)
+            }
+        }
+            .subscribeOn(Schedulers.io())
+            .subscribe({}, {
+                graphLoading.set(false)
+                aapsLogger.error(LTag.UI, "Error refreshing graph data", it)
+            })
+    }
+
+    private fun loadGraphData() {
         try {
             val hours = selectedRangeHours
             val toTime = System.currentTimeMillis()
@@ -920,9 +974,9 @@ class GlassOverviewFragment : DaggerFragment() {
         val diffMillis = System.currentTimeMillis() - timestamp
         val diffSec = diffMillis / 1000
         return when {
-            diffSec < 60 -> "${diffSec}s atrás"
-            diffSec < 3600 -> "${diffSec / 60}m atrás"
-            else -> "${diffSec / 3600}h atrás"
+            diffSec < 60 -> "${diffSec}s ago"
+            diffSec < 3600 -> "${diffSec / 60}m ago"
+            else -> "${diffSec / 3600}h ago"
         }
     }
 }

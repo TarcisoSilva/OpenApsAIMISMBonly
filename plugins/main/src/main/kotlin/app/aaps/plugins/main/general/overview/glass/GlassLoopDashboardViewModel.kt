@@ -151,8 +151,8 @@ class GlassLoopDashboardViewModel : ViewModel() {
                         steps180m = steps180m,
                         hourOfDay = hourOfDay,
                         isWeekend = isWeekend,
-                        buildVersion = "AIMI.1 ML.2",
-                        aimiVersion = "Chg. Ver. 240"
+                        buildVersion = parseHtmlBuildVersion(html),
+                        aimiVersion = parseHtmlChgVer(html)
                     )
                 } catch (e: Exception) {
                     aapsLogger?.error("GlassLoopDashboard: Error refreshing data", e)
@@ -166,8 +166,22 @@ class GlassLoopDashboardViewModel : ViewModel() {
         }
     }
 
-    private fun parseIsfStableBg(html: String): Int {
+    private fun parseHtmlBuildVersion(html: String): String {
         return try {
+            val line = html.lines().firstOrNull { it.contains("AIMI.1") } ?: return "AIMI.1 ML.2"
+            line.substring(line.indexOf("AIMI.1")).substringBefore(",").trim()
+                .ifEmpty { "AIMI.1 ML.2" }
+        } catch (e: Exception) { "AIMI.1 ML.2" }
+    }
+
+    private fun parseHtmlChgVer(html: String): String {
+        return try {
+            val line = html.lines().firstOrNull { it.contains("Chg. Ver.") } ?: return "Chg. Ver. --"
+            line.substring(line.indexOf("Chg. Ver.")).trim()
+        } catch (e: Exception) { "Chg. Ver. --" }
+    }
+
+    private fun parseIsfStableBg(html: String): Int {        return try {
             val line = html.lines().firstOrNull { it.contains("Stable BG:") } ?: return 0
             val match = Regex("Stable BG:\\s*(\\d+)").find(line)
             match?.groupValues?.get(1)?.toIntOrNull() ?: 0

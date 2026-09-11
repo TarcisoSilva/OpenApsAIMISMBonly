@@ -416,10 +416,13 @@ class LocalAlertUtilsImpl @Inject constructor(
             sp.putLong(SP_NEXT_CANNULA_ALERT,
                 System.currentTimeMillis() + CANNULA_ALERT_COOLDOWN_MIN * 60 * 1000L)
 
-            val cannulaNote = if (isCannulaRecent) " (canula trocada há ${cannulaAgeMin}min)" else ""
-            val patternNote = if (pattern1) "BG alto+subindo+IOB alto" else "BG teimoso+subida sustentada"
-            val msg = "⚠️ Possível falha de canula! BG=${currentBg.toInt()} (▲${"%.1f".format(delta)}), " +
-                "IOB=${"%.1f".format(iob)}U, padrão: $patternNote$cannulaNote. Considere trocar a canula."
+            val cannulaNote = if (isCannulaRecent) rh.gs(app.aaps.implementation.R.string.aimi_cannula_failure_recent, cannulaAgeMin) else ""
+            val patternNote = if (pattern1) rh.gs(app.aaps.implementation.R.string.aimi_cannula_failure_pattern1)
+            else rh.gs(app.aaps.implementation.R.string.aimi_cannula_failure_pattern2)
+            val msg = rh.gs(
+                app.aaps.implementation.R.string.aimi_cannula_failure_msg,
+                currentBg.toInt(), "%.1f".format(delta), "%.1f".format(iob), patternNote, cannulaNote
+            )
 
             aapsLogger.warn(LTag.CORE, msg)
 

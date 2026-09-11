@@ -202,7 +202,7 @@ fun StatusAgoraCard(
                         value = "${state.sensorReservoir} - ${state.insulinAge}",
                         isDark = isDark,
                         valueColor = Color(state.insulinAgeColor),
-                        modifier = Modifier.width(100.dp).clickable { onOpenPump() },
+                        modifier = Modifier.width(108.dp).clickable { onOpenPump() },
                         leadingIcon = {
                             Icon(
                                 painter = painterResource(id = app.aaps.plugins.main.R.drawable.ic_glyco_insulin),
@@ -217,7 +217,7 @@ fun StatusAgoraCard(
                         value = state.cannulaAge,
                         isDark = isDark,
                         valueColor = Color(state.cannulaAgeColor),
-                        modifier = Modifier.width(100.dp).clickable { onOpenCannula() },
+                        modifier = Modifier.width(108.dp).clickable { onOpenCannula() },
                         leadingIcon = {
                             Icon(
                                 painter = painterResource(id = app.aaps.plugins.main.R.drawable.ic_syringe),
@@ -232,7 +232,7 @@ fun StatusAgoraCard(
                         value = state.batteryAge,
                         isDark = isDark,
                         valueColor = Color(state.batteryAgeColor),
-                        modifier = Modifier.width(100.dp).clickable { onOpenBattery() },
+                        modifier = Modifier.width(108.dp).clickable { onOpenBattery() },
                         leadingIcon = {
                             Icon(
                                 painter = painterResource(id = app.aaps.core.main.R.drawable.ic_cp_pump_battery),
@@ -246,7 +246,7 @@ fun StatusAgoraCard(
 
                 // CENTER COLUMN: Glucose Display
                 Column(
-                    modifier = Modifier.weight(1.3f),
+                    modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Top
                 ) {
@@ -260,11 +260,11 @@ fun StatusAgoraCard(
                     // Large BG Value (top aligned with pill box tops)
                     Text(
                         text = state.currentBg,
-                        fontSize = 42.sp,
+                        fontSize = 48.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = glucoseColor,
                         letterSpacing = (-1.5).sp,
-                        lineHeight = 42.sp,
+                        lineHeight = 48.sp,
                         style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
                         modifier = Modifier.clickable { onOpenLoopDialog() }
                     )
@@ -325,7 +325,7 @@ fun StatusAgoraCard(
                         value = state.sensorAge,
                         isDark = isDark,
                         valueColor = Color(state.sensorAgeColor),
-                        modifier = Modifier.width(100.dp).clickable { onOpenSensorInsert() },
+                        modifier = Modifier.width(108.dp).clickable { onOpenSensorInsert() },
                         leadingIcon = {
                             Icon(
                                 painter = painterResource(id = app.aaps.plugins.main.R.drawable.ic_glyco_sensor),
@@ -343,7 +343,7 @@ fun StatusAgoraCard(
                         valueColor = if (state.loopTimeRemaining.isNotEmpty()) {
                             if (isDark) Color(0xFFFBBF24) else Color(0xFFD97706)
                         } else null,
-                        modifier = Modifier.width(100.dp).clickable { onOpenLoopDashboard() },
+                        modifier = Modifier.width(108.dp).clickable { onOpenLoopDashboard() },
                         leadingIcon = {
                             if (state.loopIconRes != 0) {
                                 Icon(
@@ -382,7 +382,7 @@ fun StatusAgoraCard(
                         label = "Theme",
                         value = if (isDark) "Dark" else "Light",
                         isDark = isDark,
-                        modifier = Modifier.width(100.dp).clickable { onToggleTheme() },
+                        modifier = Modifier.width(108.dp).clickable { onToggleTheme() },
                         leadingIcon = {
                             Icon(
                                 painter = painterResource(id = app.aaps.plugins.main.R.drawable.ic_glyco_settings),

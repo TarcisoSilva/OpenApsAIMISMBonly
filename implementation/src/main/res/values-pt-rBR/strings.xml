@@ -21,4 +21,8 @@
     <string name="day_tir">Tempo no Alvo (TIR) do dia</string>
     <string name="night_tir">Tempo no alvo (TIR) noturno</string>
     <string name="carbs_short" comment="max 6 characters">Carboidratos</string>
+    <string name="aimi_cannula_failure_recent"> (canula trocada há %1$dmin)</string>
+    <string name="aimi_cannula_failure_pattern1">BG alto+subindo+IOB alto</string>
+    <string name="aimi_cannula_failure_pattern2">BG teimoso+subida sustentada</string>
+    <string name="aimi_cannula_failure_msg">⚠️ Possível falha de canula! BG=%1$d (▲%2$s), IOB=%3$sU, padrão: %4$s%5$s. Considere trocar a canula.</string>
 </resources>

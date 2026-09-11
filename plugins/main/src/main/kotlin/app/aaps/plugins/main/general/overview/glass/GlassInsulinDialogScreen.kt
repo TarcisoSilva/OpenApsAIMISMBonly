@@ -5,9 +5,11 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -20,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Remove
@@ -28,6 +31,7 @@ import androidx.compose.material.icons.outlined.TrendingUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -95,7 +99,15 @@ fun GlassInsulinDialogScreen(
     isf: Double,
     isMmol: Boolean,
     onDismiss: () -> Unit,
-    onConfirm: (amount: Double, recordOnly: Boolean, eatingSoon: Boolean, notes: String) -> Unit
+    onConfirmDelivery: (amount: Double, recordOnly: Boolean, eatingSoon: Boolean, notes: String) -> Unit,
+    delivering: Boolean,
+    progressPercent: Int,
+    progressStatus: String,
+    delivered: Boolean,
+    deliveredAmount: Double,
+    deliverError: String?,
+    onStopDelivery: () -> Unit,
+    onClearError: () -> Unit
 ) {
     val surfaceWhite = if (isDark) Color(0xFF1E293B) else Color.White
     val surfaceField = if (isDark) Color(0xFF0F172A) else Color(0xFFF8FAFC)
@@ -103,8 +115,8 @@ fun GlassInsulinDialogScreen(
     val textSecondary = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
     val textMuted = if (isDark) Color(0xFF64748B) else Color(0xFF94A3B8)
     val accentBlue = if (isDark) Color(0xFF60A5FA) else Color(0xFF2563EB)
-    val deliverTop = Color(0xFF2563EB)
-    val deliverBottom = Color(0xFF1D4ED8)
+    val deliverTop = Color(0xFF34A5E8)
+    val deliverBottom = Color(0xFF1E80CB)
     val borderLight = if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
     val sky = if (isDark) Color(0xFF38BDF8) else Color(0xFF0284C7)
     val skySoftBg = if (isDark) sky.copy(alpha = 0.15f) else Color(0xFFE0F2FE)
@@ -124,6 +136,7 @@ fun GlassInsulinDialogScreen(
     var recordOnly by remember { mutableStateOf(false) }
     var eatingSoon by remember { mutableStateOf(false) }
     var notes by remember { mutableStateOf("") }
+    var confirming by remember { mutableStateOf(false) }
 
     val canConfirm = amount > 0 || eatingSoon
     val dosePercentage = if (maxInsulin > 0) (amount / maxInsulin).coerceIn(0.0, 1.0) else 0.0
@@ -131,6 +144,7 @@ fun GlassInsulinDialogScreen(
     val bgText = if (isMmol) String.format(Locale.US, "%.1f", projectedBg)
     else projectedBg.toInt().toString()
     val unitLabel = if (isMmol) "mmol/L" else "mg/dL"
+    val showPhase = delivered || deliverError != null || delivering || confirming
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -149,6 +163,114 @@ fun GlassInsulinDialogScreen(
                 .background(surfaceWhite)
                 .border(1.dp, cardBorder, RoundedCornerShape(32.dp))
         ) {
+            if (showPhase) {
+                if (delivered) {
+                    PhaseOverlay(
+                        isDark = isDark,
+                        surfaceWhite = surfaceWhite,
+                        textPrimary = textPrimary,
+                        textSecondary = textSecondary,
+                        textMuted = textMuted,
+                        borderLight = borderLight,
+                        accentBlue = accentBlue,
+                        closeBg = closeBg,
+                        onDismiss = onDismiss
+                    ) {
+                        DonePhaseContent(
+                            textPrimary = textPrimary,
+                            textSecondary = textSecondary,
+                            deliveredAmount = deliveredAmount,
+                            onDismiss = onDismiss
+                        )
+                    }
+                } else if (deliverError != null) {
+                    PhaseOverlay(
+                        isDark = isDark,
+                        surfaceWhite = surfaceWhite,
+                        textPrimary = textPrimary,
+                        textSecondary = textSecondary,
+                        textMuted = textMuted,
+                        borderLight = borderLight,
+                        accentBlue = accentBlue,
+                        closeBg = closeBg,
+                        onDismiss = onDismiss
+                    ) {
+                        ErrorPhaseContent(
+                            textPrimary = textPrimary,
+                            textSecondary = textSecondary,
+                            message = deliverError,
+                            onBack = {
+                                onClearError()
+                                confirming = false
+                            },
+                            onDismiss = onDismiss
+                        )
+                    }
+                } else if (delivering) {
+                    PhaseOverlay(
+                        isDark = isDark,
+                        surfaceWhite = surfaceWhite,
+                        textPrimary = textPrimary,
+                        textSecondary = textSecondary,
+                        textMuted = textMuted,
+                        borderLight = borderLight,
+                        accentBlue = accentBlue,
+                        closeBg = closeBg,
+                        onDismiss = onDismiss
+                    ) {
+                        DeliveringPhaseContent(
+                            textPrimary = textPrimary,
+                            textSecondary = textSecondary,
+                            textMuted = textMuted,
+                            borderLight = borderLight,
+                            accentBlue = accentBlue,
+                            emerald = emerald,
+                            amount = amount,
+                            progressPercent = progressPercent,
+                            progressStatus = progressStatus,
+                            onStopDelivery = onStopDelivery
+                        )
+                    }
+                } else if (confirming) {
+                    PhaseOverlay(
+                        isDark = isDark,
+                        surfaceWhite = surfaceWhite,
+                        textPrimary = textPrimary,
+                        textSecondary = textSecondary,
+                        textMuted = textMuted,
+                        borderLight = borderLight,
+                        accentBlue = accentBlue,
+                        closeBg = closeBg,
+                        onDismiss = onDismiss
+                    ) {
+                        ConfirmPhaseContent(
+                            textPrimary = textPrimary,
+                            textSecondary = textSecondary,
+                            textMuted = textMuted,
+                            borderLight = borderLight,
+                            accentBlue = accentBlue,
+                            sky = sky,
+                            skySoftBg = skySoftBg,
+                            skySoftBorder = skySoftBorder,
+                            emerald = emerald,
+                            emeraldSoftBg = emeraldSoftBg,
+                            amount = amount,
+                            currentBG = currentBG,
+                            projectedBg = projectedBg,
+                            bgText = bgText,
+                            unitLabel = unitLabel,
+                            currentIOB = currentIOB,
+                            eatingSoon = eatingSoon,
+                            recordOnly = recordOnly,
+                            notes = notes,
+                            onBack = { confirming = false },
+                            onConfirm = {
+                                onConfirmDelivery(amount, recordOnly, eatingSoon, notes)
+                            }
+                        )
+                    }
+                }
+            } else {
             Column(
                 modifier = Modifier
                     .heightIn(max = 620.dp)
@@ -693,7 +815,7 @@ fun GlassInsulinDialogScreen(
                                 else Brush.horizontalGradient(listOf(disabledBtn, disabledBtn))
                             )
                             .clickable(enabled = canConfirm) {
-                                onConfirm(amount, recordOnly, eatingSoon, notes)
+                                confirming = true
                             },
                         contentAlignment = Alignment.Center
                     ) {
@@ -718,6 +840,7 @@ fun GlassInsulinDialogScreen(
                         }
                     }
                 }
+            }
             }
         }
     }
@@ -748,5 +871,367 @@ private fun RowScope.DosePresetPill(
             fontSize = 12.sp,
             fontWeight = FontWeight.ExtraBold
         )
+    }
+}
+
+@Composable
+private fun BoxScope.PhaseOverlay(
+    isDark: Boolean,
+    surfaceWhite: Color,
+    textPrimary: Color,
+    textSecondary: Color,
+    textMuted: Color,
+    borderLight: Color,
+    accentBlue: Color,
+    closeBg: Color,
+    onDismiss: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(surfaceWhite)
+            .padding(14.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    "Bolus Delivery",
+                    color = textPrimary,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(closeBg)
+                        .clickable { onDismiss() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close",
+                        tint = textSecondary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
+            content()
+        }
+    }
+}
+
+@Composable
+private fun ConfirmPhaseContent(
+    textPrimary: Color,
+    textSecondary: Color,
+    textMuted: Color,
+    borderLight: Color,
+    accentBlue: Color,
+    sky: Color,
+    skySoftBg: Color,
+    skySoftBorder: Color,
+    emerald: Color,
+    emeraldSoftBg: Color,
+    amount: Double,
+    currentBG: Double,
+    projectedBg: Double,
+    bgText: String,
+    unitLabel: String,
+    currentIOB: Double,
+    eatingSoon: Boolean,
+    recordOnly: Boolean,
+    notes: String,
+    onBack: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            "REVIEW BOLUS",
+            color = textMuted,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.ExtraBold,
+            letterSpacing = 0.8.sp
+        )
+        ConfirmRow(textPrimary, textSecondary, borderLight, "Dose", "${String.format(Locale.US, "%.1f", amount)} U")
+        ConfirmRow(
+            textPrimary, textSecondary, borderLight, "Projected glucose",
+            "$bgText $unitLabel"
+        )
+        ConfirmRow(
+            textPrimary, textSecondary, borderLight, "Active IOB",
+            "${String.format(Locale.US, "%.2f", currentIOB)} U"
+        )
+        ConfirmRow(
+            textPrimary, textSecondary, borderLight, "Delivery",
+            if (recordOnly) "Record only" else "Pump delivery"
+        )
+        if (eatingSoon) {
+            ConfirmRow(textPrimary, textSecondary, borderLight, "Temp target", "Eating Soon TT")
+        }
+        if (notes.isNotBlank()) {
+            ConfirmRow(textPrimary, textSecondary, borderLight, "Notes", notes)
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(44.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(1.dp, borderLight, RoundedCornerShape(12.dp))
+                    .clickable { onBack() },
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Back", color = textSecondary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(44.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Brush.horizontalGradient(listOf(Color(0xFF34A5E8), Color(0xFF1E80CB))))
+                    .clickable { onConfirm() },
+                contentAlignment = Alignment.Center
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = BoltIcon,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Text(
+                        "Confirm",
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ConfirmRow(
+    textPrimary: Color,
+    textSecondary: Color,
+    borderLight: Color,
+    label: String,
+    value: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .border(1.dp, borderLight, RoundedCornerShape(10.dp))
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(label, color = textSecondary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+        Text(value, color = textPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+private fun DeliveringPhaseContent(
+    textPrimary: Color,
+    textSecondary: Color,
+    textMuted: Color,
+    borderLight: Color,
+    accentBlue: Color,
+    emerald: Color,
+    amount: Double,
+    progressPercent: Int,
+    progressStatus: String,
+    onStopDelivery: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(vertical = 8.dp)
+    ) {
+        Text(
+            "DELIVERING BOLUS",
+            color = textMuted,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.ExtraBold,
+            letterSpacing = 0.8.sp
+        )
+        Text(
+            "${String.format(Locale.US, "%.1f", amount)} U",
+            color = textPrimary,
+            fontSize = 36.sp,
+            fontWeight = FontWeight.ExtraBold
+        )
+        if (progressPercent in 0..100) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+                    .height(8.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(borderLight)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(fraction = (progressPercent / 100f).coerceIn(0f, 1f))
+                        .height(8.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(Brush.horizontalGradient(listOf(accentBlue, emerald)))
+                )
+            }
+            Text(
+                "$progressPercent%",
+                color = textSecondary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold
+            )
+        } else {
+            CircularProgressIndicator(
+                modifier = Modifier.size(32.dp),
+                color = accentBlue,
+                strokeWidth = 3.dp
+            )
+        }
+        Text(
+            progressStatus.ifEmpty { "Delivering to pump..." },
+            color = textSecondary,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .border(1.dp, Color(0xFFF43F5E), RoundedCornerShape(12.dp))
+                .clickable { onStopDelivery() }
+                .padding(vertical = 12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                "STOP",
+                color = Color(0xFFF43F5E),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun DonePhaseContent(
+    textPrimary: Color,
+    textSecondary: Color,
+    deliveredAmount: Double,
+    onDismiss: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(vertical = 12.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(64.dp)
+                .clip(CircleShape)
+                .background(Color(0xFF10B981).copy(alpha = 0.15f))
+                .border(2.dp, Color(0xFF10B981), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                tint = Color(0xFF10B981),
+                modifier = Modifier.size(32.dp)
+            )
+        }
+        Text(
+            if (deliveredAmount > 0) "Delivered ${String.format(Locale.US, "%.1f", deliveredAmount)} U"
+            else "Saved",
+            color = textPrimary,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.ExtraBold
+        )
+        Text(
+            "Bolus completed",
+            color = textSecondary,
+            fontSize = 12.sp
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color(0xFF10B981))
+                .clickable { onDismiss() }
+                .padding(vertical = 12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Done", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+@Composable
+private fun ErrorPhaseContent(
+    textPrimary: Color,
+    textSecondary: Color,
+    message: String,
+    onBack: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(
+            "DELIVERY ISSUE",
+            color = Color(0xFFF43F5E),
+            fontSize = 10.sp,
+            fontWeight = FontWeight.ExtraBold,
+            letterSpacing = 0.8.sp
+        )
+        Text(message, color = textPrimary, fontSize = 13.sp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
+                    .clickable { onBack() }
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Back", color = textSecondary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFF43F5E))
+                    .clickable { onDismiss() }
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Close", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            }
+        }
     }
 }

@@ -28,6 +28,8 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -50,7 +52,8 @@ fun GlassOverviewScreen(
     onOpenStats: () -> Unit,
     onOpenTreatments: () -> Unit,
     onOpenProfile: () -> Unit,
-    onOpenLoopAction: () -> Unit,
+    onOpenLoopDialog: () -> Unit,
+    onOpenLoopDashboard: () -> Unit,
     onOpenInsulin: () -> Unit,
     onOpenPump: () -> Unit,
     onOpenCannula: () -> Unit,
@@ -89,7 +92,8 @@ fun GlassOverviewScreen(
                 state = state,
                 isDark = isDark,
                 onToggleTheme = onToggleTheme,
-                onOpenLoop = onOpenLoopAction,
+                onOpenLoopDialog = onOpenLoopDialog,
+                onOpenLoopDashboard = onOpenLoopDashboard,
                 onOpenTarget = onOpenTempTarget,
                 onOpenInsulin = onOpenInsulin,
                 onOpenPump = onOpenPump,
@@ -160,7 +164,8 @@ fun StatusAgoraCard(
     state: GlassUiState,
     isDark: Boolean,
     onToggleTheme: () -> Unit,
-    onOpenLoop: () -> Unit,
+    onOpenLoopDialog: () -> Unit,
+    onOpenLoopDashboard: () -> Unit,
     onOpenTarget: () -> Unit,
     onOpenInsulin: () -> Unit,
     onOpenPump: () -> Unit,
@@ -193,8 +198,8 @@ fun StatusAgoraCard(
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     GlassPill(
-                        label = "Insulina",
-                        value = state.insulinAge,
+                        label = "Pump / Insulin",
+                        value = "${state.sensorReservoir} - ${state.insulinAge}",
                         isDark = isDark,
                         valueColor = Color(state.insulinAgeColor),
                         modifier = Modifier.width(100.dp).clickable { onOpenPump() },
@@ -208,14 +213,14 @@ fun StatusAgoraCard(
                         }
                     )
                     GlassPill(
-                        label = "Cânula",
+                        label = "Cannula",
                         value = state.cannulaAge,
                         isDark = isDark,
                         valueColor = Color(state.cannulaAgeColor),
                         modifier = Modifier.width(100.dp).clickable { onOpenCannula() },
                         leadingIcon = {
                             Icon(
-                                painter = painterResource(id = app.aaps.plugins.main.R.drawable.ic_glyco_cannula),
+                                painter = painterResource(id = app.aaps.plugins.main.R.drawable.ic_syringe),
                                 contentDescription = null,
                                 tint = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B),
                                 modifier = Modifier.size(14.dp)
@@ -223,14 +228,14 @@ fun StatusAgoraCard(
                         }
                     )
                     GlassPill(
-                        label = "Bateria",
+                        label = "Battery",
                         value = state.batteryAge,
                         isDark = isDark,
                         valueColor = Color(state.batteryAgeColor),
                         modifier = Modifier.width(100.dp).clickable { onOpenBattery() },
                         leadingIcon = {
                             Icon(
-                                painter = painterResource(id = app.aaps.plugins.main.R.drawable.ic_glyco_battery),
+                                painter = painterResource(id = app.aaps.core.main.R.drawable.ic_cp_pump_battery),
                                 contentDescription = null,
                                 tint = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B),
                                 modifier = Modifier.size(14.dp)
@@ -252,9 +257,7 @@ fun StatusAgoraCard(
                         else -> Color(0xFF22C55E)
                     }
 
-                    Spacer(modifier = Modifier.height(5.dp))
-
-                    // Large BG Value
+                    // Large BG Value (top aligned with pill box tops)
                     Text(
                         text = state.currentBg,
                         fontSize = 42.sp,
@@ -262,7 +265,8 @@ fun StatusAgoraCard(
                         color = glucoseColor,
                         letterSpacing = (-1.5).sp,
                         lineHeight = 42.sp,
-                        modifier = Modifier.clickable { onOpenLoop() }
+                        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
+                        modifier = Modifier.clickable { onOpenLoopDialog() }
                     )
 
                     // Unit
@@ -331,40 +335,52 @@ fun StatusAgoraCard(
                             )
                         }
                     )
-                    // Loop with pulsing green dot on the left
+                    // Loop: pulsing dot when active, status icon (disconnect/paused/...) otherwise
                     GlassPill(
                         label = "Loop",
-                        value = state.loopStatusText,
+                        value = if (state.loopTimeRemaining.isNotEmpty()) state.loopTimeRemaining else state.loopStatusText,
                         isDark = isDark,
-                        modifier = Modifier.width(100.dp).clickable { onOpenLoop() },
+                        valueColor = if (state.loopTimeRemaining.isNotEmpty()) {
+                            if (isDark) Color(0xFFFBBF24) else Color(0xFFD97706)
+                        } else null,
+                        modifier = Modifier.width(100.dp).clickable { onOpenLoopDashboard() },
                         leadingIcon = {
-                            val infiniteTransition = rememberInfiniteTransition()
-                            val pulseAlpha by infiniteTransition.animateFloat(
-                                initialValue = 0f,
-                                targetValue = 0.8f,
-                                animationSpec = infiniteRepeatable(
-                                    animation = tween(1000, easing = LinearEasing),
-                                    repeatMode = RepeatMode.Reverse
+                            if (state.loopIconRes != 0) {
+                                Icon(
+                                    painter = painterResource(id = state.loopIconRes),
+                                    contentDescription = state.loopStatusText,
+                                    tint = if (isDark) Color(0xFFE2E8F0) else Color(0xFF1E293B),
+                                    modifier = Modifier.size(14.dp)
                                 )
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .size(10.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFF22C55E).copy(alpha = pulseAlpha), CircleShape),
-                                contentAlignment = Alignment.Center
-                            ) {
+                            } else {
+                                val infiniteTransition = rememberInfiniteTransition()
+                                val pulseAlpha by infiniteTransition.animateFloat(
+                                    initialValue = 0f,
+                                    targetValue = 0.8f,
+                                    animationSpec = infiniteRepeatable(
+                                        animation = tween(1000, easing = LinearEasing),
+                                        repeatMode = RepeatMode.Reverse
+                                    )
+                                )
                                 Box(
                                     modifier = Modifier
-                                        .size(5.dp)
-                                        .background(Color(0xFF10B981), CircleShape)
-                                )
+                                        .size(10.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(0xFF22C55E).copy(alpha = pulseAlpha), CircleShape),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(5.dp)
+                                            .background(Color(0xFF10B981), CircleShape)
+                                    )
+                                }
                             }
                         }
                     )
                     GlassPill(
-                        label = "Ajustes",
-                        value = "Perfil auto",
+                        label = "Theme",
+                        value = if (isDark) "Dark" else "Light",
                         isDark = isDark,
                         modifier = Modifier.width(100.dp).clickable { onToggleTheme() },
                         leadingIcon = {

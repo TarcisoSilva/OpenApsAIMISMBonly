@@ -194,11 +194,30 @@ class GlassOverviewFragment : DaggerFragment() {
                                 aapsLogger.error(LTag.UI, "Erro ao abrir Profile Dialog", e)
                             }
                         },
-                        onOpenLoopAction = {
+                        onOpenLoopDialog = {
                             try {
-                                uiInteraction.runLoopDialog(childFragmentManager, 1)
+                                val dialog = GlassLoopControlDialogFragment()
+                                dialog.show(childFragmentManager, "GlassLoopControlDialog")
                             } catch (e: Exception) {
-                                aapsLogger.error(LTag.UI, "Error opening Loop Dialog", e)
+                                aapsLogger.error(LTag.UI, "Error opening Loop Control Dialog", e)
+                            }
+                        },
+                        onOpenLoopDashboard = {
+                            try {
+                                val containerId = requireContext().resources.getIdentifier(
+                                    "glass_tools_container", "id", requireContext().packageName
+                                )
+                                if (containerId != 0) {
+                                    val fragment = GlassLoopDashboardFragment()
+                                    requireActivity().supportFragmentManager.beginTransaction()
+                                        .replace(containerId, fragment, "GlassLoopDashboardFragment")
+                                        .addToBackStack(null)
+                                        .commit()
+                                    val container = requireActivity().findViewById<View>(containerId)
+                                    container?.visibility = View.VISIBLE
+                                }
+                            } catch (e: Exception) {
+                                aapsLogger.error(LTag.UI, "Error opening Loop Dashboard", e)
                             }
                         },
                         onOpenInsulin = {
@@ -230,27 +249,29 @@ class GlassOverviewFragment : DaggerFragment() {
                         },
                         onOpenCannula = {
                             try {
-                                uiInteraction.runFillDialog(childFragmentManager)
+                                val dialog = GlassPrimeFillDialogFragment()
+                                dialog.onSaved = { refreshAllData() }
+                                dialog.show(childFragmentManager, "GlassPrimeFillDialog")
                             } catch (e: Exception) {
-                                aapsLogger.error(LTag.UI, "Error opening Fill Dialog", e)
+                                aapsLogger.error(LTag.UI, "Error opening Prime/Fill Dialog", e)
                             }
                         },
                         onOpenBattery = {
                             try {
-                                uiInteraction.runCareDialog(
-                                    childFragmentManager,
-                                    UiInteraction.EventType.BATTERY_CHANGE,
-                                    app.aaps.core.ui.R.string.careportal
-                                )
+                                val dialog = GlassBatteryChangeDialogFragment()
+                                dialog.onSaved = { refreshAllData() }
+                                dialog.show(childFragmentManager, "GlassBatteryChangeDialog")
                             } catch (e: Exception) {
                                 aapsLogger.error(LTag.UI, "Error opening Battery Change Dialog", e)
                             }
                         },
                         onOpenTempTarget = {
                             try {
-                                uiInteraction.runTempTargetDialog(childFragmentManager)
+                                val dialog = GlassTempTargetDialogFragment()
+                                dialog.onSaved = { refreshAllData() }
+                                dialog.show(childFragmentManager, "GlassTempTargetDialog")
                             } catch (e: Exception) {
-                                aapsLogger.error(LTag.UI, "Erro ao abrir TempTarget Dialog", e)
+                                aapsLogger.error(LTag.UI, "Error opening Temp Target Dialog", e)
                             }
                         },
                         onOpenTempBasal = {
@@ -262,20 +283,11 @@ class GlassOverviewFragment : DaggerFragment() {
                         },
                         onOpenSensorInsert = {
                             try {
-                                val containerId = requireContext().resources.getIdentifier(
-                                    "glass_tools_container", "id", requireContext().packageName
-                                )
-                                if (containerId != 0) {
-                                    val fragment = GlassSensorInsertFragment()
-                                    requireActivity().supportFragmentManager.beginTransaction()
-                                        .replace(containerId, fragment, "GlassSensorInsertFragment")
-                                        .addToBackStack(null)
-                                        .commit()
-                                    val container = requireActivity().findViewById<View>(containerId)
-                                    container?.visibility = View.VISIBLE
-                                }
+                                val dialog = GlassSensorInsertDialogFragment()
+                                dialog.onSaved = { refreshAllData() }
+                                dialog.show(childFragmentManager, "GlassSensorInsertDialog")
                             } catch (e: Exception) {
-                                aapsLogger.error(LTag.UI, "Erro ao abrir CGM Sensor Insert", e)
+                                aapsLogger.error(LTag.UI, "Error opening Sensor Insert Dialog", e)
                             }
                         },
                         onRefreshData = { refreshAllData() },

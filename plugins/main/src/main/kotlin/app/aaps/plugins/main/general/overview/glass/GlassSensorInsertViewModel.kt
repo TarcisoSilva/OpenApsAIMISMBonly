@@ -85,6 +85,17 @@ class GlassSensorInsertViewModel : ViewModel() {
         _uiState.update { it.copy(notes = notes) }
     }
 
+    fun resetToNow() {
+        val now = System.currentTimeMillis()
+        _uiState.update {
+            it.copy(
+                eventTimestamp = now,
+                formattedDate = formatDate(now),
+                formattedTime = formatTime(now)
+            )
+        }
+    }
+
     fun updateDate(year: Int, month: Int, dayOfMonth: Int) {
         val cal = Calendar.getInstance().apply {
             timeInMillis = _uiState.value.eventTimestamp

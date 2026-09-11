@@ -1,6 +1,18 @@
 plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
+
+// This project must be built with JDK 17 (same as CI: Temurin 17).
+// Newer JDKs (e.g. 23) break AGP's JdkImageTransform with a cryptic jlink error
+// minutes into the build, so fail fast here with a clear message instead.
+def gradleJvm = org.gradle.api.JavaVersion.current()
+if (gradleJvm != org.gradle.api.JavaVersion.VERSION_17) {
+    throw new org.gradle.api.GradleException(
+        "OpenApsAIMI must be built with JDK 17 (Gradle is running on Java ${gradleJvm}). " +
+        "In Android Studio: Settings > Build Tools > Gradle > Gradle JDK > 17. " +
+        "Or from terminal: export JAVA_HOME to a JDK 17 installation before running gradlew."
+    )
+}
 include ':app'
 include ':wear'
 include ':shared:impl'

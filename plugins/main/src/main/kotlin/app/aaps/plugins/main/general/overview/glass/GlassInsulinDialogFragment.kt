@@ -83,17 +83,22 @@ class GlassInsulinDialogFragment : DaggerDialogFragment() {
         } catch (e: Exception) { true }
 
         val maxInsulin = constraintChecker.getMaxBolusAllowed().value()
-        val plus1 = sp.getDouble(getString(app.aaps.core.interfaces.R.string.key_insulin_button_increment_1), Constants.INSULIN_PLUS1_DEFAULT)
-        val plus2 = sp.getDouble(getString(app.aaps.core.interfaces.R.string.key_insulin_button_increment_2), Constants.INSULIN_PLUS2_DEFAULT)
-        val plus3 = sp.getDouble(getString(app.aaps.core.interfaces.R.string.key_insulin_button_increment_3), Constants.INSULIN_PLUS3_DEFAULT)
         val bolusStep = activePlugin.activePump.pumpDescription.bolusStep
 
-        // Get current IOB and BG values
+        // Get current IOB, BG and ISF values
         val currentIOB = try {
             iobCobCalculator.calculateIobFromBolus().iob
         } catch (e: Exception) { 0.0 }
         val currentBG = try {
             glucoseStatusProvider.glucoseStatusData?.glucose ?: 0.0
+        } catch (e: Exception) { 0.0 }
+        val isMmol = try {
+            profileFunction.getUnits() == GlucoseUnit.MMOL
+        } catch (e: Exception) { false }
+        val isf = try {
+            val profile = profileFunction.getProfile()
+            val isfMgdl = profile?.getIsfMgdl() ?: 0.0
+            if (isMmol) profileUtil.fromMgdlToUnits(isfMgdl) else isfMgdl
         } catch (e: Exception) { 0.0 }
 
         return ComposeView(requireContext()).apply {
@@ -104,11 +109,10 @@ class GlassInsulinDialogFragment : DaggerDialogFragment() {
                         isDark = isDark,
                         maxInsulin = maxInsulin,
                         bolusStep = bolusStep,
-                        plus1 = plus1,
-                        plus2 = plus2,
-                        plus3 = plus3,
                         currentIOB = currentIOB,
-                        currentBG = currentBG,
+                        currentBG = if (isMmol) profileUtil.fromMgdlToUnits(currentBG) else currentBG,
+                        isf = isf,
+                        isMmol = isMmol,
                         onDismiss = { dismiss() },
                         onConfirm = { amount, recordOnly, eatingSoon, notes ->
                             submitInsulin(amount, recordOnly, eatingSoon, notes)

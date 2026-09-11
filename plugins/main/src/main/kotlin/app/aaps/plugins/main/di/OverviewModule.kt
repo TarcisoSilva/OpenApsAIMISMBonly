@@ -8,6 +8,11 @@ import app.aaps.plugins.main.general.overview.glass.GlassTreatmentsFragment
 import app.aaps.plugins.main.general.overview.glass.GlassSensorInsertFragment
 import app.aaps.plugins.main.general.overview.glass.GlassLoopDashboardFragment
 import app.aaps.plugins.main.general.overview.glass.GlassInsulinDialogFragment
+import app.aaps.plugins.main.general.overview.glass.GlassBatteryChangeDialogFragment
+import app.aaps.plugins.main.general.overview.glass.GlassPrimeFillDialogFragment
+import app.aaps.plugins.main.general.overview.glass.GlassSensorInsertDialogFragment
+import app.aaps.plugins.main.general.overview.glass.GlassLoopControlDialogFragment
+import app.aaps.plugins.main.general.overview.glass.GlassTempTargetDialogFragment
 import app.aaps.plugins.main.general.overview.glass.GlycoStatsFragment
 import app.aaps.plugins.main.general.overview.graphData.GraphData
 import app.aaps.plugins.main.general.overview.notifications.DismissNotificationService
@@ -31,6 +36,11 @@ abstract class OverviewModule {
     @ContributesAndroidInjector abstract fun contributesGlassSensorInsertFragment(): GlassSensorInsertFragment
     @ContributesAndroidInjector abstract fun contributesGlassLoopDashboardFragment(): GlassLoopDashboardFragment
     @ContributesAndroidInjector abstract fun contributesGlassInsulinDialogFragment(): GlassInsulinDialogFragment
+    @ContributesAndroidInjector abstract fun contributesGlassBatteryChangeDialogFragment(): GlassBatteryChangeDialogFragment
+    @ContributesAndroidInjector abstract fun contributesGlassPrimeFillDialogFragment(): GlassPrimeFillDialogFragment
+    @ContributesAndroidInjector abstract fun contributesGlassSensorInsertDialogFragment(): GlassSensorInsertDialogFragment
+    @ContributesAndroidInjector abstract fun contributesGlassLoopControlDialogFragment(): GlassLoopControlDialogFragment
+    @ContributesAndroidInjector abstract fun contributesGlassTempTargetDialogFragment(): GlassTempTargetDialogFragment
     @ContributesAndroidInjector abstract fun contributesGlycoStatsFragment(): GlycoStatsFragment
     @ContributesAndroidInjector abstract fun notificationWithActionInjector(): NotificationWithAction
     @ContributesAndroidInjector abstract fun graphDataInjector(): GraphData

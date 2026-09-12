@@ -136,7 +136,8 @@ fun GlassOverviewScreen(
             if (state.pumpStatus.isNotEmpty()) {
                 PumpStatusNotification(
                     status = state.pumpStatus,
-                    isDark = isDark
+                    isDark = isDark,
+                    onClick = onOpenPump
                 )
             }
 
@@ -859,7 +860,13 @@ fun BgChartCard(
                     if (t.isCarb) {
                         drawCircle(color = Color(0xFF38BDF8), radius = 10f, center = Offset(tx, ty))
                     } else {
-                        drawCircle(color = Color(0xFF0284C7), radius = 10f, center = Offset(tx, ty))
+                        // SMB mantém o azul atual; bolus manual em azul mais claro
+                        val isSmb = t.label.startsWith("SMB")
+                        drawCircle(
+                            color = if (isSmb) Color(0xFF0284C7) else Color(0xFF7DD3FC),
+                            radius = 10f,
+                            center = Offset(tx, ty)
+                        )
                     }
                 }
 
@@ -1370,7 +1377,8 @@ fun GlassActionPill(
 @Composable
 fun PumpStatusNotification(
     status: String,
-    isDark: Boolean
+    isDark: Boolean,
+    onClick: () -> Unit = {}
 ) {
     val shape = RoundedCornerShape(14.dp)
     val bgBrush = if (isDark) {
@@ -1386,6 +1394,7 @@ fun PumpStatusNotification(
             .clip(shape)
             .background(bgBrush)
             .border(1.dp, if (isDark) Color(0x30FFFFFF) else Color(0xD0CBD5E1), shape)
+            .clickable { onClick() }
             .padding(horizontal = 12.dp, vertical = 8.dp),
         contentAlignment = Alignment.Center
     ) {

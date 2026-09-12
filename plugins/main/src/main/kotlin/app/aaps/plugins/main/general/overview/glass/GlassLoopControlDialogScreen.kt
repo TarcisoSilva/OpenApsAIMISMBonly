@@ -6,10 +6,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -42,6 +45,7 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -192,20 +196,21 @@ fun GlassLoopControlDialogScreen(
     val skySoftBg = if (isDark) sky.copy(alpha = 0.15f) else Color(0xFFF0F9FF)
     val skySoftBorder = if (isDark) sky.copy(alpha = 0.4f) else Color(0xFFBAE6FD)
     val blue = if (isDark) Color(0xFF60A5FA) else Color(0xFF2563EB)
-    val blueCardTop = Color(0xFF38A3EB)
-    val blueCardBottom = Color(0xFF2589D8)
     val emerald = if (isDark) Color(0xFF34D399) else Color(0xFF10B981)
     val emeraldSoftBg = if (isDark) emerald.copy(alpha = 0.15f) else Color(0xFFECFDF5)
     val emeraldSoftBorder = if (isDark) emerald.copy(alpha = 0.4f) else Color(0xFFA7F3D0)
     val emeraldText = if (isDark) Color(0xFF6EE7B7) else Color(0xFF047857)
     val amber = Color(0xFFF59E0B)
-    val amberSoftBg = if (isDark) amber.copy(alpha = 0.15f) else Color(0xFFFFFBEB)
     val rose = if (isDark) Color(0xFFFB7185) else Color(0xFFF43F5E)
     val roseSoftBg = if (isDark) rose.copy(alpha = 0.15f) else Color(0xFFFFF1F2)
     val roseSoftBorder = if (isDark) rose.copy(alpha = 0.4f) else Color(0xFFFECDD3)
     val teal = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0D9488)
     val closeBg = if (isDark) Color(0xFF334155) else Color(0xFFF1F5F9)
     val dividerColor = if (isDark) Color(0xFF334155) else Color(0xFFF1F5F9)
+    val cardGrad = Brush.verticalGradient(
+        if (isDark) listOf(Color(0xFF1E293B), Color(0xFF0F172A))
+        else listOf(Color.White, Color(0xFFF1F5F9))
+    )
     val footerBg = if (isDark) Color(0xFF0F172A) else Color.White
     val footerBorder = if (isDark) Color(0xFF334155) else Color(0xFFF1F5F9)
     val cardBorder = if (isDark) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.8f)
@@ -364,12 +369,12 @@ fun GlassLoopControlDialogScreen(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(6.dp))
                                         .background(
-                                            if (state.currentMode == GlassLoopMode.CLOSED) emeraldSoftBg
+                                            if (state.currentMode == GlassLoopMode.CLOSED) teal.copy(alpha = 0.12f)
                                             else closeBg
                                         )
                                         .border(
                                             1.dp,
-                                            if (state.currentMode == GlassLoopMode.CLOSED) emeraldSoftBorder
+                                            if (state.currentMode == GlassLoopMode.CLOSED) teal.copy(alpha = 0.4f)
                                             else borderLight,
                                             RoundedCornerShape(6.dp)
                                         )
@@ -379,7 +384,9 @@ fun GlassLoopControlDialogScreen(
                                         text = if (state.currentMode == GlassLoopMode.CLOSED) "Automatic" else "Manual",
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = if (state.currentMode == GlassLoopMode.CLOSED) emeraldText else textSecondary
+                                        color = if (state.currentMode == GlassLoopMode.CLOSED) {
+                                            if (isDark) Color(0xFF5EEAD4) else Color(0xFF0F766E)
+                                        } else textSecondary
                                     )
                                 }
                             }
@@ -393,7 +400,6 @@ fun GlassLoopControlDialogScreen(
                                         title = "Closed Loop",
                                         subtitle = "Full Auto",
                                         selected = state.currentMode == GlassLoopMode.CLOSED,
-                                        selectedBg = Brush.verticalGradient(listOf(Color(0xFF34D399), Color(0xFF059669))),
                                         icon = {
                                             Icon(
                                                 imageVector = Icons.Default.CheckCircle,
@@ -412,7 +418,6 @@ fun GlassLoopControlDialogScreen(
                                         title = "Low Glucose Suspend",
                                         subtitle = "Active Protection",
                                         selected = state.currentMode == GlassLoopMode.LGS,
-                                        selectedBg = Brush.verticalGradient(listOf(blueCardTop, blueCardBottom)),
                                         icon = {
                                             Icon(
                                                 imageVector = Icons.Outlined.CheckCircle,
@@ -431,7 +436,6 @@ fun GlassLoopControlDialogScreen(
                                         title = "Open Loop",
                                         subtitle = "Suggest Doses",
                                         selected = state.currentMode == GlassLoopMode.OPEN,
-                                        selectedBg = Brush.verticalGradient(listOf(Color(0xFF64748B), Color(0xFF334155))),
                                         icon = {
                                             Icon(
                                                 imageVector = Icons.Default.OpenInNew,
@@ -443,58 +447,24 @@ fun GlassLoopControlDialogScreen(
                                         onClick = { onModeSelected(GlassLoopMode.OPEN) },
                                         modifier = Modifier.weight(1f)
                                     )
-                                }
-                            }
-                            // Disable / Enable row
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(if (!state.loopEnabled) roseSoftBg else surfaceWhite)
-                                    .border(
-                                        1.dp,
-                                        if (!state.loopEnabled) roseSoftBorder else borderLight,
-                                        RoundedCornerShape(12.dp)
-                                    )
-                                    .clickable { onToggleLoop() }
-                                    .padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(32.dp)
-                                            .clip(RoundedCornerShape(10.dp))
-                                            .background(roseSoftBg)
-                                            .border(1.dp, roseSoftBorder, RoundedCornerShape(10.dp)),
-                                        contentAlignment = Alignment.Center
-                                    ) {
+                                ModeCard(
+                                    isDark = isDark,
+                                    title = "Disable Loop",
+                                    subtitle = "Full Manual",
+                                    selected = false,
+                                    highlight = rose,
+                                    icon = {
                                         Icon(
                                             imageVector = Icons.Default.Block,
                                             contentDescription = null,
                                             tint = rose,
                                             modifier = Modifier.size(16.dp)
                                         )
-                                    }
-                                    Column {
-                                        Text(
-                                            text = "Disable Loop",
-                                            fontSize = 13.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = textPrimary
-                                        )
-                                        Text(
-                                            text = "Full Manual",
-                                            fontSize = 11.sp,
-                                            color = textSecondary
-                                        )
-                                    }
+                                    },
+                                    onClick = { onToggleLoop() },
+                                    modifier = Modifier.weight(1f)
+                                )
                                 }
-                                RadioDot(isDark = isDark, selected = false, selectedColor = rose)
                             }
                         }
                     } else {
@@ -694,23 +664,28 @@ fun GlassLoopControlDialogScreen(
                         .padding(14.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(surfaceWhite)
-                            .border(1.dp, borderLight, RoundedCornerShape(14.dp))
-                            .clickable { onDismiss() }
-                            .padding(vertical = 14.dp),
-                        contentAlignment = Alignment.Center
+                    TactileCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
+                        face = cardGrad,
+                        border = borderLight,
+                        edge = if (isDark) Color(0xFF020617) else Color(0xFFCBD5E1),
+                        onClick = onDismiss
                     ) {
-                        Text(
-                            text = "CANCEL",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = textSecondary,
-                            letterSpacing = 1.sp
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 14.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "CANCEL",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = textSecondary,
+                                letterSpacing = 1.sp
+                            )
+                        }
                     }
                 }
             }
@@ -724,28 +699,38 @@ private fun ModeCard(
     title: String,
     subtitle: String,
     selected: Boolean,
-    selectedBg: Brush,
+    highlight: Color? = null,
     icon: @Composable () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val borderColor = if (selected) Color(0xFF2589D8) else if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
-    val cardBg: Brush = if (selected) selectedBg
-    else Brush.verticalGradient(
-        if (isDark) listOf(Color(0xFF1E293B), Color(0xFF1E293B))
-        else listOf(Color.White, Color.White)
+    val selectedBlue = Brush.verticalGradient(
+        listOf(Color(0xFF38BDF8), Color(0xFF0284C7), Color(0xFF0369A1))
     )
-    Box(
-        modifier = modifier
-            .height(96.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(cardBg)
-            .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
-            .clickable { onClick() }
-            .padding(10.dp)
+    val borderColor = if (selected) Color(0xFF0284C7) else if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
+    val cardBg: Brush = if (selected) selectedBlue
+    else Brush.verticalGradient(
+        if (isDark) listOf(Color(0xFF1E293B), Color(0xFF0F172A))
+        else listOf(Color.White, Color(0xFFF1F5F9))
+    )
+    val edge = if (selected) Color(0xFF075985) else if (isDark) Color(0xFF020617) else Color(0xFFCBD5E1)
+    val chipBgColor = highlight?.copy(alpha = 0.12f) ?: if (selected) Color.White.copy(alpha = 0.2f)
+    else if (isDark) Color(0xFF334155) else Color(0xFFF1F5F9)
+    val chipBorderColor = highlight?.copy(alpha = 0.4f)
+    TactileCard(
+        modifier = modifier.height(96.dp),
+        shape = RoundedCornerShape(14.dp),
+        face = cardBg,
+        border = borderColor,
+        borderWidth = if (selected) 2.dp else 1.dp,
+        edge = edge,
+        onClick = onClick
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth()
+                .padding(10.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Row(
@@ -757,10 +742,8 @@ private fun ModeCard(
                     modifier = Modifier
                         .size(28.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(
-                            if (selected) Color.White.copy(alpha = 0.2f)
-                            else if (isDark) Color(0xFF334155) else Color(0xFFF1F5F9)
-                        ),
+                        .background(chipBgColor)
+                        .then(if (chipBorderColor != null) Modifier.border(1.dp, chipBorderColor, RoundedCornerShape(8.dp)) else Modifier),
                     contentAlignment = Alignment.Center
                 ) {
                     icon()
@@ -805,7 +788,7 @@ private fun RadioDot(
             .background(if (selected) selectedColor else Color.Transparent)
             .border(
                 2.dp,
-                if (selected) selectedColor else unchecked,
+                if (selected) Color.White else unchecked,
                 CircleShape
             ),
         contentAlignment = Alignment.Center
@@ -831,12 +814,17 @@ private fun SuspendChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    TactileCard(
+        modifier = modifier,
+        shape = RoundedCornerShape(14.dp),
+        face = Brush.verticalGradient(if (isDark) listOf(Color(0xFF1E293B), Color(0xFF0F172A)) else listOf(Color.White, Color(0xFFF1F5F9))),
+        border = if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0),
+        edge = if (isDark) Color(0xFF020617) else Color(0xFFCBD5E1),
+        onClick = onClick
+    ) {
     Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(14.dp))
-            .background(if (isDark) Color(0xFF1E293B) else Color.White)
-            .border(1.dp, if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0), RoundedCornerShape(14.dp))
-            .clickable { onClick() }
+        modifier = Modifier
+            .fillMaxWidth()
             .padding(vertical = 10.dp, horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp)
@@ -861,6 +849,7 @@ private fun SuspendChip(
             color = if (isDark) Color(0xFF64748B) else Color(0xFF94A3B8)
         )
     }
+    }
 }
 
 @Composable
@@ -871,12 +860,17 @@ private fun DisconnectChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    TactileCard(
+        modifier = modifier,
+        shape = RoundedCornerShape(14.dp),
+        face = Brush.verticalGradient(if (isDark) listOf(Color(0xFF1E293B), Color(0xFF0F172A)) else listOf(Color.White, Color(0xFFF1F5F9))),
+        border = if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0),
+        edge = if (isDark) Color(0xFF020617) else Color(0xFFCBD5E1),
+        onClick = onClick
+    ) {
     Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(14.dp))
-            .background(if (isDark) Color(0xFF1E293B) else Color.White)
-            .border(1.dp, if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0), RoundedCornerShape(14.dp))
-            .clickable { onClick() }
+        modifier = Modifier
+            .fillMaxWidth()
             .padding(vertical = 8.dp, horizontal = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp)
@@ -901,4 +895,10 @@ private fun DisconnectChip(
             color = if (isDark) Color(0xFF64748B) else Color(0xFF94A3B8)
         )
     }
+    }
 }
+
+/**
+ * Tactile 3D card: face content over a darker bottom edge that peeks out,
+ * reproducing the physical-key depth from the GlycoCalm reference.
+ */

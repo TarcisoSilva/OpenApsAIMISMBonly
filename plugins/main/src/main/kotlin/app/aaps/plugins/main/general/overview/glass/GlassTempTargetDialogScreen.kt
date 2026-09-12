@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -53,6 +55,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -258,7 +261,6 @@ fun GlassTempTargetDialogScreen(
     val orangeText = if (isDark) Color(0xFFFB923C) else Color(0xFFC2410C)
     val orangeSoftBg = if (isDark) orange.copy(alpha = 0.15f) else Color(0xFFFFF7ED)
     val orangeSoftBorder = if (isDark) orange.copy(alpha = 0.4f) else Color(0xFFFED7AA)
-    val orangeChipBg = if (isDark) orange.copy(alpha = 0.2f) else Color(0xFFFFEDD5)
     val blueText = if (isDark) Color(0xFF7DD3FC) else Color(0xFF0369A1)
     val blueSoftBg = if (isDark) sky.copy(alpha = 0.12f) else Color(0xFFF0F9FF)
     val blueSoftBorder = if (isDark) sky.copy(alpha = 0.4f) else Color(0xFFBAE6FD)
@@ -267,9 +269,9 @@ fun GlassTempTargetDialogScreen(
     val roseText = if (isDark) Color(0xFFFDA4AF) else Color(0xFFBE123C)
     val roseSoftBg = if (isDark) rose.copy(alpha = 0.15f) else Color(0xFFFFF1F2)
     val roseSoftBorder = if (isDark) rose.copy(alpha = 0.4f) else Color(0xFFFECDD3)
-    val roseChipBg = if (isDark) rose.copy(alpha = 0.2f) else Color(0xFFFFE4E6)
     val closeBg = if (isDark) Color(0xFF334155) else Color(0xFFF1F5F9)
     val cardBorder = if (isDark) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.8f)
+    val rowGradBottom = if (isDark) Color(0xFF16213A) else Color(0xFFF1F5F9)
 
     val context = LocalContext.current
     var reasonExpanded by remember { mutableStateOf(false) }
@@ -362,7 +364,7 @@ fun GlassTempTargetDialogScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(16.dp))
-                            .background(surfaceField)
+                            .background(Brush.verticalGradient(listOf(surfaceField, rowGradBottom)))
                             .border(1.dp, borderLight, RoundedCornerShape(16.dp))
                             .padding(10.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -388,15 +390,17 @@ fun GlassTempTargetDialogScreen(
                         ) {
                             Row(
                                 modifier = Modifier
+                                    .width(150.dp)
                                     .clip(RoundedCornerShape(12.dp))
                                     .background(surfaceWhite)
                                     .border(1.dp, borderLight, RoundedCornerShape(12.dp))
                                     .padding(4.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .size(32.dp)
+                                        .size(28.dp)
                                         .clip(RoundedCornerShape(8.dp))
                                         .background(closeBg)
                                         .clickable { onTargetMinus() },
@@ -414,11 +418,12 @@ fun GlassTempTargetDialogScreen(
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = textTitle,
-                                    modifier = Modifier.padding(horizontal = 10.dp)
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.weight(1f)
                                 )
                                 Box(
                                     modifier = Modifier
-                                        .size(32.dp)
+                                        .size(28.dp)
                                         .clip(RoundedCornerShape(8.dp))
                                         .background(closeBg)
                                         .clickable { onTargetPlus() },
@@ -437,7 +442,7 @@ fun GlassTempTargetDialogScreen(
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = textSecondary,
-                                modifier = Modifier.padding(end = 4.dp)
+                                modifier = Modifier.width(44.dp)
                             )
                         }
                     }
@@ -447,7 +452,7 @@ fun GlassTempTargetDialogScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(16.dp))
-                            .background(surfaceField)
+                            .background(Brush.verticalGradient(listOf(surfaceField, rowGradBottom)))
                             .border(1.dp, borderLight, RoundedCornerShape(16.dp))
                             .padding(10.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -473,15 +478,17 @@ fun GlassTempTargetDialogScreen(
                         ) {
                             Row(
                                 modifier = Modifier
+                                    .width(150.dp)
                                     .clip(RoundedCornerShape(12.dp))
                                     .background(surfaceWhite)
                                     .border(1.dp, borderLight, RoundedCornerShape(12.dp))
                                     .padding(4.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .size(32.dp)
+                                        .size(28.dp)
                                         .clip(RoundedCornerShape(8.dp))
                                         .background(closeBg)
                                         .clickable { onDurationMinus() },
@@ -499,11 +506,12 @@ fun GlassTempTargetDialogScreen(
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = textTitle,
-                                    modifier = Modifier.padding(horizontal = 10.dp)
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.weight(1f)
                                 )
                                 Box(
                                     modifier = Modifier
-                                        .size(32.dp)
+                                        .size(28.dp)
                                         .clip(RoundedCornerShape(8.dp))
                                         .background(closeBg)
                                         .clickable { onDurationPlus() },
@@ -522,7 +530,7 @@ fun GlassTempTargetDialogScreen(
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = textSecondary,
-                                modifier = Modifier.padding(end = 4.dp)
+                                modifier = Modifier.width(44.dp)
                             )
                         }
                     }
@@ -543,51 +551,112 @@ fun GlassTempTargetDialogScreen(
                         ) {
                             presets.forEach { preset ->
                                 val isSelected = selectedPreset == preset.kind
-                                val cardBg: Color
-                                val presetBorder: Color
+                                val cardBg: Brush
+                                val cardBorderColor: Color
                                 val titleColor: Color
                                 val subColor: Color
-                                val chipBg: Color
+                                val chipBg: Brush
                                 val presetIcon: ImageVector
                                 val iconTint: Color
+                                val badgeColor: Color
                                 when (preset.kind) {
                                     TempTargetPresetKind.EATING -> {
-                                        cardBg = orangeSoftBg; presetBorder = orangeSoftBorder
-                                        titleColor = orangeText; subColor = orangeText.copy(alpha = 0.8f)
-                                        chipBg = orangeChipBg; presetIcon = FoodIcon; iconTint = Color(0xFFEA580C)
+                                        cardBg = if (isSelected || !isDark) Brush.verticalGradient(
+                                            listOf(Color(0xFFFFFBEB), Color(0xFFFFEDD5))
+                                        ) else Brush.verticalGradient(listOf(orangeSoftBg, orangeSoftBg))
+                                        cardBorderColor = if (isSelected) Color(0xFFF59E0B) else orangeSoftBorder
+                                        titleColor = if (isDark) orangeText else Color(0xFF78350A)
+                                        subColor = if (isDark) orangeText.copy(alpha = 0.8f) else Color(0xFFB45309)
+                                        chipBg = Brush.verticalGradient(listOf(Color(0xFFFEF3C7), Color(0xFFFDBA74)))
+                                        presetIcon = FoodIcon
+                                        iconTint = if (isDark) orangeText else Color(0xFFB45309)
+                                        badgeColor = Color(0xFFD97706)
                                     }
                                     TempTargetPresetKind.ACTIVITY -> {
-                                        cardBg = blueSoftBg; presetBorder = blueSoftBorder
-                                        titleColor = blueText; subColor = blueText.copy(alpha = 0.8f)
-                                        chipBg = blueChipBg; presetIcon = ActivityIcon; iconTint = sky
+                                        cardBg = if (isSelected && !isDark) Brush.verticalGradient(
+                                            listOf(Color(0xFFF0F9FF), Color(0xFFE0F4F7), Color(0xFFBAE6FD).copy(alpha = 0.5f))
+                                        ) else Brush.verticalGradient(listOf(blueSoftBg, blueSoftBg))
+                                        cardBorderColor = if (isSelected) sky else blueSoftBorder
+                                        titleColor = if (isSelected && !isDark) Color(0xFF0369A1) else blueText
+                                        subColor = if (isSelected && !isDark) sky else blueText.copy(alpha = 0.8f)
+                                        chipBg = if (isSelected && !isDark) Brush.verticalGradient(
+                                            listOf(sky, Color(0xFF0369A1))
+                                        ) else Brush.verticalGradient(listOf(blueChipBg, blueChipBg))
+                                        presetIcon = ActivityIcon
+                                        iconTint = if (isSelected && !isDark) Color.White else sky
+                                        badgeColor = sky
                                     }
                                     TempTargetPresetKind.HYPO -> {
-                                        cardBg = roseSoftBg; presetBorder = roseSoftBorder
-                                        titleColor = roseText; subColor = roseText.copy(alpha = 0.8f)
-                                        chipBg = roseChipBg; presetIcon = HypoIcon; iconTint = Color(0xFFE11D48)
+                                        cardBg = if (isSelected || !isDark) Brush.verticalGradient(
+                                            listOf(Color(0xFFFFF1F2), Color(0xFFFCE7F3))
+                                        ) else Brush.verticalGradient(listOf(roseSoftBg, roseSoftBg))
+                                        cardBorderColor = if (isSelected) Color(0xFFF43F5E) else roseSoftBorder
+                                        titleColor = if (isDark) roseText else Color(0xFF881337)
+                                        subColor = if (isDark) roseText.copy(alpha = 0.8f) else Color(0xFFE11D48)
+                                        chipBg = Brush.verticalGradient(listOf(Color(0xFFFFE4E6), Color(0xFFFECDD3)))
+                                        presetIcon = HypoIcon
+                                        iconTint = if (isDark) roseText else Color(0xFFE11D48)
+                                        badgeColor = Color(0xFFE11D48)
                                     }
                                 }
                                 Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .clip(RoundedCornerShape(16.dp))
-                                        .background(cardBg)
-                                        .border(
-                                            if (isSelected) 2.dp else 1.dp,
-                                            if (isSelected) sky else presetBorder,
-                                            RoundedCornerShape(16.dp)
-                                        )
-                                        .clickable { onPresetSelected(preset.kind) }
-                                        .padding(vertical = 10.dp, horizontal = 4.dp)
+                                    modifier = Modifier.weight(1f)
                                 ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(RoundedCornerShape(16.dp))
+                                            .background(cardBg)
+                                            .border(
+                                                if (isSelected) 2.dp else 1.dp,
+                                                cardBorderColor,
+                                                RoundedCornerShape(16.dp)
+                                            )
+                                            .clickable { onPresetSelected(preset.kind) }
+                                            .padding(vertical = 10.dp, horizontal = 4.dp)
+                                    ) {
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(36.dp)
+                                                    .clip(RoundedCornerShape(10.dp))
+                                                    .background(chipBg),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Icon(
+                                                    imageVector = presetIcon,
+                                                    contentDescription = null,
+                                                    tint = iconTint,
+                                                    modifier = Modifier.size(20.dp)
+                                                )
+                                            }
+                                            Text(
+                                                text = preset.title,
+                                                fontSize = 11.sp,
+                                                fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Bold,
+                                                color = titleColor
+                                            )
+                                            Text(
+                                                text = preset.subtitle,
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Medium,
+                                                color = subColor
+                                            )
+                                        }
+                                    }
                                     if (isSelected) {
                                         Box(
                                             modifier = Modifier
                                                 .align(Alignment.TopEnd)
-                                                .padding(top = 2.dp, end = 6.dp)
+                                                .offset(x = 6.dp, y = (-6).dp)
                                                 .size(16.dp)
                                                 .clip(CircleShape)
-                                                .background(sky),
+                                                .background(badgeColor)
+                                                .border(2.dp, surfaceWhite, CircleShape),
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Icon(
@@ -597,38 +666,6 @@ fun GlassTempTargetDialogScreen(
                                                 modifier = Modifier.size(10.dp)
                                             )
                                         }
-                                    }
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.spacedBy(2.dp),
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(36.dp)
-                                                .clip(RoundedCornerShape(10.dp))
-                                                .background(chipBg),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Icon(
-                                                imageVector = presetIcon,
-                                                contentDescription = null,
-                                                tint = iconTint,
-                                                modifier = Modifier.size(20.dp)
-                                            )
-                                        }
-                                        Text(
-                                            text = preset.title,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = titleColor
-                                        )
-                                        Text(
-                                            text = preset.subtitle,
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Medium,
-                                            color = subColor
-                                        )
                                     }
                                 }
                             }

@@ -1,5 +1,6 @@
 package app.aaps.plugins.main.general.overview.glass
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -115,8 +116,6 @@ fun GlassInsulinDialogScreen(
     val textSecondary = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
     val textMuted = if (isDark) Color(0xFF64748B) else Color(0xFF94A3B8)
     val accentBlue = if (isDark) Color(0xFF60A5FA) else Color(0xFF2563EB)
-    val deliverTop = Color(0xFF34A5E8)
-    val deliverBottom = Color(0xFF1E80CB)
     val borderLight = if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
     val sky = if (isDark) Color(0xFF38BDF8) else Color(0xFF0284C7)
     val skySoftBg = if (isDark) sky.copy(alpha = 0.15f) else Color(0xFFE0F2FE)
@@ -129,8 +128,6 @@ fun GlassInsulinDialogScreen(
     val disabledBtn = if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
     val stripBg = if (isDark) sky.copy(alpha = 0.08f) else Color(0xFFEFF4FF)
     val stripBorder = if (isDark) sky.copy(alpha = 0.25f) else Color(0xFFDCE9FF)
-    val heroTop = if (isDark) Color(0xFF16233D) else Color(0xFFF8FAFF)
-    val heroBottom = if (isDark) sky.copy(alpha = 0.12f) else Color(0xFFE0F2FE).copy(alpha = 0.3f)
 
     var amount by remember { mutableStateOf(0.0) }
     var recordOnly by remember { mutableStateOf(false) }
@@ -166,13 +163,9 @@ fun GlassInsulinDialogScreen(
             if (showPhase) {
                 if (delivered) {
                     PhaseOverlay(
-                        isDark = isDark,
                         surfaceWhite = surfaceWhite,
                         textPrimary = textPrimary,
                         textSecondary = textSecondary,
-                        textMuted = textMuted,
-                        borderLight = borderLight,
-                        accentBlue = accentBlue,
                         closeBg = closeBg,
                         onDismiss = onDismiss
                     ) {
@@ -185,13 +178,9 @@ fun GlassInsulinDialogScreen(
                     }
                 } else if (deliverError != null) {
                     PhaseOverlay(
-                        isDark = isDark,
                         surfaceWhite = surfaceWhite,
                         textPrimary = textPrimary,
                         textSecondary = textSecondary,
-                        textMuted = textMuted,
-                        borderLight = borderLight,
-                        accentBlue = accentBlue,
                         closeBg = closeBg,
                         onDismiss = onDismiss
                     ) {
@@ -208,13 +197,9 @@ fun GlassInsulinDialogScreen(
                     }
                 } else if (delivering) {
                     PhaseOverlay(
-                        isDark = isDark,
                         surfaceWhite = surfaceWhite,
                         textPrimary = textPrimary,
                         textSecondary = textSecondary,
-                        textMuted = textMuted,
-                        borderLight = borderLight,
-                        accentBlue = accentBlue,
                         closeBg = closeBg,
                         onDismiss = onDismiss
                     ) {
@@ -233,13 +218,9 @@ fun GlassInsulinDialogScreen(
                     }
                 } else if (confirming) {
                     PhaseOverlay(
-                        isDark = isDark,
                         surfaceWhite = surfaceWhite,
                         textPrimary = textPrimary,
                         textSecondary = textSecondary,
-                        textMuted = textMuted,
-                        borderLight = borderLight,
-                        accentBlue = accentBlue,
                         closeBg = closeBg,
                         onDismiss = onDismiss
                     ) {
@@ -248,15 +229,7 @@ fun GlassInsulinDialogScreen(
                             textSecondary = textSecondary,
                             textMuted = textMuted,
                             borderLight = borderLight,
-                            accentBlue = accentBlue,
-                            sky = sky,
-                            skySoftBg = skySoftBg,
-                            skySoftBorder = skySoftBorder,
-                            emerald = emerald,
-                            emeraldSoftBg = emeraldSoftBg,
                             amount = amount,
-                            currentBG = currentBG,
-                            projectedBg = projectedBg,
                             bgText = bgText,
                             unitLabel = unitLabel,
                             currentIOB = currentIOB,
@@ -467,150 +440,84 @@ fun GlassInsulinDialogScreen(
                     }
                 }
 
-                // HERO DIAL CARD
-                Box(
+                // COMPACT DOSE CONTROL
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(16.dp))
-                        .background(Brush.verticalGradient(listOf(heroTop, heroBottom)))
-                        .border(1.dp, skySoftBorder, RoundedCornerShape(16.dp))
-                        .padding(8.dp)
+                        .background(surfaceField)
+                        .border(1.dp, borderLight, RoundedCornerShape(16.dp))
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 4.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                "DOSE AMOUNT",
-                                color = textMuted,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.ExtraBold
-                            )
-                            Text(
-                                "U (max: ${String.format(Locale.US, "%.1f", maxInsulin)})",
-                                color = sky,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(surfaceWhite)
-                                .border(1.dp, borderLight.copy(alpha = 0.8f), RoundedCornerShape(14.dp))
-                                .padding(6.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .background(closeBg)
-                                    .clickable {
-                                        amount = max(0.0, (amount - bolusStep) * 100.0 / 100.0)
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    Icons.Default.Remove,
-                                    contentDescription = "Decrease",
-                                    tint = textPrimary,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                            Row(
-                                verticalAlignment = Alignment.Bottom,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Text(
-                                    String.format(Locale.US, "%.1f", amount),
-                                    color = textPrimary,
-                                    fontSize = 30.sp,
-                                    fontWeight = FontWeight.ExtraBold
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .padding(bottom = 4.dp)
-                                        .clip(RoundedCornerShape(4.dp))
-                                        .background(skySoftBg)
-                                        .border(1.dp, skySoftBorder, RoundedCornerShape(4.dp))
-                                        .padding(horizontal = 6.dp, vertical = 2.dp)
-                                ) {
-                                    Text(
-                                        "Units",
-                                        color = sky,
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.ExtraBold
-                                    )
-                                }
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .background(Brush.horizontalGradient(listOf(Color(0xFF34A5E8), Color(0xFF1E80CB))))
-                                    .clickable {
-                                        amount = min(maxInsulin, amount + bolusStep)
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    Icons.Default.Add,
-                                    contentDescription = "Increase",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 4.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text("Safety Limit", color = textMuted, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
-                            Text(
-                                "${String.format(Locale.US, "%.1f", amount)}/${String.format(Locale.US, "%.1f", maxInsulin)} U max",
-                                color = textSecondary,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold
+                    Column {
+                        Text(
+                            text = "BOLUS DOSE",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = textSecondary,
+                            letterSpacing = 0.8.sp
+                        )
+                        Text(
+                            text = "Step: ${if (bolusStep % 1 == 0.0) bolusStep.toInt().toString() else bolusStep} U \u2022 Max: ${String.format(Locale.US, "%.1f", maxInsulin)} U",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = textMuted,
+                            modifier = Modifier.padding(top = 2.dp)
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(surfaceWhite)
+                            .border(1.dp, borderLight, RoundedCornerShape(12.dp))
+                            .padding(4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        TactileStepperButton(isDark = isDark, borderLight = borderLight, onClick = { amount = max(0.0, (amount - bolusStep) * 100.0 / 100.0) }) {
+                            Icon(
+                                imageVector = Icons.Default.Remove,
+                                contentDescription = "Decrease",
+                                tint = textPrimary,
+                                modifier = Modifier.size(14.dp)
                             )
                         }
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 4.dp)
-                                .height(6.dp)
-                                .clip(RoundedCornerShape(3.dp))
-                                .background(borderLight)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth(fraction = dosePercentage.toFloat())
-                                    .height(6.dp)
-                                    .clip(RoundedCornerShape(3.dp))
-                                    .background(Brush.horizontalGradient(listOf(accentBlue, emerald)))
+                        Text(
+                            text = String.format(Locale.US, "%.1f", amount),
+                            color = textPrimary,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 4.dp)
+                        )
+                        Text(
+                            text = "U",
+                            color = textMuted,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        TactileStepperButton(isDark = isDark, borderLight = borderLight, onClick = { amount = min(maxInsulin, amount + bolusStep) }) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Increase",
+                                tint = textPrimary,
+                                modifier = Modifier.size(14.dp)
                             )
                         }
                     }
                 }
 
-                // PRESET PILLS
+                // PRESET KEYS (tactile 3D)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    DosePresetPill(isDark = isDark, label = "+0.3") { amount = min(maxInsulin, amount + 0.3) }
-                    DosePresetPill(isDark = isDark, label = "+0.5") { amount = min(maxInsulin, amount + 0.5) }
-                    DosePresetPill(isDark = isDark, label = "+1.0") { amount = min(maxInsulin, amount + 1.0) }
-                    DosePresetPill(isDark = isDark, label = "+2.0") { amount = min(maxInsulin, amount + 2.0) }
+                    TactileDoseKey(isDark = isDark, main = "+0.3", unit = "U") { amount = min(maxInsulin, amount + 0.3) }
+                    TactileDoseKey(isDark = isDark, main = "+0.5", unit = "U") { amount = min(maxInsulin, amount + 0.5) }
+                    TactileDoseKey(isDark = isDark, main = "+1.0", unit = "U") { amount = min(maxInsulin, amount + 1.0) }
                 }
+
 
                 // OPTIONS
                 Box(
@@ -681,15 +588,11 @@ fun GlassInsulinDialogScreen(
                                     )
                                 }
                             }
-                            Switch(
+                            IosToggle(
                                 checked = eatingSoon,
                                 onCheckedChange = { eatingSoon = it },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = Color.White,
-                                    checkedTrackColor = accentBlue,
-                                    uncheckedThumbColor = Color.White,
-                                    uncheckedTrackColor = switchUnchecked
-                                )
+                                activeColor = sky,
+                                inactiveColor = switchUnchecked
                             )
                         }
 
@@ -736,15 +639,11 @@ fun GlassInsulinDialogScreen(
                                     )
                                 }
                             }
-                            Switch(
+                            IosToggle(
                                 checked = recordOnly,
                                 onCheckedChange = { recordOnly = it },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = Color.White,
-                                    checkedTrackColor = accentBlue,
-                                    uncheckedThumbColor = Color.White,
-                                    uncheckedTrackColor = switchUnchecked
-                                )
+                                activeColor = sky,
+                                inactiveColor = switchUnchecked
                             )
                         }
                     }
@@ -773,8 +672,8 @@ fun GlassInsulinDialogScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = surfaceField,
-                        unfocusedContainerColor = surfaceField,
+                        focusedContainerColor = surfaceWhite,
+                        unfocusedContainerColor = surfaceWhite,
                         focusedTextColor = textPrimary,
                         unfocusedTextColor = textPrimary,
                         focusedBorderColor = sky.copy(alpha = 0.5f),
@@ -793,7 +692,7 @@ fun GlassInsulinDialogScreen(
                             .weight(1f)
                             .height(44.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(closeBg)
+                            .background(tactileKeyBg(isDark))
                             .border(1.dp, borderLight, RoundedCornerShape(12.dp))
                             .clickable { onDismiss() },
                         contentAlignment = Alignment.Center
@@ -811,8 +710,10 @@ fun GlassInsulinDialogScreen(
                             .height(44.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .background(
-                                brush = if (canConfirm) Brush.horizontalGradient(listOf(deliverTop, deliverBottom))
-                                else Brush.horizontalGradient(listOf(disabledBtn, disabledBtn))
+                                brush = if (canConfirm) Brush.verticalGradient(
+                                    listOf(Color(0xFF38BDF8), sky, Color(0xFF0369A1))
+                                )
+                                else Brush.verticalGradient(listOf(disabledBtn, disabledBtn))
                             )
                             .clickable(enabled = canConfirm) {
                                 confirming = true
@@ -823,11 +724,11 @@ fun GlassInsulinDialogScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            if (canConfirm && amount > 0) {
+                            if (amount > 0) {
                                 Icon(
                                     imageVector = BoltIcon,
                                     contentDescription = null,
-                                    tint = Color.White,
+                                    tint = if (canConfirm) Color.White else textMuted,
                                     modifier = Modifier.size(14.dp)
                                 )
                             }
@@ -846,43 +747,13 @@ fun GlassInsulinDialogScreen(
     }
 }
 
-@Composable
-private fun RowScope.DosePresetPill(
-    isDark: Boolean,
-    label: String,
-    onClick: () -> Unit
-) {
-    val sky = if (isDark) Color(0xFF38BDF8) else Color(0xFF0284C7)
-    val bg = if (isDark) sky.copy(alpha = 0.12f) else Color(0xFFE0F2FE).copy(alpha = 0.6f)
-    val border = if (isDark) sky.copy(alpha = 0.35f) else Color(0xFFBAE6FD).copy(alpha = 0.8f)
-    Box(
-        modifier = Modifier
-            .weight(1f)
-            .clip(RoundedCornerShape(10.dp))
-            .background(bg)
-            .border(1.dp, border, RoundedCornerShape(10.dp))
-            .clickable { onClick() }
-            .padding(vertical = 8.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            label,
-            color = sky,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.ExtraBold
-        )
-    }
-}
+
 
 @Composable
 private fun BoxScope.PhaseOverlay(
-    isDark: Boolean,
     surfaceWhite: Color,
     textPrimary: Color,
     textSecondary: Color,
-    textMuted: Color,
-    borderLight: Color,
-    accentBlue: Color,
     closeBg: Color,
     onDismiss: () -> Unit,
     content: @Composable () -> Unit
@@ -936,15 +807,7 @@ private fun ConfirmPhaseContent(
     textSecondary: Color,
     textMuted: Color,
     borderLight: Color,
-    accentBlue: Color,
-    sky: Color,
-    skySoftBg: Color,
-    skySoftBorder: Color,
-    emerald: Color,
-    emeraldSoftBg: Color,
     amount: Double,
-    currentBG: Double,
-    projectedBg: Double,
     bgText: String,
     unitLabel: String,
     currentIOB: Double,
@@ -1233,5 +1096,95 @@ private fun ErrorPhaseContent(
                 Text("Close", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
         }
+    }
+}
+
+
+@Composable
+private fun tactileKeyBg(isDark: Boolean): Brush =
+    if (isDark) Brush.verticalGradient(listOf(Color(0xFF334155), Color(0xFF334155)))
+    else Brush.verticalGradient(listOf(Color.White, Color(0xFFF8FAFC), Color(0xFFF1F5F9)))
+
+@Composable
+private fun TactileStepperButton(
+    isDark: Boolean,
+    borderLight: Color,
+    onClick: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(32.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(tactileKeyBg(isDark))
+            .border(1.dp, borderLight, RoundedCornerShape(8.dp))
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        content()
+    }
+}
+
+@Composable
+private fun RowScope.TactileDoseKey(
+    isDark: Boolean,
+    main: String,
+    unit: String,
+    onClick: () -> Unit
+) {
+    val sky = if (isDark) Color(0xFF38BDF8) else Color(0xFF0284C7)
+    Box(
+        modifier = Modifier
+            .weight(1f)
+            .clip(RoundedCornerShape(10.dp))
+            .background(tactileKeyBg(isDark))
+            .border(1.dp, if (isDark) Color(0xFF334155) else Color(0xFFCBD5E1), RoundedCornerShape(10.dp))
+            .clickable { onClick() }
+            .padding(vertical = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = main,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = if (isDark) Color(0xFFF1F5F9) else Color(0xFF1E293B)
+            )
+            Text(
+                text = " $unit",
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                color = sky
+            )
+        }
+    }
+}
+
+@Composable
+private fun IosToggle(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    activeColor: Color,
+    inactiveColor: Color
+) {
+    val thumbOffset by animateDpAsState(
+        targetValue = if (checked) 20.dp else 2.dp,
+        label = "iosToggle"
+    )
+    Box(
+        modifier = Modifier
+            .size(width = 40.dp, height = 20.dp)
+            .clip(CircleShape)
+            .background(if (checked) activeColor else inactiveColor)
+            .clickable { onCheckedChange(!checked) },
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(start = thumbOffset)
+                .size(16.dp)
+                .clip(CircleShape)
+                .background(Color.White)
+        )
     }
 }

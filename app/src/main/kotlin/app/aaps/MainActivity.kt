@@ -171,6 +171,8 @@ class MainActivity : DaggerAppCompatActivityWithResult() {
                     menu?.close()
                 else if (binding.mainPager.currentItem != 0)
                     binding.mainPager.currentItem = 0
+                else if (supportFragmentManager.backStackEntryCount > 0)
+                    supportFragmentManager.popBackStack()
                 else finish()
             }
         })

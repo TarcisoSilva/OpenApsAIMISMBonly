@@ -106,6 +106,25 @@ class GlassOverviewFragment : DaggerFragment() {
     // Last pump event: re-resolved with the activity locale (app preference) because
     // OverviewPlugin resolves it with the application context (device locale)
     private var lastPumpStatusEvent: EventPumpStatusChanged? = null
+    // Timestamp of the last pump status event (ms). Transient states
+    // (connecting/...) older than STALE_PUMP_STATUS_MS are discarded so a
+    // frozen "connecting Ns" never sticks when the event flow stops.
+    private var lastPumpEventTime = 0L
+
+    private companion object {
+        const val STALE_PUMP_STATUS_MS = 45_000L
+    }
+
+    private fun isStaleTransientPumpStatus(): Boolean {
+        val event = lastPumpStatusEvent ?: return false
+        if (event.status != EventPumpStatusChanged.Status.CONNECTING &&
+            event.status != EventPumpStatusChanged.Status.HANDSHAKING &&
+            event.status != EventPumpStatusChanged.Status.DISCONNECTING &&
+            event.status != EventPumpStatusChanged.Status.WAITING_FOR_DISCONNECTION &&
+            event.status != EventPumpStatusChanged.Status.PERFORMING
+        ) return false
+        return System.currentTimeMillis() - lastPumpEventTime > STALE_PUMP_STATUS_MS
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -309,6 +328,7 @@ class GlassOverviewFragment : DaggerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().supportFragmentManager.addOnBackStackChangedListener(backStackListener)
         // Refresh imediato
         refreshAllData()
         // Re-tentativas atrasadas para capturar os dados assim que o app terminar de
@@ -328,14 +348,34 @@ class GlassOverviewFragment : DaggerFragment() {
 
     override fun onStop() {
         disposables.clear()
+        try {
+            requireActivity().supportFragmentManager.removeOnBackStackChangedListener(backStackListener)
+        } catch (e: Exception) {
+            aapsLogger.error(LTag.UI, "Error removing backstack listener", e)
+        }
         super.onStop()
     }
 
+    private val backStackListener = androidx.fragment.app.FragmentManager.OnBackStackChangedListener {
+        try {
+            if (requireActivity().supportFragmentManager.backStackEntryCount == 0) {
+                val containerId = requireContext().resources.getIdentifier(
+                    "glass_tools_container", "id", requireContext().packageName
+                )
+                if (containerId != 0) {
+                    requireActivity().findViewById<View>(containerId)?.visibility = View.GONE
+                }
+            }
+        } catch (e: Exception) {
+            aapsLogger.error(LTag.UI, "Error hiding tools container", e)
+        }
+    }
+
     private fun setupRxSubscriptions() {
-        // Timer periódico para atualizar timeAgo a cada 30 segundos
+        // Timer periódico para atualizar timeAgo e revalidar a faixa de status a cada 30 segundos
         disposables += io.reactivex.rxjava3.core.Observable.interval(30, TimeUnit.SECONDS)
             .observeOn(aapsSchedulers.main)
-            .subscribe({ refreshLastBg() }, fabricPrivacy::logException)
+            .subscribe({ refreshLastBg(); refreshPumpStatus() }, fabricPrivacy::logException)
 
         disposables += rxBus.toObservable(EventRefreshOverview::class.java)
             .observeOn(aapsSchedulers.main)
@@ -345,6 +385,7 @@ class GlassOverviewFragment : DaggerFragment() {
             .observeOn(aapsSchedulers.main)
             .subscribe({
                 lastPumpStatusEvent = it
+                lastPumpEventTime = System.currentTimeMillis()
                 refreshPumpStatus()
             }, fabricPrivacy::logException)
 
@@ -526,7 +567,7 @@ class GlassOverviewFragment : DaggerFragment() {
         val pump = try { activePlugin.activePump } catch (e: Throwable) { null }
         val reservoirText = if (pump != null && pump.isInitialized()) {
             val res = try { pump.reservoirLevel } catch (e: Throwable) { -1.0 }
-            if (res >= 0.0) "${res}U" else "--"
+            if (res >= 0.0) "${res.toInt()}U" else "--"
         } else "--"
 
         val batteryText = if (pump != null) {
@@ -535,7 +576,13 @@ class GlassOverviewFragment : DaggerFragment() {
         } else "--"
 
         val pumpStatusText = try {
-            lastPumpStatusEvent?.getStatus(requireContext()) ?: overviewData.pumpStatus ?: ""
+            if (isStaleTransientPumpStatus()) {
+                overviewData.pumpStatus = ""
+                lastPumpStatusEvent = null
+                ""
+            } else {
+                lastPumpStatusEvent?.getStatus(requireContext()) ?: overviewData.pumpStatus ?: ""
+            }
         } catch (e: Throwable) { "" }
 
         val basalPercent = try {

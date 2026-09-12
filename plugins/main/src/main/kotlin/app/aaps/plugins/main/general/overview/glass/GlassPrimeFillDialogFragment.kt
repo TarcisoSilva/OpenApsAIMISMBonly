@@ -42,6 +42,7 @@ import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 class GlassPrimeFillDialogFragment : DaggerDialogFragment() {
@@ -84,6 +85,16 @@ class GlassPrimeFillDialogFragment : DaggerDialogFragment() {
             return if (pumpStep > 0) pumpStep else 0.1
         }
 
+    private val maxPrime: Double
+        get() {
+            val maxBolus = try {
+                constraintChecker.getMaxBolusAllowed().value()
+            } catch (e: Exception) {
+                30.0
+            }
+            return minOf(30.0, if (maxBolus > 0) maxBolus else 30.0)
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NO_TITLE, 0)
@@ -108,6 +119,7 @@ class GlassPrimeFillDialogFragment : DaggerDialogFragment() {
                         siteChecked = siteChecked,
                         cartridgeChecked = cartridgeChecked,
                         primeAmountText = formatAmount(primeAmount),
+                        stepMaxLabel = "Step: ${formatAmount(step)} U • Max: ${formatAmount(maxPrime)} U",
                         formattedDate = formatDate(eventTimestamp),
                         formattedTime = formatTime(eventTimestamp),
                         notes = notes,
@@ -118,8 +130,8 @@ class GlassPrimeFillDialogFragment : DaggerDialogFragment() {
                         onSiteToggle = { siteChecked = !siteChecked },
                         onCartridgeToggle = { cartridgeChecked = !cartridgeChecked },
                         onPrimeMinus = { primeAmount = max(0.0, round2(primeAmount - step)) },
-                        onPrimePlus = { primeAmount = round2(primeAmount + step) },
-                        onPrimePreset = { preset -> primeAmount = round2(primeAmount + preset) },
+                        onPrimePlus = { primeAmount = min(maxPrime, round2(primeAmount + step)) },
+                        onPrimePreset = { preset -> primeAmount = min(maxPrime, round2(primeAmount + preset)) },
                         onNotesChange = { notes = it },
                         onDateSet = { year, month, day ->
                             val cal = Calendar.getInstance().apply {

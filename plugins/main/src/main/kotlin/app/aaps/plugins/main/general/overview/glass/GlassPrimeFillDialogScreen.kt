@@ -9,7 +9,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -207,6 +210,7 @@ fun GlassPrimeFillDialogScreen(
     siteChecked: Boolean,
     cartridgeChecked: Boolean,
     primeAmountText: String,
+    stepMaxLabel: String,
     formattedDate: String,
     formattedTime: String,
     notes: String,
@@ -241,14 +245,13 @@ fun GlassPrimeFillDialogScreen(
     val skyCardBg = if (isDark) sky.copy(alpha = 0.12f) else Color(0xFFF0F9FF)
     val skyBadgeBg = if (isDark) sky.copy(alpha = 0.15f) else Color(0xFFE0F4F7)
     val skyBadgeBorder = if (isDark) sky.copy(alpha = 0.4f) else Color(0xFFB2E4EC)
-    val skyPillBg = if (isDark) sky.copy(alpha = 0.15f) else Color(0xFFE0F2FE)
-    val skyPillBorder = if (isDark) sky.copy(alpha = 0.4f) else Color(0xFFBAE6FD)
-    val saveTop = Color(0xFF34A5E8)
-    val saveBottom = Color(0xFF1E80CB)
+    val saveTop = Color(0xFF0284C7)
+    val saveMid = Color(0xFF0EA5E9)
+    val saveBottom = Color(0xFF38BDF8)
     val slateChipBg = if (isDark) Color(0xFF334155) else Color(0xFFF1F5F9)
     val slateChipBorder = if (isDark) Color(0xFF475569) else Color(0xFFE2E8F0)
     val slateIcon = if (isDark) Color(0xFFCBD5E1) else Color(0xFF334155)
-    val checkDark = if (isDark) Color(0xFF38BDF8) else Color(0xFF0F172A)
+    val closeBg = if (isDark) Color(0xFF334155) else Color(0xFFF1F5F9)
     val footerBg = if (isDark) Color(0xFF0F172A) else Color(0xFFF8FAFC)
     val footerBorder = if (isDark) Color(0xFF334155) else Color(0xFFF1F5F9)
     val cardBorder = if (isDark) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.8f)
@@ -316,7 +319,7 @@ fun GlassPrimeFillDialogScreen(
                                     letterSpacing = (-0.2).sp
                                 )
                                 Text(
-                                    text = "Cannula fill, tubing & cartridge",
+                                    text = "Cannula fill, tubing prime & cartridge change",
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = textSecondary
@@ -397,14 +400,14 @@ fun GlassPrimeFillDialogScreen(
                                     Text(
                                         text = "Reset timer",
                                         fontSize = 10.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = textMuted,
+                                        fontWeight = FontWeight.Medium,
+                                        color = if (siteChecked) sky else textMuted,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
                                 }
                             }
-                            GlycoCheckBox(checked = siteChecked, accent = checkDark, uncheckedBorder = uncheckedBoxBorder)
+                            GlycoCheckBox(checked = siteChecked, accent = sky, uncheckedBorder = uncheckedBoxBorder)
                         }
                         // Cartridge
                         Row(
@@ -461,7 +464,7 @@ fun GlassPrimeFillDialogScreen(
                                     )
                                 }
                             }
-                            GlycoCheckBox(checked = cartridgeChecked, accent = checkDark, uncheckedBorder = uncheckedBoxBorder)
+                            GlycoCheckBox(checked = cartridgeChecked, accent = sky, uncheckedBorder = uncheckedBoxBorder)
                         }
                     }
 
@@ -472,14 +475,15 @@ fun GlassPrimeFillDialogScreen(
                             .clip(RoundedCornerShape(12.dp))
                             .background(surfaceField)
                             .border(1.dp, borderLight, RoundedCornerShape(12.dp))
-                            .padding(12.dp)
+                            .padding(12.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
                                 Text(
                                     text = "PRIME DOSE",
                                     fontSize = 11.sp,
@@ -487,138 +491,105 @@ fun GlassPrimeFillDialogScreen(
                                     color = textSecondary,
                                     letterSpacing = 0.8.sp
                                 )
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .background(skyPillBg)
-                                        .border(1.dp, skyPillBorder, RoundedCornerShape(12.dp))
-                                        .padding(horizontal = 8.dp, vertical = 2.dp)
-                                ) {
-                                    Text(
-                                        text = "Insulin Units",
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = sky
-                                    )
-                                }
+                                Text(
+                                    text = stepMaxLabel,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = textMuted,
+                                    modifier = Modifier.padding(top = 2.dp)
+                                )
                             }
                             Row(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(10.dp))
+                                    .clip(RoundedCornerShape(12.dp))
                                     .background(surfaceWhite)
-                                    .border(1.dp, borderLight, RoundedCornerShape(10.dp))
-                                    .padding(4.dp),
+                                    .border(1.dp, borderLight, RoundedCornerShape(12.dp))
+                                    .padding(6.dp),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .clip(RoundedCornerShape(6.dp))
-                                        .background(slateChipBg)
-                                        .clickable { onPrimeMinus() },
-                                    contentAlignment = Alignment.Center
+                                TactileCard(
+                                    modifier = Modifier.size(32.dp),
+                                    shape = RoundedCornerShape(8.dp),
+                                    face = Brush.verticalGradient(listOf(slateChipBg, slateChipBg)),
+                                    border = borderLight,
+                                    edge = if (isDark) Color(0xFF020617) else Color(0xFFCBD5E1),
+                                    edgeHeight = 2.dp,
+                                    onClick = { onPrimeMinus() }
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Remove,
-                                        contentDescription = "Decrease",
-                                        tint = textSecondary,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
-                                Row(
-                                    verticalAlignment = Alignment.Bottom,
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    Text(
-                                        text = primeAmountText,
-                                        fontSize = 20.sp,
-                                        fontWeight = FontWeight.ExtraBold,
-                                        color = textTitle,
-                                        letterSpacing = (-0.5).sp
-                                    )
-                                    Text(
-                                        text = "U",
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = textMuted,
-                                        modifier = Modifier.padding(start = 2.dp, bottom = 2.dp)
-                                    )
-                                }
-                                Box(
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .clip(RoundedCornerShape(6.dp))
-                                        .background(slateChipBg)
-                                        .clickable { onPrimePlus() },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = "Increase",
-                                        tint = textSecondary,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
-                            }
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .clip(RoundedCornerShape(10.dp))
-                                        .background(surfaceWhite)
-                                        .border(1.dp, borderLight, RoundedCornerShape(10.dp))
-                                        .clickable { onPrimePreset(1.0) }
-                                        .padding(vertical = 8.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(
-                                            text = "+ 1.0 U",
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = sky
-                                        )
-                                        Text(
-                                            text = " (Cannula)",
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = textMuted
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Remove,
+                                            contentDescription = "Decrease",
+                                            tint = textSecondary,
+                                            modifier = Modifier.size(14.dp)
                                         )
                                     }
                                 }
                                 Box(
                                     modifier = Modifier
-                                        .weight(1f)
-                                        .clip(RoundedCornerShape(10.dp))
-                                        .background(surfaceWhite)
-                                        .border(1.dp, borderLight, RoundedCornerShape(10.dp))
-                                        .clickable { onPrimePreset(2.0) }
-                                        .padding(vertical = 8.dp),
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(slateChipBg)
+                                        .padding(horizontal = 10.dp, vertical = 4.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Row(
+                                        verticalAlignment = Alignment.Bottom,
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
                                         Text(
-                                            text = "+ 2.0 U",
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = sky
+                                            text = primeAmountText,
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.ExtraBold,
+                                            color = textTitle,
+                                            letterSpacing = (-0.5).sp
                                         )
                                         Text(
-                                            text = " (Tubing)",
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = textMuted
+                                            text = "U",
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = textMuted,
+                                            modifier = Modifier.padding(start = 2.dp, bottom = 2.dp)
+                                        )
+                                    }
+                                }
+                                TactileCard(
+                                    modifier = Modifier.size(32.dp),
+                                    shape = RoundedCornerShape(8.dp),
+                                    face = Brush.verticalGradient(listOf(slateChipBg, slateChipBg)),
+                                    border = borderLight,
+                                    edge = if (isDark) Color(0xFF020617) else Color(0xFFCBD5E1),
+                                    edgeHeight = 2.dp,
+                                    onClick = { onPrimePlus() }
+                                ) {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Add,
+                                            contentDescription = "Increase",
+                                            tint = textSecondary,
+                                            modifier = Modifier.size(14.dp)
                                         )
                                     }
                                 }
                             }
                         }
                     }
+
+                    // PRESET PILLS (tactile)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        TactilePresetPill(isDark = isDark, main = "1.0", unit = "U") { onPrimePreset(1.0) }
+                        TactilePresetPill(isDark = isDark, main = "2.0", unit = "U") { onPrimePreset(2.0) }
+                    }
+
 
                     // NOTES & SITE INFO (single line)
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -653,15 +624,21 @@ fun GlassPrimeFillDialogScreen(
                                         maxLines = 1
                                     )
                                 },
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(46.dp),
                                 singleLine = true,
                                 shape = RoundedCornerShape(12.dp),
+                                textStyle = androidx.compose.ui.text.TextStyle(
+                                    fontSize = 12.sp,
+                                    lineHeight = 16.sp
+                                ),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedContainerColor = surfaceWhite,
                                     unfocusedContainerColor = surfaceWhite,
                                     focusedTextColor = textPrimary,
                                     unfocusedTextColor = textPrimary,
-                                    focusedBorderColor = slateIcon.copy(alpha = 0.5f),
+                                    focusedBorderColor = sky.copy(alpha = 0.6f),
                                     unfocusedBorderColor = borderLight,
                                     cursorColor = blue
                                 )
@@ -706,8 +683,8 @@ fun GlassPrimeFillDialogScreen(
                             Row(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(slateChipBg)
-                                    .border(1.dp, slateChipBorder, RoundedCornerShape(12.dp))
+                                    .background(skyBadgeBg)
+                                    .border(1.dp, skyBadgeBorder, RoundedCornerShape(12.dp))
                                     .clickable { onSetToNow() }
                                     .padding(horizontal = 8.dp, vertical = 2.dp),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -717,13 +694,13 @@ fun GlassPrimeFillDialogScreen(
                                     modifier = Modifier
                                         .size(6.dp)
                                         .clip(CircleShape)
-                                        .background(textSecondary)
+                                        .background(sky)
                                 )
                                 Text(
                                     text = "Set to Now",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = textSecondary
+                                    color = sky
                                 )
                             }
                         }
@@ -844,7 +821,7 @@ fun GlassPrimeFillDialogScreen(
                         modifier = Modifier
                             .weight(1f)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(surfaceWhite)
+                            .background(closeBg)
                             .border(1.dp, borderLight, RoundedCornerShape(12.dp))
                             .clickable { onDismiss() }
                             .padding(vertical = 12.dp),
@@ -865,7 +842,7 @@ fun GlassPrimeFillDialogScreen(
                                 brush = if (isSaved) Brush.verticalGradient(
                                     listOf(Color(0xFF10B981), Color(0xFF059669))
                                 )
-                                else Brush.horizontalGradient(listOf(saveTop, saveBottom))
+                                else Brush.horizontalGradient(listOf(saveTop, saveMid, saveBottom))
                             )
                             .clickable(enabled = !isSaving && !isSaved) { onSave() }
                             .padding(vertical = 12.dp),
@@ -896,12 +873,12 @@ fun GlassPrimeFillDialogScreen(
                                 )
                             }
                         }
+                        }
                     }
                 }
             }
         }
     }
-}
 
 @Composable
 private fun GlycoCheckBox(
@@ -911,13 +888,13 @@ private fun GlycoCheckBox(
 ) {
     Box(
         modifier = Modifier
-            .size(16.dp)
-            .clip(RoundedCornerShape(5.dp))
+            .size(20.dp)
+            .clip(RoundedCornerShape(8.dp))
             .background(if (checked) accent else Color.Transparent)
             .border(
-                1.dp,
+                2.dp,
                 if (checked) accent else uncheckedBorder,
-                RoundedCornerShape(5.dp)
+                RoundedCornerShape(8.dp)
             ),
         contentAlignment = Alignment.Center
     ) {
@@ -926,8 +903,56 @@ private fun GlycoCheckBox(
                 imageVector = Icons.Default.Check,
                 contentDescription = null,
                 tint = Color.White,
-                modifier = Modifier.size(11.dp)
+                modifier = Modifier.size(12.dp)
             )
         }
+    }
+}
+
+
+@Composable
+private fun RowScope.TactilePresetPill(
+    isDark: Boolean,
+    main: String,
+    unit: String,
+    onClick: () -> Unit
+) {
+    val bg: Brush = if (isDark) {
+        Brush.verticalGradient(listOf(Color(0xFF1E293B), Color(0xFF1E293B)))
+    } else {
+        Brush.verticalGradient(listOf(Color.White, Color(0xFFF1F5F9)))
+    }
+    val borderColor = if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
+    val mainColor = if (isDark) Color(0xFFF1F5F9) else Color(0xFF1E293B)
+    val unitColor = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
+    TactileCard(
+        modifier = Modifier.weight(1f),
+        shape = RoundedCornerShape(12.dp),
+        face = bg,
+        border = borderColor,
+        edge = if (isDark) Color(0xFF020617) else Color(0xFFCBD5E1),
+        onClick = onClick
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp),
+            contentAlignment = Alignment.Center
+        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = main,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = mainColor
+            )
+            Text(
+                text = " $unit",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = unitColor
+            )
+        }
+    }
     }
 }

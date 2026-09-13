@@ -23,6 +23,8 @@ import app.aaps.core.interfaces.profile.DefaultValueHelper
 import app.aaps.core.interfaces.profile.ProfileFunction
 import app.aaps.core.interfaces.profile.ProfileUtil
 import app.aaps.core.interfaces.protection.ProtectionCheck
+import app.aaps.core.interfaces.rx.bus.RxBus
+import app.aaps.core.interfaces.rx.events.EventTempTargetChange
 import app.aaps.core.interfaces.sharedPreferences.SP
 import app.aaps.core.interfaces.utils.DateUtil
 import app.aaps.database.ValueWrapper
@@ -47,6 +49,7 @@ import kotlin.math.min
 class GlassTempTargetDialogFragment : DaggerDialogFragment() {
 
     @Inject lateinit var repository: AppRepository
+    @Inject lateinit var rxBus: RxBus
     @Inject lateinit var uel: UserEntryLogger
     @Inject lateinit var aapsLogger: AAPSLogger
     @Inject lateinit var profileFunction: ProfileFunction
@@ -121,11 +124,7 @@ class GlassTempTargetDialogFragment : DaggerDialogFragment() {
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                val isDark = try {
-                    sp.getString(app.aaps.core.utils.R.string.key_use_dark_mode, "dark") == "dark"
-                } catch (e: Exception) {
-                    true
-                }
+                val isDark = resolveIsDarkMode(sp)
                 GlassOverviewTheme(isDarkMode = isDark) {
                     GlassTempTargetDialogScreen(
                         isDark = isDark,
@@ -358,6 +357,15 @@ class GlassTempTargetDialogFragment : DaggerDialogFragment() {
                                     aapsLogger.error(LTag.UI, "Error in temp target onSaved callback", e)
                                 }
                             }, 900)
+                            // Retry: ensure NS sync picks up the cancel even if doUpload() was running
+                            mainHandler.postDelayed({
+                                try {
+                                    rxBus.send(EventTempTargetChange())
+                                    aapsLogger.debug(LTag.NSCLIENT, "Retry: EventTempTargetChange sent after TT cancel")
+                                } catch (e: Exception) {
+                                    aapsLogger.error(LTag.NSCLIENT, "Error sending retry EventTempTargetChange", e)
+                                }
+                            }, 3000)
                         }
                     },
                     { e ->

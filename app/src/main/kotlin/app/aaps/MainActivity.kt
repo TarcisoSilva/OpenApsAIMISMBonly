@@ -350,7 +350,17 @@ class MainActivity : DaggerAppCompatActivityWithResult() {
     private fun applyStatusBarTheme() {
         // Lê o tema do SP e aplica cor da status bar correspondente
         val isDark = try {
-            sp.getString(app.aaps.core.utils.R.string.key_use_dark_mode, "dark") == "dark"
+            val mode = sp.getString(app.aaps.core.utils.R.string.key_use_dark_mode, "dark")
+            when (mode) {
+                "dark" -> true
+                "light" -> false
+                "system" -> {
+                    val nightModeFlags = resources.configuration.uiMode and
+                        android.content.res.Configuration.UI_MODE_NIGHT_MASK
+                    nightModeFlags == android.content.res.Configuration.UI_MODE_NIGHT_YES
+                }
+                else -> true
+            }
         } catch (e: Exception) {
             true
         }

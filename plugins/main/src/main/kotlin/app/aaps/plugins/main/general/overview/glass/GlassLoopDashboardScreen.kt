@@ -63,26 +63,6 @@ fun GlassLoopDashboardScreen(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // TOP BAR
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("OpenapsAIMI", color = textMuted, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp)
-                val autoModeColor = if (uiState.autoMode) emerald else amber
-                val autoModeText = if (uiState.autoMode) "Auto Mode: ON" else "Auto Mode: OFF"
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(9999.dp))
-                        .background(autoModeColor.copy(alpha = 0.12f))
-                        .border(1.dp, autoModeColor.copy(alpha = 0.3f), RoundedCornerShape(9999.dp))
-                        .padding(horizontal = 8.dp, vertical = 3.dp)
-                ) {
-                    Text(autoModeText, color = autoModeColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                }
-            }
-
             // HEADER CARD
             GlassCardInner(isDarkMode, cardBgStart, cardBgEnd, borderCard) {
                 Row(
@@ -117,30 +97,46 @@ fun GlassLoopDashboardScreen(
                 }
             }
 
-            // CARD 1: GLUCOSE & INSULIN DYNAMICS
+            // CARD 1: GLUCOSE & DYNAMIC FACTORS
             SectionCard(
                 isDarkMode, cardBgStart, cardBgEnd, borderCard,
                 icon = { Icon(Icons.Default.Bolt, null, tint = skyBlue, modifier = Modifier.size(16.dp)) },
                 iconBg = iconBgBlue,
-                title = "Glucose & Insulin Dynamics"
+                title = "Glucose & Dynamic Factors",
+                badge = {
+                    val autoModeColor = if (uiState.autoMode) emerald else amber
+                    val autoModeText = if (uiState.autoMode) "Auto Mode: ON" else "Auto Mode: OFF"
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(9999.dp))
+                            .background(autoModeColor.copy(alpha = 0.12f))
+                            .border(1.dp, autoModeColor.copy(alpha = 0.3f), RoundedCornerShape(9999.dp))
+                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                    ) {
+                        Text(autoModeText, color = autoModeColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        MetricCell(
-                            isDarkMode, cellBg, cellBorder, Modifier.weight(1f),
-                            label = "GLUCOSE",
-                            value = String.format("%.0f", uiState.glucose),
-                            unit = "mg/dL",
-                            subContent = {
-                                val deltaColor = if (uiState.delta5m >= 0) emerald else Color(0xFFEF4444)
-                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                                    Text("${String.format("%.2f", uiState.delta5m)}", color = deltaColor, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
-                                    Text("5m delta", color = textMuted, fontSize = 9.sp)
+                    Row(modifier = Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        GlassCardInner(isDarkMode, cellBg, cellBg, cellBorder, Modifier.weight(1f).fillMaxHeight()) {
+                            Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                Text("GLUCOSE", color = textMuted, fontSize = 9.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp)
+                                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                                        Text(String.format("%.0f", uiState.glucose), color = if (isDarkMode) Color(0xFFF8FAFC) else Color(0xFF0F172A), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                        Text("mg/dL", color = textMuted, fontSize = 9.sp, fontWeight = FontWeight.Medium)
+                                    }
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        val deltaColor = if (uiState.delta5m >= 0) emerald else Color(0xFFEF4444)
+                                        Text(String.format("%.2f", uiState.delta5m), color = deltaColor, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                        Text("5m delta", color = textMuted, fontSize = 9.sp)
+                                    }
                                 }
                             }
-                        )
+                        }
                         MetricCell(
-                            isDarkMode, cellBg, cellBorder, Modifier.weight(1f),
+                            isDarkMode, cellBg, cellBorder, Modifier.weight(1f).fillMaxHeight(),
                             label = "DELTA (SHORT / LONG)",
                             value = "${String.format("%.2f", uiState.shortAvgDelta)} / ${String.format("%.2f", uiState.longAvgDelta)}",
                             unit = "",
@@ -151,7 +147,7 @@ fun GlassLoopDashboardScreen(
                             },
                             valueFontSize = 13.sp,
                             subContent = {
-                                Text("5m / 15m avg", color = textMuted, fontSize = 9.sp)
+                                Text("15m / 40m avg", color = textMuted, fontSize = 9.sp)
                             }
                         )
                     }

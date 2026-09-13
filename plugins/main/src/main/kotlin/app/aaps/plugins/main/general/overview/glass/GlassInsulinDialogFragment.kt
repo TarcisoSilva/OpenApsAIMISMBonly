@@ -99,9 +99,7 @@ class GlassInsulinDialogFragment : DaggerDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val isDark = try {
-            sp.getString(app.aaps.core.utils.R.string.key_use_dark_mode, "dark") == "dark"
-        } catch (e: Exception) { true }
+        val isDark = resolveIsDarkMode(sp)
 
         val maxInsulin = constraintChecker.getMaxBolusAllowed().value()
         val bolusStep = activePlugin.activePump.pumpDescription.bolusStep

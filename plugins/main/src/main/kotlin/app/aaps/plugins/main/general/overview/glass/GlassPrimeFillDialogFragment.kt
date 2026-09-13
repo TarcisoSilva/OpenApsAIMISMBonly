@@ -108,11 +108,7 @@ class GlassPrimeFillDialogFragment : DaggerDialogFragment() {
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                val isDark = try {
-                    sp.getString(app.aaps.core.utils.R.string.key_use_dark_mode, "dark") == "dark"
-                } catch (e: Exception) {
-                    true
-                }
+                val isDark = resolveIsDarkMode(sp)
                 GlassOverviewTheme(isDarkMode = isDark) {
                     GlassPrimeFillDialogScreen(
                         isDark = isDark,

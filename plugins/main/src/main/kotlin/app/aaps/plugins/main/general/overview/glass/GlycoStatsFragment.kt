@@ -34,9 +34,7 @@ class GlycoStatsFragment : DaggerFragment() {
         viewModel.loadData(tddCalculator, tirCalculator, dateUtil)
 
         // Lê o tema do SP
-        val isDark = try {
-            sp.getString(app.aaps.core.utils.R.string.key_use_dark_mode, "dark") == "dark"
-        } catch (e: Exception) { true }
+        val isDark = resolveIsDarkMode(sp)
 
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)

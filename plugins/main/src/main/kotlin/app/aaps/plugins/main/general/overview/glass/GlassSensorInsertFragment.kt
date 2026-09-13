@@ -34,9 +34,7 @@ class GlassSensorInsertFragment : DaggerFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val isDark = try {
-            sp.getString(app.aaps.core.utils.R.string.key_use_dark_mode, "dark") == "dark"
-        } catch (e: Exception) { true }
+        val isDark = resolveIsDarkMode(sp)
 
         viewModel.init(repository, dateUtil, uel, aapsLogger, profileFunction, isDark)
 

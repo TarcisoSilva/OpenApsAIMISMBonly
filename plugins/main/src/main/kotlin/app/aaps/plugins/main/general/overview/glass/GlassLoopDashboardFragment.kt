@@ -15,10 +15,10 @@ import app.aaps.core.interfaces.logging.AAPSLogger
 import app.aaps.core.interfaces.plugin.ActivePlugin
 import app.aaps.core.interfaces.rx.bus.RxBus
 import app.aaps.core.interfaces.sharedPreferences.SP
-import app.aaps.core.interfaces.stats.TddCalculator
 import app.aaps.core.interfaces.utils.DateUtil
-import app.aaps.core.main.events.EventIobCalculationProgress
 import app.aaps.core.interfaces.rx.events.EventRefreshOverview
+import app.aaps.core.interfaces.rx.events.EventBucketedDataCreated
+import app.aaps.core.interfaces.rx.events.EventLoopUpdateGui
 import dagger.android.support.DaggerFragment
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -32,7 +32,6 @@ class GlassLoopDashboardFragment : DaggerFragment() {
     @Inject lateinit var aapsLogger: AAPSLogger
     @Inject lateinit var iobCobCalculator: IobCobCalculator
     @Inject lateinit var glucoseStatusProvider: GlucoseStatusProvider
-    @Inject lateinit var tddCalculator: TddCalculator
     @Inject lateinit var rxBus: RxBus
 
     private val viewModel: GlassLoopDashboardViewModel by viewModels()
@@ -43,11 +42,9 @@ class GlassLoopDashboardFragment : DaggerFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val isDark = try {
-            sp.getString(app.aaps.core.utils.R.string.key_use_dark_mode, "dark") == "dark"
-        } catch (e: Exception) { true }
+        val isDark = resolveIsDarkMode(sp)
 
-        viewModel.init(activePlugin, dateUtil, sp, aapsLogger, iobCobCalculator, glucoseStatusProvider, tddCalculator, isDark)
+        viewModel.init(activePlugin, dateUtil, sp, aapsLogger, iobCobCalculator, glucoseStatusProvider, isDark)
         viewModel.refreshData()
 
         return ComposeView(requireContext()).apply {
@@ -69,15 +66,20 @@ class GlassLoopDashboardFragment : DaggerFragment() {
 
     override fun onStart() {
         super.onStart()
-        // Auto-refresh when loop completes
+        // Auto-refresh when loop completes (updates HTML data: TDD, ISF, MaxIOB, etc.)
+        disposables += rxBus.toObservable(EventLoopUpdateGui::class.java)
+            .observeOn(io.reactivex.rxjava3.android.schedulers.AndroidSchedulers.mainThread())
+            .subscribe({ viewModel.refreshData() }, { e -> aapsLogger.error("GlassLoopDashboard: Error on EventLoopUpdateGui", e) })
+
+        // Auto-refresh when loop completes (alternative event)
         disposables += rxBus.toObservable(EventRefreshOverview::class.java)
             .observeOn(io.reactivex.rxjava3.android.schedulers.AndroidSchedulers.mainThread())
             .subscribe({ viewModel.refreshData() }, { e -> aapsLogger.error("GlassLoopDashboard: Error on EventRefreshOverview", e) })
 
-        // Also refresh on IOB calculation progress (fires during loop cycle)
-        disposables += rxBus.toObservable(EventIobCalculationProgress::class.java)
+        // Auto-refresh on new BG reading (updates BG, delta, IOB from real-time providers)
+        disposables += rxBus.toObservable(EventBucketedDataCreated::class.java)
             .observeOn(io.reactivex.rxjava3.android.schedulers.AndroidSchedulers.mainThread())
-            .subscribe({ viewModel.refreshData() }, { e -> aapsLogger.error("GlassLoopDashboard: Error on EventIobCalculationProgress", e) })
+            .subscribe({ viewModel.refreshData() }, { e -> aapsLogger.error("GlassLoopDashboard: Error on EventBucketedDataCreated", e) })
     }
 
     override fun onStop() {

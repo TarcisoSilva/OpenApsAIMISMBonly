@@ -132,9 +132,7 @@ class GlassOverviewFragment : DaggerFragment() {
         savedInstanceState: Bundle?
     ): View {
         // Inicializa o tema do ViewModel baseado no SP (mesma chave das Preferências)
-        val isDarkFromSP = try {
-            sp.getString(app.aaps.core.utils.R.string.key_use_dark_mode, "dark") == "dark"
-        } catch (e: Exception) { true }
+        val isDarkFromSP = resolveIsDarkMode(sp)
         viewModel.initTheme(isDarkFromSP)
 
         return ComposeView(requireContext()).apply {
@@ -148,13 +146,23 @@ class GlassOverviewFragment : DaggerFragment() {
                     GlassOverviewScreen(
                         state = uiState,
                         onToggleTheme = {
-                            viewModel.toggleTheme()
-                            val newIsDark = viewModel.uiState.value.isDarkMode
-                            // Salva no SP para manter consistência com a tela de Preferências
-                            sp.putString(app.aaps.core.utils.R.string.key_use_dark_mode, if (newIsDark) "dark" else "light")
-                            AppCompatDelegate.setDefaultNightMode(
-                                if (newIsDark) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
-                            )
+                            // Cicla: dark -> light -> system -> dark
+                            val currentMode = try {
+                                sp.getString(app.aaps.core.utils.R.string.key_use_dark_mode, "dark")
+                            } catch (e: Exception) { "dark" }
+                            val newMode = when (currentMode) {
+                                "dark"   -> "light"
+                                "light"  -> "system"
+                                else     -> "dark"
+                            }
+                            sp.putString(app.aaps.core.utils.R.string.key_use_dark_mode, newMode)
+                            viewModel.initTheme(resolveIsDarkMode(sp))
+                            val nightMode = when (newMode) {
+                                "dark"   -> AppCompatDelegate.MODE_NIGHT_YES
+                                "light"  -> AppCompatDelegate.MODE_NIGHT_NO
+                                else     -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                            }
+                            AppCompatDelegate.setDefaultNightMode(nightMode)
                         },
                         onSelectRangeHours = { hours ->
                             selectedRangeHours = hours

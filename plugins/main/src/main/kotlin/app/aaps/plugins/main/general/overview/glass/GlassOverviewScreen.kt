@@ -212,10 +212,14 @@ fun StatusAgoraCard(
                                 in 11..25  -> app.aaps.core.main.R.drawable.ic_reservoir_25
                                 else       -> app.aaps.core.main.R.drawable.ic_reservoir_10
                             }
+                            val reservoirTint = when (state.reservoirLevelPercent) {
+                                in 26..100 -> if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
+                                else       -> Color.Unspecified  // 25% and 10% have their own colors
+                            }
                             Icon(
                                 painter = painterResource(id = reservoirIconRes),
                                 contentDescription = null,
-                                tint = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B),
+                                tint = reservoirTint,
                                 modifier = Modifier.size(14.dp)
                             )
                         }

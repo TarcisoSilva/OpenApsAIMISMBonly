@@ -1413,7 +1413,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         val pump = activePlugin.activePump
         val reservoirLevel = pump.reservoirLevel
         val lastConnection = (pump.lastDataTime())/ 1000 / 60
-        val levelPercentage = ((reservoirLevel/315) * 100).toInt()
+        val levelPercentage = ((reservoirLevel/300) * 100).toInt()
 
 
         //binding.infoLayout.reservoir_icon.setImageResource(iconRes)

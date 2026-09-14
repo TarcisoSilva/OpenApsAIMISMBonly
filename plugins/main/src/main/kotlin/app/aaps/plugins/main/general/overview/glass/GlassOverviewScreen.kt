@@ -205,8 +205,15 @@ fun StatusAgoraCard(
                         valueColor = Color(state.insulinAgeColor),
                         modifier = Modifier.width(108.dp).clickable { onOpenPump() },
                         leadingIcon = {
+                            val reservoirIconRes = when (state.reservoirLevelPercent) {
+                                in 76..100 -> app.aaps.core.main.R.drawable.ic_reservoir_100
+                                in 51..75  -> app.aaps.core.main.R.drawable.ic_reservoir_75
+                                in 26..50  -> app.aaps.core.main.R.drawable.ic_reservoir_50
+                                in 11..25  -> app.aaps.core.main.R.drawable.ic_reservoir_25
+                                else       -> app.aaps.core.main.R.drawable.ic_reservoir_10
+                            }
                             Icon(
-                                painter = painterResource(id = app.aaps.plugins.main.R.drawable.ic_glyco_insulin),
+                                painter = painterResource(id = reservoirIconRes),
                                 contentDescription = null,
                                 tint = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B),
                                 modifier = Modifier.size(14.dp)

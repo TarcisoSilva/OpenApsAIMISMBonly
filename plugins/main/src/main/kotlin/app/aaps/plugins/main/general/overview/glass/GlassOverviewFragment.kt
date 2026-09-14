@@ -577,6 +577,10 @@ class GlassOverviewFragment : DaggerFragment() {
             val res = try { pump.reservoirLevel } catch (e: Throwable) { -1.0 }
             if (res >= 0.0) "${res.toInt()}U" else "--"
         } else "--"
+        val reservoirLevelPercent = if (pump != null && pump.isInitialized()) {
+            val res = try { pump.reservoirLevel } catch (e: Throwable) { -1.0 }
+            if (res >= 0.0) ((res / 300) * 100).toInt().coerceIn(0, 100) else 100
+        } else 100
 
         val batteryText = if (pump != null) {
             val bat = try { pump.batteryLevel } catch (e: Throwable) { -1 }
@@ -604,6 +608,7 @@ class GlassOverviewFragment : DaggerFragment() {
             iob = totalIob,
             cob = cob,
             reservoir = reservoirText,
+            reservoirLevelPercent = reservoirLevelPercent,
             battery = batteryText,
             sensorLife = pumpStatusText,
             isLoopActive = isClosed,

@@ -52,6 +52,8 @@ enum class PumpType {
         baseBasalStep = 0.01,
         baseBasalSpecialSteps = DoseStepSize.ComboBasal,
         pumpCapability = PumpCapability.ComboCapabilities,
+        isPatchPump = false,
+        maxReservoirReading = 300,
         source = Source.Combo,
         supportBatteryLevel = false
     ),

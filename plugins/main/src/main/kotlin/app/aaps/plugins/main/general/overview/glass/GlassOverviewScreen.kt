@@ -199,7 +199,7 @@ fun StatusAgoraCard(
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     GlassPill(
-                        label = "Pump / Insulin",
+                        label = "Insulin",
                         value = if (state.reservoirLevelPercent >= 10) {
                             "${state.reservoirLevelPercent}% - ${state.insulinAge}"
                         } else {

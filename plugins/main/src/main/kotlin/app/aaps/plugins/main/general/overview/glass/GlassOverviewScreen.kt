@@ -200,7 +200,11 @@ fun StatusAgoraCard(
                 ) {
                     GlassPill(
                         label = "Pump / Insulin",
-                        value = "${state.sensorReservoir} - ${state.insulinAge}",
+                        value = if (state.reservoirLevelPercent >= 10) {
+                            "${state.reservoirLevelPercent}% - ${state.insulinAge}"
+                        } else {
+                            "${state.sensorReservoir} - ${state.insulinAge}"
+                        },
                         isDark = isDark,
                         valueColor = Color(state.insulinAgeColor),
                         modifier = Modifier.width(108.dp).clickable { onOpenPump() },

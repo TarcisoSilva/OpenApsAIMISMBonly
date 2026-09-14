@@ -206,7 +206,7 @@ fun StatusAgoraCard(
                             "${state.sensorReservoir} - ${state.insulinAge}"
                         },
                         isDark = isDark,
-                        valueColor = if (isDark) Color(0xFFCBD5E1) else Color(0xFF475569),
+                        valueColor = Color(state.reservoirColor),
                         modifier = Modifier.width(96.dp).clickable { onOpenPump() },
                         leadingIcon = {
                             val reservoirIconRes = when (state.reservoirLevelPercent) {
@@ -232,7 +232,7 @@ fun StatusAgoraCard(
                         label = "Cannula",
                         value = state.cannulaAge,
                         isDark = isDark,
-                        valueColor = if (isDark) Color(0xFFCBD5E1) else Color(0xFF475569),
+                        valueColor = Color(state.cannulaAgeColor),
                         modifier = Modifier.width(96.dp).clickable { onOpenCannula() },
                         leadingIcon = {
                             Icon(
@@ -247,7 +247,7 @@ fun StatusAgoraCard(
                         label = "Battery",
                         value = state.batteryAge,
                         isDark = isDark,
-                        valueColor = if (isDark) Color(0xFFCBD5E1) else Color(0xFF475569),
+                        valueColor = Color(state.batteryAgeColor),
                         modifier = Modifier.width(96.dp).clickable { onOpenBattery() },
                         leadingIcon = {
                             Icon(
@@ -340,7 +340,7 @@ fun StatusAgoraCard(
                         label = "Sensor",
                         value = state.sensorAge,
                         isDark = isDark,
-                        valueColor = if (isDark) Color(0xFFCBD5E1) else Color(0xFF475569),
+                        valueColor = Color(state.sensorAgeColor),
                         modifier = Modifier.width(96.dp).clickable { onOpenSensorInsert() },
                         leadingIcon = {
                             Icon(

@@ -582,11 +582,37 @@ class GlassOverviewFragment : DaggerFragment() {
             val maxRes = pump.pumpDescription.maxResorvoirReading
             if (res >= 0.0 && maxRes > 0) ((res / maxRes) * 100).toInt().coerceIn(0, 100) else 100
         } else 100
+        // Reservoir color based on status lights preference
+        val reservoirColor = if (pump != null && pump.isInitialized()) {
+            val res = try { pump.reservoirLevel } catch (e: Throwable) { -1.0 }
+            if (res >= 0.0) {
+                val resCritical = sp.getDouble(app.aaps.plugins.main.R.string.key_statuslights_res_critical, 10.0)
+                val resWarn = sp.getDouble(app.aaps.plugins.main.R.string.key_statuslights_res_warning, 80.0)
+                when {
+                    res <= resCritical -> 0xFFEF4444.toInt() // red
+                    res <= resWarn     -> 0xFFF59E0B.toInt() // yellow
+                    else               -> 0xFF94A3B8.toInt() // normal
+                }
+            } else 0xFF94A3B8.toInt()
+        } else 0xFF94A3B8.toInt()
 
         val batteryText = if (pump != null) {
             val bat = try { pump.batteryLevel } catch (e: Throwable) { -1 }
             if (bat in 0..100) "${bat}%" else "--"
         } else "--"
+        // Battery level color based on status lights preference
+        val batteryLevelColor = if (pump != null) {
+            val bat = try { pump.batteryLevel } catch (e: Throwable) { -1 }
+            if (bat in 0..100) {
+                val batCritical = sp.getDouble(app.aaps.plugins.main.R.string.key_statuslights_bat_critical, 26.0)
+                val batWarn = sp.getDouble(app.aaps.plugins.main.R.string.key_statuslights_bat_warning, 51.0)
+                when {
+                    bat <= batCritical -> 0xFFEF4444.toInt() // red
+                    bat <= batWarn     -> 0xFFF59E0B.toInt() // yellow
+                    else               -> 0xFF94A3B8.toInt() // normal
+                }
+            } else 0xFF94A3B8.toInt()
+        } else 0xFF94A3B8.toInt()
 
         val pumpStatusText = try {
             if (isStaleTransientPumpStatus()) {
@@ -610,7 +636,9 @@ class GlassOverviewFragment : DaggerFragment() {
             cob = cob,
             reservoir = reservoirText,
             reservoirLevelPercent = reservoirLevelPercent,
+            reservoirColor = reservoirColor,
             battery = batteryText,
+            batteryColor = batteryLevelColor,
             sensorLife = pumpStatusText,
             isLoopActive = isClosed,
             loopStatusText = loopStatusText

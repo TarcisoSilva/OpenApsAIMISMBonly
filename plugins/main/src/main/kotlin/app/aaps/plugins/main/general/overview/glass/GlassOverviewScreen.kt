@@ -201,9 +201,9 @@ fun StatusAgoraCard(
                     GlassPill(
                         label = "Insulin",
                         value = if (state.reservoirLevelPercent >= 10) {
-                            "${state.reservoirLevelPercent}% - ${state.insulinAge}"
+                            "${state.reservoirLevelPercent}% ${state.insulinAge}"
                         } else {
-                            "${state.sensorReservoir} - ${state.insulinAge}"
+                            "${state.sensorReservoir} ${state.insulinAge}"
                         },
                         isDark = isDark,
                         valueColor = Color(state.reservoirColor),

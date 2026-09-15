@@ -807,6 +807,25 @@ import app.aaps.plugins.aps.openAPSAIMI.smb.SmbDampingUsecase
                 } else if (isNight) {
                     aapsLogger.debug(LTag.APS, "BRAKE Adapt: isNight=$isNight → freio integral mantido (hyperSeverity ignorado)")
                 }
+
+                // ═══════════════════════════════════════════════════════════════════
+                // Hyper Bypass (Tarciso, Set/2026)
+                // ═══════════════════════════════════════════════════════════════════
+                // Freio não zera completamente quando BG > 180, delta > 0 e IOB > 4.5.
+                // Neste cenário, a hiper está ativa e o freio estava bloqueando
+                // por causa do IOB alto (não por stacking real). O bypass permite
+                // mínimo de 40% do SMB. maxLimits ainda limita o SMB final.
+                // ═══════════════════════════════════════════════════════════════════
+                if (bg > 180.0 && delta > 0.0 && iob > 4.5) {
+                    val hyperBypass = 0.4
+                    if (brakeFactor < hyperBypass) {
+                        aapsLogger.debug(LTag.APS,
+                            "Hyper Bypass: bg=$bg delta=$delta iob=$iob " +
+                            "brake=${"%.2f".format(brakeFactor)} → $hyperBypass " +
+                            "(SMB permitido durante hiper)")
+                        brakeFactor = hyperBypass
+                    }
+                }
                 val reducedSmb = (smbToGive * brakeFactor).toFloat()
                 aapsLogger.debug(LTag.APS,
                     "SMB Cumulative Brake: ${"%.1f".format(totalSMB)}U in ${lookbackHours}h " +

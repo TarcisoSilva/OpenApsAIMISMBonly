@@ -751,6 +751,15 @@ class GlassOverviewFragment : DaggerFragment() {
     }
 
     private fun refreshTargetOnly(): Int {
+        // Try to get the computed target from APS result first (includes low alarm protection overrides)
+        val apsTarget = try {
+            val result = activePlugin.activeAPS.lastAPSResult
+            if (result != null && result.targetBG > 0) result.targetBG.toInt() else null
+        } catch (_: Exception) { null }
+
+        if (apsTarget != null && apsTarget > 0) return apsTarget
+
+        // Fallback to profile target
         val target = try {
             val profile = profileFunction.getProfile()
             if (profile != null) {
